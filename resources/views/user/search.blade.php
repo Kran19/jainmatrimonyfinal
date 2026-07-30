@@ -283,36 +283,49 @@
             alert('Biodata is not loaded yet.');
             return;
         }
-        element.style.position = 'fixed';
-        element.style.left = '-9999px';
-        element.style.top = '0';
-        element.style.display = 'block';
+
+        const cloneContainer = document.createElement('div');
+        cloneContainer.style.position = 'fixed';
+        cloneContainer.style.top = '0';
+        cloneContainer.style.left = '0';
+        cloneContainer.style.zIndex = '-99999';
+        cloneContainer.style.width = '720px';
+        cloneContainer.style.background = '#ffffff';
+        cloneContainer.style.opacity = '1';
+
+        const clone = element.cloneNode(true);
+        clone.style.display = 'block';
+        cloneContainer.appendChild(clone);
+        document.body.appendChild(cloneContainer);
 
         const opt = {
           margin: [5, 5, 5, 5],
           filename: 'Profile_Biodata.pdf',
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
+          html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true, scrollX: 0, scrollY: 0 },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         setTimeout(function() {
             if (typeof html2pdf !== 'undefined') {
-                html2pdf().set(opt).from(element).save().then(function() {
-                    element.style.display = 'none';
-                    element.style.position = 'static';
+                html2pdf().set(opt).from(clone).save().then(function() {
+                    if (cloneContainer.parentNode) {
+                        cloneContainer.parentNode.removeChild(cloneContainer);
+                    }
                 }).catch(function(err) {
                     console.error('Modal PDF Download error:', err);
-                    element.style.display = 'none';
-                    element.style.position = 'static';
+                    if (cloneContainer.parentNode) {
+                        cloneContainer.parentNode.removeChild(cloneContainer);
+                    }
                     window.print();
                 });
             } else {
-                element.style.display = 'none';
-                element.style.position = 'static';
+                if (cloneContainer.parentNode) {
+                    cloneContainer.parentNode.removeChild(cloneContainer);
+                }
                 window.print();
             }
-        }, 150);
+        }, 200);
     }
 
     // Escape key modal closer

@@ -433,10 +433,20 @@ function downloadPDF() {
     const element = document.getElementById('pdf-content');
     if (!element) return;
 
-    element.style.position = 'fixed';
-    element.style.left = '-9999px';
-    element.style.top = '0';
-    element.style.display = 'block';
+    // Create temporary clone container at (0,0) behind page layers to avoid capturing blank offset
+    const cloneContainer = document.createElement('div');
+    cloneContainer.style.position = 'fixed';
+    cloneContainer.style.top = '0';
+    cloneContainer.style.left = '0';
+    cloneContainer.style.zIndex = '-99999';
+    cloneContainer.style.width = '720px';
+    cloneContainer.style.background = '#ffffff';
+    cloneContainer.style.opacity = '1';
+
+    const clone = element.cloneNode(true);
+    clone.style.display = 'block';
+    cloneContainer.appendChild(clone);
+    document.body.appendChild(cloneContainer);
 
     const pnum = "{{ $pnum }}";
     const filename = 'Profile_MID_' + pnum + '.pdf';
@@ -446,27 +456,30 @@ function downloadPDF() {
       margin:       [5, 5, 5, 5],
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+      html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0 },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     setTimeout(function() {
         if (typeof html2pdf !== 'undefined') {
-            html2pdf().set(opt).from(element).save().then(function() {
-                element.style.display = 'none';
-                element.style.position = 'static';
+            html2pdf().set(opt).from(clone).save().then(function() {
+                if (cloneContainer.parentNode) {
+                    cloneContainer.parentNode.removeChild(cloneContainer);
+                }
             }).catch(function(err) {
                 console.error('PDF download error:', err);
-                element.style.display = 'none';
-                element.style.position = 'static';
+                if (cloneContainer.parentNode) {
+                    cloneContainer.parentNode.removeChild(cloneContainer);
+                }
                 window.open(pdfUrl, '_blank');
             });
         } else {
-            element.style.display = 'none';
-            element.style.position = 'static';
+            if (cloneContainer.parentNode) {
+                cloneContainer.parentNode.removeChild(cloneContainer);
+            }
             window.open(pdfUrl, '_blank');
         }
-    }, 150);
+    }, 200);
 }
 
 // Like / Unlike Button

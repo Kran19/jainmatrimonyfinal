@@ -228,12 +228,13 @@
 <script>
 function downloadPdfCard() {
     const element = document.getElementById('pdf-card');
+    if (!element) return;
     const filename = 'Profile_MID_{{ $pnum }}.pdf';
     const opt = {
         margin:       [5, 5, 5, 5],
         filename:     filename,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+        html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     html2pdf().set(opt).from(element).save().catch(function() {
