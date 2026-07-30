@@ -31,12 +31,12 @@ if (file_exists($link) || is_link($link)) {
 }
 
 // 3. Attempt symlink creation
-if (@symlink($target, $link)) {
+if (function_exists('symlink') && @symlink($target, $link)) {
     echo "✅ SUCCESS: Symbolic link created successfully!\n";
     echo "   Link Path  : $link\n";
     echo "   Target Path: $target\n";
 } else {
-    echo "⚠️  symlink() function failed or is disabled on host.\n";
+    echo "⚠️  symlink() function is disabled in php.ini on host.\n";
     echo "Creating public/storage directory fallback...\n";
     if (!file_exists($link)) {
         @mkdir($link, 0755, true);

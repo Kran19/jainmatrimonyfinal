@@ -24,13 +24,13 @@ Artisan::command('storage:link-safe', function () {
         }
     }
 
-    if (@symlink($target, $link)) {
+    if (function_exists('symlink') && @symlink($target, $link)) {
         $this->info("The [$link] link has been connected to [$target].");
     } else {
         if (!file_exists($link)) {
             @mkdir($link, 0755, true);
         }
-        $this->info("symlink() disabled on host. Fallback directory created at [$link].");
+        $this->info("symlink() is disabled in php.ini by host. Fallback directory created at [$link]. Use deploy.sh (Linux ln -sfn) to create native symlinks.");
     }
     return 0;
 })->purpose('Create storage symlink safely without requiring exec() on shared hosting');
