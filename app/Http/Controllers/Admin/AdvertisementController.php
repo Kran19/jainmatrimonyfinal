@@ -32,6 +32,11 @@ class AdvertisementController extends Controller
                     $table->integer('duration_seconds')->default(3);
                 });
             }
+            if (!Schema::hasColumn('advertisements', 'updated_at')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->timestamp('updated_at')->nullable();
+                });
+            }
 
             // Remove printmines.com redirection links automatically
             \Illuminate\Support\Facades\DB::table('advertisements')

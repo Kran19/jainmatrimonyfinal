@@ -11,6 +11,11 @@ class Advertisement extends Model
 
     protected $table = 'advertisements';
 
+    /**
+     * Legacy advertisements table has created_at but no updated_at column.
+     */
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'title',
         'image',
