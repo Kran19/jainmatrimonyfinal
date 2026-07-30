@@ -173,6 +173,20 @@ return new class extends Migration
                 ]);
             }
         }
+
+        // 9. Ensure account_requests table has created_at and updated_at columns
+        if (Schema::hasTable('account_requests')) {
+            if (!Schema::hasColumn('account_requests', 'created_at')) {
+                Schema::table('account_requests', function (Blueprint $table) {
+                    $table->timestamp('created_at')->nullable();
+                });
+            }
+            if (!Schema::hasColumn('account_requests', 'updated_at')) {
+                Schema::table('account_requests', function (Blueprint $table) {
+                    $table->timestamp('updated_at')->nullable();
+                });
+            }
+        }
     }
 
     public function down(): void

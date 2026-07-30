@@ -143,15 +143,23 @@ class MemberController extends Controller
                 })
                 ->get();
 
+            $hasCreatedAt = \Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'created_at');
+            $hasUpdatedAt = \Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'updated_at');
+
             foreach ($deactivatedUsers as $dUser) {
-                \DB::table('account_requests')->insert([
+                $insertData = [
                     'user_id' => $dUser->id,
                     'request_type' => 'deactivation',
                     'reason' => $dUser->delete_reason ?: 'User deactivated profile directly.',
                     'status' => 'pending',
-                    'created_at' => $dUser->updated_at ?? now(),
-                    'updated_at' => now(),
-                ]);
+                ];
+                if ($hasCreatedAt) {
+                    $insertData['created_at'] = $dUser->updated_at ?? now();
+                }
+                if ($hasUpdatedAt) {
+                    $insertData['updated_at'] = now();
+                }
+                \DB::table('account_requests')->insert($insertData);
             }
         }
 

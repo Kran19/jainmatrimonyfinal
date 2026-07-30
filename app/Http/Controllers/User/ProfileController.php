@@ -348,14 +348,19 @@ class ProfileController extends Controller
 
         // Insert pending deactivation request into account_requests for Admin panel
         if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
-            DB::table('account_requests')->insert([
+            $insertData = [
                 'user_id' => $user->id,
                 'request_type' => 'deactivation',
                 'reason' => $reason,
                 'status' => 'pending',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            ];
+            if (\Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'created_at')) {
+                $insertData['created_at'] = now();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'updated_at')) {
+                $insertData['updated_at'] = now();
+            }
+            DB::table('account_requests')->insert($insertData);
         }
         
         Auth::logout();
