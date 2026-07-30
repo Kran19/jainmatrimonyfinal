@@ -205,10 +205,29 @@ class ProfileWizardController extends Controller
             return response()->json(['success' => false, 'message' => 'Candidate must be at least 18 years old to register.']);
         }
 
-        // Construct Birth Time
-        $birthTime = str_pad($request->birth_time_hh, 2, '0', STR_PAD_LEFT) . ':' .
-                     str_pad($request->birth_time_mm, 2, '0', STR_PAD_LEFT) . ' ' .
-                     $request->birth_time_ampm;
+        // Construct Birth Time safely (supports both TIME and VARCHAR column types)
+        $rawHh = intval($request->birth_time_hh);
+        $rawMm = intval($request->birth_time_mm);
+        $ampm = strtoupper(trim($request->birth_time_ampm));
+
+        $hh24 = $rawHh;
+        if ($ampm === 'PM' && $hh24 < 12) {
+            $hh24 += 12;
+        } elseif ($ampm === 'AM' && $hh24 === 12) {
+            $hh24 = 0;
+        }
+
+        $birthTime24 = sprintf('%02d:%02d:00', $hh24, $rawMm);
+        $birthTime12 = sprintf('%02d:%02d %s', $rawHh, $rawMm, $ampm);
+
+        $colType = \Illuminate\Support\Facades\DB::selectOne("
+            SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'users' 
+            AND COLUMN_NAME = 'birth_time'
+        ");
+
+        $birthTime = ($colType && strtolower($colType->DATA_TYPE) === 'time') ? $birthTime24 : $birthTime12;
 
         // Construct Languages
         $langs = $request->languages ?? [];

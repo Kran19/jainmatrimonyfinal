@@ -110,6 +110,19 @@ return new class extends Migration
                     $table->string('registration_source', 50)->default('website');
                 });
             }
+
+            // 7. Ensure birth_time column is relaxed to VARCHAR(50) to support both 12-hour AM/PM and 24-hour formats
+            if (Schema::hasColumn('users', 'birth_time')) {
+                $colType = DB::selectOne("
+                    SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'users' 
+                    AND COLUMN_NAME = 'birth_time'
+                ");
+                if ($colType && strtolower($colType->DATA_TYPE) === 'time') {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `birth_time` VARCHAR(50) NULL DEFAULT NULL");
+                }
+            }
         }
     }
 
