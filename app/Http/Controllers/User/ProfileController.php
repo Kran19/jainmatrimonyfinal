@@ -153,11 +153,13 @@ class ProfileController extends Controller
         // 1. Validation
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile' => 'required|regex:/^[0-9]{10}$/|unique:users,mobile,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'mobile' => 'required|string|max:20|unique:users,mobile,' . $user->id,
             'gender' => 'required|in:Male,Female',
+            'are_you_digambar_jain' => 'nullable|string|max:50',
+            'filled_by' => 'nullable|string|max:100',
             'birth_date' => 'required|date',
-            'birth_time' => 'required|string',
+            'birth_time' => 'required|string|max:50',
             'birth_place' => 'required|string|max:255',
             'native_place' => 'required|string|max:255',
             'cast' => 'required|string|max:100',
@@ -167,45 +169,62 @@ class ProfileController extends Controller
             'gotra' => 'required|string|max:100',
             'mama_gotra' => 'required|string|max:100',
             'manglik' => 'required|in:Yes,No',
-            'height' => 'required|string|max:20',
-            'weight' => 'required|numeric|min:20|max:200',
+            'height' => 'required|string|max:50',
+            'weight' => 'nullable|string|max:50',
             'marital_status' => 'required|in:Never Married,Widow,Widower,Divorce',
             'handicapped' => 'required|in:Yes,No',
             
             // Professional
             'higher_education' => 'required|string|max:255',
-            'occupation' => 'required|string|max:100',
+            'occupation' => 'nullable|string|max:100',
+            'custom_occupation' => 'nullable|string|max:255',
             'company_name' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:100',
-            'monthly_income' => 'required|numeric|min:0',
+            'monthly_income' => 'nullable|numeric|min:0',
             
             // Family
             'father_name' => 'required|string|max:255',
             'father_mobile' => 'nullable|string|max:20',
             'father_occupation' => 'nullable|string|max:100',
+            'father_income' => 'nullable|numeric|min:0',
             'mother_name' => 'required|string|max:255',
             'mother_mobile' => 'nullable|string|max:20',
-            'mother_occupation' => 'required|string',
-            'brothers' => 'required|integer|min:0',
-            'brothers_focused' => 'nullable',
-            'brothers_married' => 'required|integer|min:0',
-            'brothers_unmarried' => 'required|integer|min:0',
-            'sisters' => 'required|integer|min:0',
-            'sisters_married' => 'required|integer|min:0',
-            'sisters_unmarried' => 'required|integer|min:0',
+            'mother_occupation' => 'nullable|string|max:100',
+            'brothers' => 'nullable|integer|min:0',
+            'brothers_married' => 'nullable|integer|min:0',
+            'brothers_unmarried' => 'nullable|integer|min:0',
+            'sisters' => 'nullable|integer|min:0',
+            'sisters_married' => 'nullable|integer|min:0',
+            'sisters_unmarried' => 'nullable|integer|min:0',
+
+            // Mandir & Community Verification
+            'mandir_name' => 'nullable|string|max:255',
+            'mandir_address' => 'nullable|string|max:255',
+            'mandir_pincode' => 'nullable|string|max:20',
 
             // References
-            'ref1_name' => 'required|string|max:255',
-            'ref1_mobile' => 'required|string|max:20',
-            'ref1_relation' => 'required|string|max:100',
-            'ref2_name' => 'required|string|max:255',
-            'ref2_mobile' => 'required|string|max:20',
-            'ref2_relation' => 'required|string|max:100',
+            'ref1_name' => 'nullable|string|max:255',
+            'ref1_mobile' => 'nullable|string|max:20',
+            'ref1_relation' => 'nullable|string|max:100',
+            'ref2_name' => 'nullable|string|max:255',
+            'ref2_mobile' => 'nullable|string|max:20',
+            'ref2_relation' => 'nullable|string|max:100',
+
+            // Preferences & Address
+            'current_address' => 'nullable|string',
+            'permanent_address' => 'nullable|string',
+            'pin_code' => 'nullable|string|max:20',
+            'languages' => 'nullable|string',
+            'hobbies' => 'nullable|string',
+            'partner_preference' => 'nullable|string',
             
-            // Files
+            // Files & ID
+            'id_proof_type' => 'nullable|string|max:100',
             'profile_photo' => 'nullable|image|max:10240',
+            'photo' => 'nullable|image|max:10240',
             'family_photo' => 'nullable|image|max:10240',
             'id_proof' => 'nullable|image|max:10240',
+            'id_proof_path' => 'nullable|image|max:10240',
         ]);
 
         // 2. Validate custom fields
@@ -233,14 +252,36 @@ class ProfileController extends Controller
 
         // 3. Update core fields
         $userUpdate = $request->only([
-            'full_name', 'email', 'mobile', 'gender', 'birth_date', 'birth_time', 'birth_place',
-            'native_place', 'cast', 'subcast', 'custom_subcast', 'gotra', 'mama_gotra', 'manglik', 'height', 'weight', 'marital_status',
-            'handicapped', 'higher_education', 'occupation', 'company_name', 'designation', 'monthly_income',
-            'father_name', 'father_mobile', 'father_occupation', 'mother_name', 'mother_mobile', 'mother_occupation',
-            'brothers', 'brothers_married', 'brothers_unmarried', 'sisters', 'sisters_married', 'sisters_unmarried',
-            'ref1_name', 'ref1_mobile', 'ref1_relation', 'ref2_name', 'ref2_mobile', 'ref2_relation',
-            'current_address', 'permanent_address', 'pin_code', 'languages', 'hobbies', 'partner_preference'
+            'full_name', 'email', 'mobile', 'gender', 'are_you_digambar_jain', 'filled_by',
+            'birth_date', 'birth_time', 'birth_place', 'native_place', 'cast', 'subcast', 'custom_subcast',
+            'gotra', 'mama_gotra', 'manglik', 'height', 'weight', 'marital_status', 'handicapped',
+            'higher_education', 'occupation', 'company_name', 'designation', 'monthly_income',
+            'father_name', 'father_mobile', 'father_occupation', 'father_income',
+            'mother_name', 'mother_mobile', 'mother_occupation',
+            'brothers', 'brothers_married', 'brothers_unmarried',
+            'sisters', 'sisters_married', 'sisters_unmarried',
+            'mandir_name', 'mandir_address', 'mandir_pincode',
+            'ref1_name', 'ref1_mobile', 'ref1_relation',
+            'ref2_name', 'ref2_mobile', 'ref2_relation',
+            'current_address', 'permanent_address', 'pin_code',
+            'languages', 'hobbies', 'partner_preference', 'id_proof_type'
         ]);
+
+        if ($request->filled('custom_occupation') && ($request->occupation === 'Other' || empty($request->occupation))) {
+            $userUpdate['occupation'] = $request->custom_occupation;
+        }
+
+        // Dual update for weight and weight_kg columns
+        if ($request->has('weight')) {
+            $weightVal = $request->input('weight');
+            $userUpdate['weight'] = $weightVal;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'weight_kg')) {
+                $numericWeight = floatval(preg_replace('/[^0-9.]/', '', $weightVal));
+                if ($numericWeight > 0) {
+                    $userUpdate['weight_kg'] = $numericWeight;
+                }
+            }
+        }
 
         // Handle Cast/Subcast custom inputs
         if ($request->cast === 'Other' && $request->filled('custom_cast')) {
@@ -256,8 +297,8 @@ class ProfileController extends Controller
             mkdir($uploadDir, 0755, true);
         }
 
-        if ($request->hasFile('profile_photo')) {
-            $file = $request->file('profile_photo');
+        if ($request->hasFile('profile_photo') || $request->hasFile('photo')) {
+            $file = $request->file('profile_photo') ?? $request->file('photo');
             $filename = time() . '_photo_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
             $file->move($uploadDir, $filename);
             $userUpdate['profile_photo'] = 'storage/uploads/' . $filename;
@@ -270,8 +311,8 @@ class ProfileController extends Controller
             $userUpdate['family_photo'] = 'storage/uploads/' . $filename;
         }
 
-        if ($request->hasFile('id_proof')) {
-            $file = $request->file('id_proof');
+        if ($request->hasFile('id_proof') || $request->hasFile('id_proof_path')) {
+            $file = $request->file('id_proof') ?? $request->file('id_proof_path');
             $filename = time() . '_idproof_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
             $file->move($uploadDir, $filename);
             $userUpdate['id_proof_path'] = 'storage/uploads/' . $filename;

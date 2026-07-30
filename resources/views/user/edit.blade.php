@@ -19,14 +19,26 @@
             <p class="text-gray-500 text-xs mt-1">Keep your details updated to find the most compatible matches.</p>
         </div>
 
+        @if(session('success'))
+            <div id="flash-message" class="bg-emerald-50 border-l-4 border-emerald-500 p-4 mb-6 rounded-r-xl flex items-center justify-between shadow-sm">
+                <p class="text-xs font-bold text-emerald-800 flex items-center gap-2">
+                    <i class="fas fa-circle-check text-emerald-600 text-sm"></i>
+                    {{ session('success') }}
+                </p>
+                <button onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800 p-1"><i class="fas fa-xmark"></i></button>
+            </div>
+        @endif
+
         @if(session('error'))
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-xl">
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-xl flex items-center justify-between">
                 <p class="text-xs font-semibold text-red-700">{{ session('error') }}</p>
+                <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800 p-1"><i class="fas fa-xmark"></i></button>
             </div>
         @endif
 
         @if($errors->any())
             <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-xl space-y-1">
+                <p class="text-xs font-bold text-red-800 mb-1"><i class="fas fa-triangle-exclamation mr-1 text-red-600"></i> Please fix the following errors before saving:</p>
                 @foreach($errors->all() as $error)
                     <p class="text-[11px] font-semibold text-red-700"><i class="fas fa-circle-exclamation mr-1"></i> {{ $error }}</p>
                 @endforeach
@@ -46,10 +58,10 @@
                         <i class="fas fa-graduation-cap text-xs w-4"></i> Education & Job
                     </button>
                     <button type="button" onclick="switchTab('family')" id="tab-btn-family" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-50 transition flex items-center gap-2.5">
-                        <i class="fas fa-users text-xs w-4"></i> Family details
+                        <i class="fas fa-users text-xs w-4"></i> Family Details
                     </button>
                     <button type="button" onclick="switchTab('astro')" id="tab-btn-astro" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-50 transition flex items-center gap-2.5">
-                        <i class="fas fa-om text-xs w-4"></i> Astro & Gotra
+                        <i class="fas fa-om text-xs w-4"></i> Gotra & Mandir
                     </button>
                     <button type="button" onclick="switchTab('references')" id="tab-btn-references" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-50 transition flex items-center gap-2.5">
                         <i class="fas fa-address-book text-xs w-4"></i> References
@@ -96,8 +108,26 @@
                             </select>
                         </div>
                         <div>
+                            <label class="block font-semibold text-gray-700 mb-1.5">Are you Digambar Jain?</label>
+                            <select name="are_you_digambar_jain" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                                <option value="Yes" {{ old('are_you_digambar_jain', $user->are_you_digambar_jain) === 'Yes' ? 'selected' : '' }}>Yes</option>
+                                <option value="No" {{ old('are_you_digambar_jain', $user->are_you_digambar_jain) === 'No' ? 'selected' : '' }}>No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1.5">Profile Created By</label>
+                            <select name="filled_by" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                                <option value="Self" {{ old('filled_by', $user->filled_by) === 'Self' ? 'selected' : '' }}>Self</option>
+                                <option value="Parent" {{ old('filled_by', $user->filled_by) === 'Parent' ? 'selected' : '' }}>Parent</option>
+                                <option value="Brother" {{ old('filled_by', $user->filled_by) === 'Brother' ? 'selected' : '' }}>Brother</option>
+                                <option value="Sister" {{ old('filled_by', $user->filled_by) === 'Sister' ? 'selected' : '' }}>Sister</option>
+                                <option value="Relative" {{ old('filled_by', $user->filled_by) === 'Relative' ? 'selected' : '' }}>Relative</option>
+                                <option value="Guardian" {{ old('filled_by', $user->filled_by) === 'Guardian' ? 'selected' : '' }}>Guardian</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Date of Birth <span class="text-red-500">*</span></label>
-                            <input type="date" name="birth_date" required value="{{ old('birth_date', $user->birth_date ? $user->birth_date->format('Y-m-d') : '') }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <input type="date" name="birth_date" required value="{{ old('birth_date', $user->birth_date ? (is_string($user->birth_date) ? substr($user->birth_date, 0, 10) : $user->birth_date->format('Y-m-d')) : '') }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Time of Birth <span class="text-red-500">*</span></label>
@@ -158,8 +188,8 @@
                             <input type="text" name="height" placeholder="e.g. 5ft 6in" required value="{{ old('height', $user->height) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Weight (kg) <span class="text-red-500">*</span></label>
-                            <input type="number" step="0.1" name="weight" required value="{{ old('weight', $user->weight) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Weight (kg)</label>
+                            <input type="text" name="weight" placeholder="e.g. 65 kg or 65" value="{{ old('weight', $user->weight ?? ($user->weight_kg ? $user->weight_kg . ' kg' : '')) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Physical Disability <span class="text-red-500">*</span></label>
@@ -177,23 +207,35 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                         <div class="md:col-span-2">
                             <label class="block font-semibold text-gray-700 mb-1.5">Higher Education <span class="text-red-500">*</span></label>
-                            <input type="text" name="higher_education" required value="{{ old('higher_education', $user->higher_education) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <input type="text" name="higher_education" required value="{{ old('higher_education', $user->higher_education) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. B.Tech / M.Com / MBA / CA">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Occupation <span class="text-red-500">*</span></label>
-                            <input type="text" name="occupation" required value="{{ old('occupation', $user->occupation) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. Business / Software Engineer">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Occupation (व्यवसाय)</label>
+                            @php
+                                $stdOccs = ['Job', 'Business', 'Service', 'Professional', 'Private Sector', 'Government Sector', 'Self Employed', 'Housewife', 'Retired'];
+                                $currOcc = old('occupation', $user->occupation);
+                                $isOtherOcc = !empty($currOcc) && !in_array($currOcc, $stdOccs);
+                            @endphp
+                            <select name="occupation" id="occupation" onchange="toggleCustomOccupation(this.value)" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                                <option value="">Select Occupation</option>
+                                @foreach($stdOccs as $occ)
+                                    <option value="{{ $occ }}" {{ $currOcc === $occ ? 'selected' : '' }}>{{ $occ }}</option>
+                                @endforeach
+                                <option value="Other" {{ $isOtherOcc ? 'selected' : '' }}>Other (अन्य)</option>
+                            </select>
+                            <input type="text" name="custom_occupation" id="custom_occupation" value="{{ $isOtherOcc ? $currOcc : '' }}" placeholder="Specify occupation details" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium mt-2 {{ $isOtherOcc ? '' : 'hidden' }}">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Company Name</label>
-                            <input type="text" name="company_name" value="{{ old('company_name', $user->company_name) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Company / Firm Name</label>
+                            <input type="text" name="company_name" value="{{ old('company_name', $user->company_name) }}" placeholder="e.g. TCS / Self Business / Firm" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Designation</label>
-                            <input type="text" name="designation" value="{{ old('designation', $user->designation) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Designation / Position</label>
+                            <input type="text" name="designation" value="{{ old('designation', $user->designation) }}" placeholder="e.g. Senior Software Engineer / Manager / Owner" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Monthly Income (INR) <span class="text-red-500">*</span></label>
-                            <input type="number" name="monthly_income" required value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Annual / Monthly Income (INR)</label>
+                            <input type="number" name="monthly_income" value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 500000">
                         </div>
                     </div>
                 </div>
@@ -215,12 +257,16 @@
                             <input type="text" name="father_mobile" value="{{ old('father_mobile', $user->father_mobile) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
+                            <label class="block font-semibold text-gray-700 mb-1.5">Father's Annual Income (INR)</label>
+                            <input type="number" name="father_income" value="{{ old('father_income', $user->father_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 500000">
+                        </div>
+                        <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Mother's Name <span class="text-red-500">*</span></label>
                             <input type="text" name="mother_name" required value="{{ old('mother_name', $user->mother_name) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Mother's Occupation <span class="text-red-500">*</span></label>
-                            <input type="text" name="mother_occupation" required value="{{ old('mother_occupation', $user->mother_occupation) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Mother's Occupation</label>
+                            <input type="text" name="mother_occupation" value="{{ old('mother_occupation', $user->mother_occupation) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Mother's Mobile</label>
@@ -229,31 +275,31 @@
                         
                         <div class="border-t pt-4 md:col-span-2 grid grid-cols-3 gap-3">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Brothers <span class="text-red-500">*</span></label>
-                                <input type="number" name="brothers" required value="{{ old('brothers', $user->brothers ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Brothers</label>
+                                <input type="number" name="brothers" value="{{ old('brothers', $user->brothers ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
                             </div>
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Married <span class="text-red-500">*</span></label>
-                                <input type="number" name="brothers_married" required value="{{ old('brothers_married', $user->brothers_married ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Married</label>
+                                <input type="number" name="brothers_married" value="{{ old('brothers_married', $user->brothers_married ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
                             </div>
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Unmarried <span class="text-red-500">*</span></label>
-                                <input type="number" name="brothers_unmarried" required value="{{ old('brothers_unmarried', $user->brothers_unmarried ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Unmarried</label>
+                                <input type="number" name="brothers_unmarried" value="{{ old('brothers_unmarried', $user->brothers_unmarried ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
                             </div>
                         </div>
 
                         <div class="border-t pt-4 md:col-span-2 grid grid-cols-3 gap-3">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Sisters <span class="text-red-500">*</span></label>
-                                <input type="number" name="sisters" required value="{{ old('sisters', $user->sisters ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Sisters</label>
+                                <input type="number" name="sisters" value="{{ old('sisters', $user->sisters ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
                             </div>
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Married <span class="text-red-500">*</span></label>
-                                <input type="number" name="sisters_married" required value="{{ old('sisters_married', $user->sisters_married ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Married</label>
+                                <input type="number" name="sisters_married" value="{{ old('sisters_married', $user->sisters_married ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
                             </div>
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Unmarried <span class="text-red-500">*</span></label>
-                                <input type="number" name="sisters_unmarried" required value="{{ old('sisters_unmarried', $user->sisters_unmarried ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Unmarried</label>
+                                <input type="number" name="sisters_unmarried" value="{{ old('sisters_unmarried', $user->sisters_unmarried ?? 0) }}" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-center text-dark font-medium">
                             </div>
                         </div>
                     </div>
@@ -261,7 +307,7 @@
 
                 <!-- Tab: Astro & Gotra -->
                 <div id="tab-panel-astro" class="tab-panel hidden space-y-6">
-                    <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-om text-primary"></i> Astro & Gotra Details</h3>
+                    <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-om text-primary"></i> Gotra & Mandir Details</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Self Gotra <span class="text-red-500">*</span></label>
@@ -278,6 +324,22 @@
                                 <option value="Yes" {{ old('manglik', $user->manglik) === 'Yes' ? 'selected' : '' }}>Yes</option>
                             </select>
                         </div>
+                        
+                        <div class="border-t pt-4 md:col-span-2">
+                            <h4 class="font-bold text-dark text-sm mb-3 flex items-center gap-2"><i class="fas fa-gopuram text-primary"></i> Mandir / Community Verification</h4>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1.5">Jain Mandir / Temple Name</label>
+                            <input type="text" name="mandir_name" value="{{ old('mandir_name', $user->mandir_name ?? $user->mandir) }}" placeholder="e.g. Digambar Jain Temple" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1.5">Temple Pincode</label>
+                            <input type="text" name="mandir_pincode" value="{{ old('mandir_pincode', $user->mandir_pincode) }}" placeholder="e.g. 452001" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Temple Address</label>
+                            <input type="text" name="mandir_address" value="{{ old('mandir_address', $user->mandir_address) }}" placeholder="e.g. Main Street, City" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                        </div>
                     </div>
                 </div>
 
@@ -290,16 +352,16 @@
                             <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 1</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref1_name" required value="{{ old('ref1_name', $user->ref1_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
+                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref1_mobile" required value="{{ old('ref1_mobile', $user->ref1_mobile) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
+                                    <input type="text" name="ref1_mobile" value="{{ old('ref1_mobile', $user->ref1_mobile) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref1_relation" required value="{{ old('ref1_relation', $user->ref1_relation) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
+                                    <input type="text" name="ref1_relation" value="{{ old('ref1_relation', $user->ref1_relation) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                             </div>
                         </div>
@@ -309,16 +371,16 @@
                             <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 2</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref2_name" required value="{{ old('ref2_name', $user->ref2_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
+                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref2_mobile" required value="{{ old('ref2_mobile', $user->ref2_mobile) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
+                                    <input type="text" name="ref2_mobile" value="{{ old('ref2_mobile', $user->ref2_mobile) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref2_relation" required value="{{ old('ref2_relation', $user->ref2_relation) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
+                                    <input type="text" name="ref2_relation" value="{{ old('ref2_relation', $user->ref2_relation) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                             </div>
                         </div>
@@ -367,35 +429,61 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
                         <!-- Profile Photo -->
                         <div class="border p-4 rounded-xl space-y-3">
-                            <label class="block font-semibold text-gray-700">Profile Photo</label>
+                            <label class="block font-semibold text-gray-700">Candidate Profile Photo</label>
                             @if($user->profile_photo)
-                                <div class="w-32 h-40 rounded-lg overflow-hidden border bg-gray-50">
+                                <div class="w-36 h-44 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm relative group">
                                     <img src="{{ route('image.serve', ['file' => $user->profile_photo]) }}" class="w-full h-full object-cover">
+                                    <span class="absolute bottom-1 right-1 bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">Uploaded</span>
                                 </div>
                             @endif
-                            <input type="file" name="profile_photo" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
+                            <input type="file" name="profile_photo" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
                         </div>
 
                         <!-- Family Photo -->
                         <div class="border p-4 rounded-xl space-y-3">
                             <label class="block font-semibold text-gray-700">Family Photo</label>
                             @if($user->family_photo)
-                                <div class="w-32 h-40 rounded-lg overflow-hidden border bg-gray-50">
+                                <div class="w-48 h-36 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm relative group">
                                     <img src="{{ route('image.serve', ['file' => $user->family_photo]) }}" class="w-full h-full object-cover">
+                                    <span class="absolute bottom-1 right-1 bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">Uploaded</span>
+                                </div>
+                            @else
+                                <div class="w-48 h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 text-xs">
+                                    <i class="fas fa-users-viewfinder text-2xl mb-1 text-gray-300"></i>
+                                    <span>No Family Photo</span>
                                 </div>
                             @endif
-                            <input type="file" name="family_photo" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
+                            <input type="file" name="family_photo" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
                         </div>
 
-                        <!-- ID Proof -->
-                        <div class="border p-4 rounded-xl space-y-3 md:col-span-2">
-                            <label class="block font-semibold text-gray-700">ID Proof Image</label>
-                            @if($user->id_proof_path)
-                                <div class="w-48 h-32 rounded-lg overflow-hidden border bg-gray-50 mb-2">
-                                    <img src="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" class="w-full h-full object-contain bg-slate-100">
-                                </div>
-                            @endif
-                            <input type="file" name="id_proof" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
+                        <!-- ID Proof Type & File -->
+                        <div class="border p-4 rounded-xl space-y-4 md:col-span-2">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1.5">ID Proof Type</label>
+                                <select name="id_proof_type" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                                    <option value="">Select ID Proof Type</option>
+                                    <option value="Aadhaar Card" {{ old('id_proof_type', $user->id_proof_type) === 'Aadhaar Card' || old('id_proof_type', $user->id_proof_type) === 'Aadhar Card' ? 'selected' : '' }}>Aadhaar Card</option>
+                                    <option value="PAN Card" {{ old('id_proof_type', $user->id_proof_type) === 'PAN Card' ? 'selected' : '' }}>PAN Card</option>
+                                    <option value="Voter ID" {{ old('id_proof_type', $user->id_proof_type) === 'Voter ID' ? 'selected' : '' }}>Voter ID</option>
+                                    <option value="Driving Licence" {{ old('id_proof_type', $user->id_proof_type) === 'Driving Licence' || old('id_proof_type', $user->id_proof_type) === 'Driving License' ? 'selected' : '' }}>Driving Licence</option>
+                                    <option value="Passport" {{ old('id_proof_type', $user->id_proof_type) === 'Passport' ? 'selected' : '' }}>Passport</option>
+                                    <option value="Other" {{ old('id_proof_type', $user->id_proof_type) === 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1.5">Upload / Update ID Proof Document</label>
+                                @if($user->id_proof_path)
+                                    <div class="mb-3 flex items-center gap-3">
+                                        <div class="w-40 h-28 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                            <img src="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" class="w-full h-full object-contain bg-slate-100">
+                                        </div>
+                                        <a href="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-blue-50 px-3 py-2 rounded-lg">
+                                            <i class="fas fa-file-image"></i> View Full Document
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" name="id_proof" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -448,10 +536,10 @@
                 <!-- Submit Button Bar -->
                 <div class="flex items-center justify-between border-t pt-6 mt-8">
                     <a href="{{ route('profile.my') }}" class="text-sm font-bold text-gray-500 hover:text-gray-900 transition flex items-center gap-1">
-                        <i class="fas fa-chevron-left text-xs"></i> Back
+                        <i class="fas fa-chevron-left text-xs"></i> Back to Profile
                     </a>
-                    <button type="submit" class="bg-primary hover:bg-opacity-90 text-white font-extrabold px-8 py-3 rounded-xl transition text-sm shadow-md">
-                        Save Profile Changes
+                    <button type="submit" class="bg-primary hover:bg-opacity-90 text-white font-extrabold px-8 py-3 rounded-xl transition text-sm shadow-md flex items-center gap-2">
+                        <i class="fas fa-floppy-disk text-base"></i> Save Profile Changes
                     </button>
                 </div>
 
@@ -485,6 +573,16 @@ function toggleCustomSubcast(val) {
     }
 }
 
+function toggleCustomOccupation(val) {
+    const input = document.getElementById('custom_occupation');
+    if (val === 'Other') {
+        input.classList.remove('hidden');
+    } else {
+        input.classList.add('hidden');
+        input.value = '';
+    }
+}
+
 function switchTab(tabId) {
     // Hide all panels
     document.querySelectorAll('.tab-panel').forEach(panel => {
@@ -496,9 +594,34 @@ function switchTab(tabId) {
     });
 
     // Show active panel
-    document.getElementById('tab-panel-' + tabId).classList.remove('hidden');
+    const activePanel = document.getElementById('tab-panel-' + tabId);
+    if (activePanel) {
+        activePanel.classList.remove('hidden');
+    }
     // Set active style on button
-    document.getElementById('tab-btn-' + tabId).classList.add('text-primary', 'bg-slate-50');
+    const activeBtn = document.getElementById('tab-btn-' + tabId);
+    if (activeBtn) {
+        activeBtn.classList.add('text-primary', 'bg-slate-50');
+    }
 }
+
+// Auto-switch to tab containing error field if validation fails
+document.addEventListener('DOMContentLoaded', function() {
+    @if($errors->any())
+        const errorFields = {!! json_encode(array_keys($errors->toArray())) !!};
+        if (errorFields.length > 0) {
+            const firstErrField = errorFields[0];
+            const fieldEl = document.querySelector(`[name="${firstErrField}"]`);
+            if (fieldEl) {
+                const panel = fieldEl.closest('.tab-panel');
+                if (panel) {
+                    const tabId = panel.id.replace('tab-panel-', '');
+                    switchTab(tabId);
+                    fieldEl.focus();
+                }
+            }
+        }
+    @endif
+});
 </script>
 @endsection

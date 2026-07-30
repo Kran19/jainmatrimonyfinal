@@ -183,6 +183,11 @@ class ProfileWizardController extends Controller
             'pin_code' => 'required|regex:/^[0-9]{4,6}$/',
             'current_address' => 'required|string',
             'education' => 'required|string|max:255',
+            'occupation' => 'nullable|string|max:100',
+            'occupation_details' => 'nullable|string|max:255',
+            'annual_income' => 'nullable|numeric|min:0',
+            'company_name' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:255',
             'hobbies' => 'required|string',
             'partner_preference' => 'required|string',
             'marital_status' => 'required|in:Never Married,Widow,Divorce',
@@ -239,7 +244,14 @@ class ProfileWizardController extends Controller
         }
         $languagesStr = implode(',', array_filter($langs));
 
-        $user->update([
+        $occVal = $request->occupation;
+        if ($occVal === 'Other' && $request->filled('occupation_details')) {
+            $occVal = $request->occupation_details;
+        } elseif (empty($occVal) && $request->filled('occupation_details')) {
+            $occVal = $request->occupation_details;
+        }
+
+        $updateData = [
             'birth_date' => $request->birth_date,
             'birth_time' => $birthTime,
             'birth_place' => $request->birth_place,
@@ -255,13 +267,26 @@ class ProfileWizardController extends Controller
             'pin_code' => $request->pin_code,
             'current_address' => $request->current_address,
             'higher_education' => $request->education,
+            'occupation' => $occVal,
+            'company_name' => $request->company_name,
+            'designation' => $request->designation,
+            'monthly_income' => $request->annual_income ?? $request->monthly_income,
             'hobbies' => $request->hobbies,
             'partner_preference' => $request->partner_preference,
             'marital_status' => $request->marital_status,
             'handicapped' => ucfirst(strtolower($request->handicapped)),
             'languages' => $languagesStr,
             'registration_step' => 3,
-        ]);
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'weight_kg')) {
+            $numericWeight = floatval(preg_replace('/[^0-9.]/', '', $request->weight));
+            if ($numericWeight > 0) {
+                $updateData['weight_kg'] = $numericWeight;
+            }
+        }
+
+        $user->update($updateData);
 
         try {
             $this->saveCustomFields($request, $user, ['Section 2: Personal Details', 'Additional Information', 'Custom Fields']);

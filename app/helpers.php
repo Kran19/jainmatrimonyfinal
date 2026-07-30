@@ -30,6 +30,7 @@ if (!function_exists('resolve_media_path')) {
             storage_path('app/private/' . $safePath),
             storage_path('app/private/imports/' . $cleanPathNoImports),
             storage_path('app/private/imports/profile_photos/' . $filename),
+            storage_path('app/private/imports/family_photos/' . $filename),
             storage_path('app/private/imports/payment_proofs/' . $filename),
             storage_path('app/public/' . $safePath),
             storage_path('app/public/' . $cleanPathNoStorage),
@@ -37,6 +38,7 @@ if (!function_exists('resolve_media_path')) {
             public_path('uploads/' . $cleanPathNoUploads),
             public_path('imports/' . $cleanPathNoImports),
             public_path('imports/profile_photos/' . $filename),
+            public_path('imports/family_photos/' . $filename),
             public_path('imports/payment_proofs/' . $filename),
             base_path($safePath),
             base_path('../digambar-samaj/' . $safePath),
@@ -52,6 +54,7 @@ if (!function_exists('resolve_media_path')) {
         // Direct search in common directories by filename
         $searchDirs = [
             storage_path('app/private/imports/profile_photos'),
+            storage_path('app/private/imports/family_photos'),
             storage_path('app/private/imports/payment_proofs'),
             storage_path('app/private/imports'),
             storage_path('app/private/uploads'),
@@ -59,6 +62,7 @@ if (!function_exists('resolve_media_path')) {
             storage_path('app/public/uploads'),
             storage_path('app/public'),
             public_path('imports/profile_photos'),
+            public_path('imports/family_photos'),
             public_path('imports/payment_proofs'),
             public_path('imports'),
             public_path('uploads'),
