@@ -28,26 +28,45 @@ class GalleryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:100',
-            'image' => 'required|image|max:2048', // 2MB max
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB max
         ]);
 
-        $base64Image = null;
+        $imagePath = null;
+
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->getRealPath();
-            $type = $request->file('image')->getClientMimeType();
-            $data = file_get_contents($path);
-            $base64Image = 'data:' . $type . ';base64,' . base64_encode($data);
+            $file = $request->file('image');
+            $uploadDir = storage_path('app/public/uploads');
+
+            if (!file_exists($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
+
+            $filename = 'gallery_' . time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+
+            try {
+                $file->move($uploadDir, $filename);
+                $imagePath = 'storage/uploads/' . $filename;
+            } catch (\Exception $e) {
+                // Fallback to Base64 encoding if disk move fails
+                $type = $file->getClientMimeType();
+                $data = file_get_contents($file->getRealPath());
+                $imagePath = 'data:' . $type . ';base64,' . base64_encode($data);
+            }
+        }
+
+        if (!$imagePath) {
+            return back()->withInput()->with('error', 'Failed to process uploaded image.');
         }
 
         Gallery::create([
-            'title' => $request->title,
-            'category' => $request->category,
-            'image_path' => $base64Image,
+            'title' => trim($request->title),
+            'category' => trim($request->category),
+            'image_path' => $imagePath,
             'media_type' => 'image',
             'status' => true,
         ]);
 
-        return back()->with('success', 'Photo added to gallery.');
+        return back()->with('success', 'Photo added to gallery successfully.');
     }
 
     /**
@@ -76,15 +95,23 @@ class GalleryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'video_type' => 'required|in:youtube,mp4',
-            'video_url' => 'required_if:video_type,youtube|url|nullable',
-            'video_file' => 'required_if:video_type,mp4|url|nullable',
+            'video_url' => 'nullable|url',
+            'video_file' => 'nullable|url',
             'thumbnail' => 'nullable|url',
             'description' => 'nullable|string',
-            'display_order' => 'integer',
+            'display_order' => 'nullable|integer',
         ]);
 
+        if ($request->video_type === 'youtube' && empty($request->video_url)) {
+            return back()->withInput()->with('error', 'YouTube URL is required when YouTube source is selected.');
+        }
+
+        if ($request->video_type === 'mp4' && empty($request->video_file)) {
+            return back()->withInput()->with('error', 'MP4 File Link is required when MP4 source is selected.');
+        }
+
         VideoGallery::create([
-            'title' => $request->title,
+            'title' => trim($request->title),
             'video_type' => $request->video_type,
             'video_url' => $request->video_url,
             'video_file' => $request->video_file,

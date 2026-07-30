@@ -4,6 +4,35 @@
 @section('header_title', 'Content Management: Photos & Videos')
 
 @section('content')
+
+@if(session('success'))
+    <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+        {{ session('error') }}
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm space-y-1">
+        <div class="font-bold flex items-center gap-2 text-rose-900">
+            <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+            Please fix the following issues:
+        </div>
+        <ul class="list-disc list-inside pl-2 text-rose-700 font-medium">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
     <!-- Left Column: Media listings -->
@@ -17,8 +46,13 @@
             
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 @forelse($galleryItems as $photo)
+                @php
+                    $imgSrc = (str_starts_with($photo->image_path, 'data:image/') || preg_match('/^https?:\/\//i', $photo->image_path))
+                        ? $photo->image_path
+                        : route('image.serve', ['file' => $photo->image_path]);
+                @endphp
                 <div class="border rounded-xl overflow-hidden hover:shadow-md transition duration-150 relative bg-slate-50">
-                    <img src="{{ $photo->image_path }}" alt="Photo" class="w-full h-32 object-cover">
+                    <img src="{{ $imgSrc }}" alt="Photo" class="w-full h-32 object-cover">
                     <div class="p-3 text-xs">
                         <div class="font-bold truncate text-gray-900">{{ $photo->title }}</div>
                         <div class="text-slate-400 mt-0.5">{{ $photo->category }}</div>
