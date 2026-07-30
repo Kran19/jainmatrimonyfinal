@@ -40,6 +40,7 @@ Route::middleware('guest:web')->group(function () {
     Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,5');
     Route::get('/register/verify-otp', [RegisterController::class, 'showOtpForm'])->name('register.otp');
     Route::post('/register/verify-otp', [RegisterController::class, 'verifyOtp'])->middleware('throttle:5,5');
+    Route::post('/register/resend-otp', [RegisterController::class, 'resendOtp'])->name('register.resend-otp')->middleware('throttle:5,5');
 
 });
 

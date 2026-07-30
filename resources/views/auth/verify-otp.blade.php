@@ -49,8 +49,17 @@
                         Verify OTP & Create Account
                     </button>
                 </form>
-                <div class="mt-4 text-center text-sm">
-                    <a href="{{ route('register') }}" class="text-primary hover:underline font-semibold">Go back & resend OTP</a>
+                <div class="mt-6 pt-4 border-t border-gray-100 flex flex-col items-center gap-3 text-sm">
+                    <form action="{{ route('register.resend-otp') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center text-primary hover:text-opacity-80 font-bold hover:underline transition bg-transparent border-0 cursor-pointer text-sm">
+                            <i class="fas fa-redo-alt text-xs mr-1.5"></i> Resend OTP Code
+                        </button>
+                    </form>
+
+                    <a href="{{ route('register') }}" class="text-xs text-gray-500 hover:text-gray-700 transition">
+                        ← Change Email or Mobile Number
+                    </a>
                 </div>
             </div>
         </div>

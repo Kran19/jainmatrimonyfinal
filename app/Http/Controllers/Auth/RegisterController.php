@@ -71,6 +71,27 @@ class RegisterController extends Controller
     }
 
     /**
+     * Resend OTP verification email without resetting registration form.
+     */
+    public function resendOtp(Request $request)
+    {
+        if (!session()->has('reg_data')) {
+            return redirect()->route('register')->with('error', 'Session expired. Please complete the registration form again.');
+        }
+
+        $regData = session('reg_data');
+        $email = $regData['email'];
+
+        $sent = $this->otpService->generateAndSendOTP($email);
+
+        if ($sent) {
+            return redirect()->route('register.otp')->with('success', 'A new verification OTP has been sent to <strong>' . e($email) . '</strong>.');
+        }
+
+        return redirect()->route('register.otp')->with('error', 'Failed to resend OTP email. Please check your email configuration.');
+    }
+
+    /**
      * Verify OTP and complete registration.
      */
     public function verifyOtp(Request $request)
