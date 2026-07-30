@@ -7,9 +7,10 @@ echo "=================================================="
 echo "🚀 Starting Deployment for Digambar Jain Parichay"
 echo "=================================================="
 
-# 1. Pull latest code from git repository
-echo "📥 Pulling latest updates from Git..."
-git pull origin main
+# 1. Fetch & Hard Reset latest code from Git repository
+echo "📥 Fetching and resetting to latest origin/main..."
+git fetch origin main
+git reset --hard origin/main
 
 # 2. Ensure storage directories exist
 echo "📁 Ensuring storage directories exist..."
