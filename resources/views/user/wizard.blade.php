@@ -227,12 +227,24 @@ if (!function_exists('renderCustomFieldHTML')) {
                         <!-- Cast & Sub-Cast -->
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Cast (जाति) *</label>
+                            @php
+                                $castField = \App\Models\RegistrationField::where('field_key', 'cast')->first();
+                                $db_casts = $castField && $castField->field_options 
+                                    ? array_map('trim', explode(',', $castField->field_options))
+                                    : ['Digambar Jain'];
+                                $predefined_casts = array_filter($db_casts, function($val) {
+                                    return strtolower($val) !== 'other';
+                                });
+                                $is_other_cast = !empty($user->cast) && !in_array($user->cast, $predefined_casts);
+                            @endphp
                             <select name="cast" id="cast" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
                                 <option value="">Select Cast</option>
-                                <option value="Digambar Jain" {{ ($user->cast == 'Digambar Jain') ? 'selected' : '' }}>Digambar Jain</option>
-                                <option value="Other" {{ (!empty($user->cast) && $user->cast != 'Digambar Jain') ? 'selected' : '' }}>Other</option>
+                                @foreach ($predefined_casts as $c)
+                                    <option value="{{ $c }}" {{ ($user->cast == $c) ? 'selected' : '' }}>{{ $c }}</option>
+                                @endforeach
+                                <option value="Other" {{ $is_other_cast ? 'selected' : '' }}>Other</option>
                             </select>
-                            <input type="text" name="custom_cast" id="custom_cast" value="{{ (!empty($user->cast) && $user->cast != 'Digambar Jain') ? $user->cast : '' }}" placeholder="Please specify cast" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-sm focus:border-primary mt-2 {{ (!empty($user->cast) && $user->cast != 'Digambar Jain') ? '' : 'hidden' }}">
+                            <input type="text" name="custom_cast" id="custom_cast" value="{{ $is_other_cast ? $user->cast : '' }}" placeholder="Please specify cast" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-sm focus:border-primary mt-2 {{ $is_other_cast ? '' : 'hidden' }}">
                         </div>
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Sub-Cast (उपजाति)</label>

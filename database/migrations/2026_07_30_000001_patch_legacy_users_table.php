@@ -124,6 +124,42 @@ return new class extends Migration
                 }
             }
         }
+
+        // 8. Ensure cast and subcast entries exist in registration_fields so Admin can manage sub-cast options
+        if (Schema::hasTable('registration_fields')) {
+            if (!DB::table('registration_fields')->where('field_key', 'cast')->exists()) {
+                DB::table('registration_fields')->insert([
+                    'field_group' => 'Personal Details',
+                    'field_key' => 'cast',
+                    'field_label' => 'Cast (जाति)',
+                    'field_type' => 'dropdown',
+                    'field_options' => 'Digambar Jain,Other',
+                    'is_custom' => false,
+                    'is_visible' => true,
+                    'is_required' => true,
+                    'is_core' => false,
+                    'sort_order' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            if (!DB::table('registration_fields')->where('field_key', 'subcast')->exists()) {
+                DB::table('registration_fields')->insert([
+                    'field_group' => 'Personal Details',
+                    'field_key' => 'subcast',
+                    'field_label' => 'Sub-Cast (उपजाति)',
+                    'field_type' => 'dropdown',
+                    'field_options' => 'Khandelwal,Agrawal,Oswal,Porwal,Golalare,Humad,Bagherwal,Chaturth,Pancham,Other (अन्य)',
+                    'is_custom' => false,
+                    'is_visible' => true,
+                    'is_required' => false,
+                    'is_core' => false,
+                    'sort_order' => 2,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
     }
 
     public function down(): void
