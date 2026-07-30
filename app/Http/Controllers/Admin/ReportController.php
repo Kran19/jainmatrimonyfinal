@@ -16,14 +16,33 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $reportType = $request->input('report_type', 'members');
-        $startDate = $request->input('start_date', now()->subMonth()->toDateString());
-        $endDate = $request->input('end_date', now()->toDateString());
+        $startDate  = $request->input('start_date');
+        $endDate    = $request->input('end_date');
+
+        // Default dates if empty
+        if (!$startDate) {
+            $startDate = now()->subYear()->format('Y-m-d');
+        }
+        if (!$endDate) {
+            $endDate = now()->format('Y-m-d');
+        }
+
+        // Auto-correct if start_date is later than end_date
+        if ($startDate > $endDate) {
+            $temp = $startDate;
+            $startDate = $endDate;
+            $endDate = $temp;
+        }
 
         $results = [];
         $summary = [];
 
         if ($reportType === 'members') {
-            $query = User::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            $query = User::query();
+
+            if (!empty($startDate) && !empty($endDate)) {
+                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
 
             if ($request->filled('gender')) {
                 $query->where('gender', $request->gender);
@@ -39,11 +58,14 @@ class ReportController extends Controller
             $summary['total'] = $results->count();
             $summary['approved'] = $results->where('status', 'approved')->count();
             $summary['pending'] = $results->where('status', 'pending')->count();
+            $summary['blocked'] = $results->where('status', 'blocked')->count();
         } else {
             // Revenue report
-            $query = Payment::with('user')
-                ->where('status', 'verified')
-                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            $query = Payment::with('user');
+
+            if (!empty($startDate) && !empty($endDate)) {
+                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
 
             if ($request->filled('payment_method')) {
                 $query->where('payment_method', $request->payment_method);
@@ -65,8 +87,21 @@ class ReportController extends Controller
     public function export(Request $request)
     {
         $reportType = $request->input('report_type', 'members');
-        $startDate = $request->input('start_date', now()->subMonth()->toDateString());
-        $endDate = $request->input('end_date', now()->toDateString());
+        $startDate  = $request->input('start_date');
+        $endDate    = $request->input('end_date');
+
+        if (!$startDate) {
+            $startDate = now()->subYear()->format('Y-m-d');
+        }
+        if (!$endDate) {
+            $endDate = now()->format('Y-m-d');
+        }
+
+        if ($startDate > $endDate) {
+            $temp = $startDate;
+            $startDate = $endDate;
+            $endDate = $temp;
+        }
 
         $headers = [
             "Content-type"        => "text/csv",
@@ -77,7 +112,10 @@ class ReportController extends Controller
         ];
 
         if ($reportType === 'members') {
-            $query = User::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            $query = User::query();
+            if (!empty($startDate) && !empty($endDate)) {
+                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
             if ($request->filled('gender')) {
                 $query->where('gender', $request->gender);
             }
@@ -91,21 +129,22 @@ class ReportController extends Controller
                 fputcsv($file, ['Profile ID', 'Full Name', 'Gender', 'Email', 'Mobile', 'Status', 'Registered At']);
                 foreach ($results as $row) {
                     fputcsv($file, [
-                        $row->profile_id,
+                        $row->profile_id ?: $row->id,
                         $row->full_name,
                         $row->gender,
                         $row->email,
                         $row->mobile,
                         $row->status,
-                        $row->created_at
+                        $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : 'N/A'
                     ]);
                 }
                 fclose($file);
             };
         } else {
-            $query = Payment::with('user')
-                ->where('status', 'verified')
-                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            $query = Payment::with('user');
+            if (!empty($startDate) && !empty($endDate)) {
+                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
             if ($request->filled('payment_method')) {
                 $query->where('payment_method', $request->payment_method);
             }
@@ -116,7 +155,7 @@ class ReportController extends Controller
                 fputcsv($file, ['Payment Date', 'Transaction ID', 'Member Name', 'Method', 'Amount']);
                 foreach ($results as $row) {
                     fputcsv($file, [
-                        $row->created_at,
+                        $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : 'N/A',
                         $row->transaction_id,
                         $row->user->full_name ?? 'N/A',
                         $row->payment_method,
