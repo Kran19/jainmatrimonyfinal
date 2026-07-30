@@ -13,6 +13,36 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('users')) {
+            // Disable strict mode for session to avoid MySQL errors when inspecting or altering legacy tables with '0000-00-00' dates
+            DB::statement("SET SESSION sql_mode = ''");
+
+            // Clean up invalid legacy date values in 'users' table that break MySQL ALTER TABLE statements
+            if (Schema::hasColumn('users', 'birth_date')) {
+                DB::statement("UPDATE `users` SET `birth_date` = NULL WHERE `birth_date` = '0000-00-00' OR `birth_date` = '0000-00-00 00:00:00' OR CAST(`birth_date` AS CHAR) LIKE '0000-00-00%'");
+            }
+
+            foreach (['created_at', 'updated_at', 'email_verified_at', 'last_login'] as $dateCol) {
+                if (Schema::hasColumn('users', $dateCol)) {
+                    DB::statement("UPDATE `users` SET `$dateCol` = NULL WHERE `$dateCol` = '0000-00-00' OR `$dateCol` = '0000-00-00 00:00:00' OR CAST(`$dateCol` AS CHAR) LIKE '0000-00-00%'");
+                }
+            }
+
+            // Ensure password column is nullable (legacy DB has password NOT NULL, app uses password_hash)
+            if (Schema::hasColumn('users', 'password')) {
+                $colInfo = DB::selectOne("
+                    SELECT IS_NULLABLE 
+                    FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'users' 
+                    AND COLUMN_NAME = 'password'
+                ");
+                if ($colInfo && $colInfo->IS_NULLABLE === 'NO') {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `password` VARCHAR(255) NULL DEFAULT NULL");
+                }
+            }
+        }
+
         // 1. Add registration_step column if missing
         if (Schema::hasTable('users') && !Schema::hasColumn('users', 'registration_step')) {
             Schema::table('users', function (Blueprint $table) {
