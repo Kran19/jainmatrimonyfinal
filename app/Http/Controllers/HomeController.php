@@ -47,6 +47,7 @@ class HomeController extends Controller
         $right_sidebar_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['right', 'right_side', 'right_sidebar'])));
         $bottom_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['bottom', 'bottom_banner', 'home_bottom', 'footer'])));
         $home_bottom_ads = !empty($bottom_ads) ? $bottom_ads : array_values(array_filter($advertisements, fn($ad) => $ad['position'] === 'home_bottom'));
+        $footer_ads = $bottom_ads;
 
         // 4. Determine user auth status & view access permissions
         $is_logged_in = false;
