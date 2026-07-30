@@ -52,54 +52,56 @@
 
 <!-- Controls Panel -->
 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 no-print">
-    <form action="{{ route('admin.reports.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Report Type</label>
-            <select name="report_type" onchange="this.form.submit()" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
-                <option value="members" {{ $reportType === 'members' ? 'selected' : '' }}>Member Registrations</option>
-                <option value="revenue" {{ $reportType === 'revenue' ? 'selected' : '' }}>Revenue Audit</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Start Date</label>
-            <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-        </div>
-        <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">End Date</label>
-            <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+    <form action="{{ route('admin.reports.index') }}" method="GET" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Report Type</label>
+                <select name="report_type" onchange="this.form.submit()" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50/50 font-medium text-slate-700">
+                    <option value="members" {{ $reportType === 'members' ? 'selected' : '' }}>Member Registrations</option>
+                    <option value="revenue" {{ $reportType === 'revenue' ? 'selected' : '' }}>Revenue Audit</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Start Date</label>
+                <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50/50 font-medium text-slate-700">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">End Date</label>
+                <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50/50 font-medium text-slate-700">
+            </div>
+
+            @if($reportType === 'members')
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Status (Optional)</label>
+                <select name="status" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50/50 font-medium text-slate-700">
+                    <option value="">All Statuses</option>
+                    <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="blocked" {{ request('status') === 'blocked' ? 'selected' : '' }}>Blocked</option>
+                </select>
+            </div>
+            @else
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Method (Optional)</label>
+                <select name="payment_method" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50/50 font-medium text-slate-700">
+                    <option value="">All Methods</option>
+                    <option value="Cash" {{ request('payment_method') === 'Cash' ? 'selected' : '' }}>Cash</option>
+                    <option value="Bank Transfer" {{ request('payment_method') === 'Bank Transfer' ? 'selected' : '' }}>Bank Transfer</option>
+                    <option value="UPI / QR Code" {{ request('payment_method') === 'UPI / QR Code' ? 'selected' : '' }}>UPI / QR Code</option>
+                </select>
+            </div>
+            @endif
         </div>
 
-        @if($reportType === 'members')
-        <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status (Optional)</label>
-            <select name="status" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-                <option value="">All Statuses</option>
-                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
-                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="blocked" {{ request('status') === 'blocked' ? 'selected' : '' }}>Blocked</option>
-            </select>
-        </div>
-        @else
-        <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Method (Optional)</label>
-            <select name="payment_method" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-                <option value="">All Methods</option>
-                <option value="Cash" {{ request('payment_method') === 'Cash' ? 'selected' : '' }}>Cash</option>
-                <option value="Bank Transfer" {{ request('payment_method') === 'Bank Transfer' ? 'selected' : '' }}>Bank Transfer</option>
-                <option value="UPI / QR Code" {{ request('payment_method') === 'UPI / QR Code' ? 'selected' : '' }}>UPI / QR Code</option>
-            </select>
-        </div>
-        @endif
-
-        <div class="flex items-end gap-2">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-150 flex-grow">
-                Generate
+        <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-gray-100">
+            <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap cursor-pointer">
+                <i class="fa-solid fa-filter text-xs"></i> Generate Report
             </button>
-            <a href="{{ route('admin.reports.export', request()->all()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg text-sm transition duration-150 flex items-center gap-2 shadow-sm" title="Export Excel (CSV)">
+            <a href="{{ route('admin.reports.export', request()->all()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap" title="Export Excel (CSV)">
                 <i class="fa-solid fa-file-excel text-base"></i> Export Excel
             </a>
-            <button type="button" onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm transition duration-150">
-                <i class="fa-solid fa-print"></i>
+            <button type="button" onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap" title="Print Report">
+                <i class="fa-solid fa-print text-sm"></i> Print
             </button>
         </div>
     </form>
