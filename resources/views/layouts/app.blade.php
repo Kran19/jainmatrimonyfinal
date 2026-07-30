@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="Jain Digambar Matrimony - India's most trusted matrimony platform exclusively for the Digambar Jain Samaj. Find your perfect life partner within the community. Established 2026.">
+    <meta name="keywords" content="Jain Matrimony, Digambar Jain, Jain Marriage, Jain Girls, Jain Boys, Digambar Jain Samaj, Matrimony Website">
+    <meta name="author" content="Jain Digambar Matrimony">
+    <meta name="robots" content="index, follow">
+    
+    <title>@yield('title', $settings['home_title'] ?? 'Digambar Jain Matrimony') - Exclusive Matrimony for Digambar Jain Samaj</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Tailwind CSS CDN -->
+    <script>
+        // Suppress Tailwind CDN production warning
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+            originalWarn.apply(console, args);
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E3A5F',     // Navy Blue
+                        secondary: '#C97B84',   // Rose Gold
+                        accent: '#C97B84',      // Rose Gold
+                        dark: '#2D2D2D',        // Dark Gray
+                        light: '#FAFAFA',       // Off White
+                    },
+                    fontFamily: {
+                        'serif': ['Georgia', 'Cambria', 'serif'],
+                        'sans': ['Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'float': 'float 3s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Global SweetAlert Handler -->
+    @if (session('success'))
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+        </script>
+    @endif
+    @if (session('error'))
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}'
+                });
+            });
+        </script>
+    @endif
+    
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Hamburger Menu Animation */
+        .hamburger {
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+            transform: rotate(0deg);
+            transition: .5s ease-in-out;
+        }
+        
+        .hamburger span {
+            display: block;
+            position: absolute;
+            height: 3px;
+            width: 100%;
+            background: #0f172a;
+            border-radius: 9px;
+            opacity: 1;
+            left: 0;
+            transform: rotate(0deg);
+            transition: .25s ease-in-out;
+        }
+        
+        .hamburger span:nth-child(1) { top: 0px; }
+        .hamburger span:nth-child(2) { top: 10px; }
+        .hamburger span:nth-child(3) { top: 20px; }
+        
+        .hamburger.active span:nth-child(1) {
+            top: 10px;
+            transform: rotate(135deg);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+            left: -60px;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            top: 10px;
+            transform: rotate(-135deg);
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.77, 0.2, 0.05, 1);
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            padding-top: 80px;
+        }
+        
+        .mobile-menu.active {
+            right: 0;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #1E3A5F;
+            border-radius: 4px;
+        }
+        
+        /* Form Styles */
+        input, select, textarea {
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1E3A5F;
+            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+        }
+        
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+    @stack('styles')
+</head>
+<body class="bg-light text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Include Layout Header -->
+    @include('layouts.header')
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        @yield('content')
+    </main>
+
+    <!-- Include Layout Footer -->
+    @include('layouts.footer')
+
+    @stack('scripts')
+</body>
+</html>

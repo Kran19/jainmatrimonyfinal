@@ -1,0 +1,217 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable, SoftDeletes;
+
+    protected $table = 'users';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'profile_id',
+        'full_name',
+        'email',
+        'mobile',
+        'country_code',
+        'password_hash',  // actual DB column used for auth
+        'are_you_digambar_jain',
+        
+        // Cast & Religion
+        'cast',
+        'subcast',
+        'custom_subcast',
+        
+        // Address
+        'permanent_address',
+        'pin_code',
+        'current_address',
+        
+        // Family
+        'father_name',
+        'father_mobile',
+        'father_income',
+        'father_occupation',
+        'mother_name',
+        'mother_mobile',
+        'mother_occupation',
+        'mother_occupation_details',
+        'brothers',
+        'brothers_married',
+        'brothers_unmarried',
+        'sisters',
+        'sisters_married',
+        'sisters_unmarried',
+
+        // Mandir / Community Verification
+        'mandir',
+        'custom_mandir',
+        'mandir_name',
+        'mandir_address',
+        'mandir_pincode',
+
+        // References
+        'ref1_name',
+        'ref1_mobile',
+        'ref1_relation',
+        'ref2_name',
+        'ref2_mobile',
+        'ref2_relation',
+
+        'filled_by',
+        'id_proof_type',
+        'id_proof_path',
+        
+        // Profile details
+        'gender',
+        'birth_date',
+        'birth_time',
+        'birth_place',
+        'native_place',
+        'gotra',
+        'mama_gotra',
+        'manglik',
+        'height',
+        'weight',
+        'marital_status',
+        'handicapped',
+        
+        // Professional
+        'higher_education',
+        'occupation',
+        'company_name',
+        'designation',
+        'monthly_income',
+        
+        // Lifestyle & Preferences
+        'languages',
+        'hobbies',
+        'partner_preference',
+        
+        // Media & Payments
+        'profile_photo',
+        'family_photo',
+        'profile_photo_drive_url',
+        'payment_screenshot',
+        'payment_proof_drive_url',
+        'payment_transaction_id',
+        'payment_status',
+        
+        // Admin approval statuses
+        'status',
+        'verified',
+        'approved_by',
+        'approved_at',
+        'featured_until',
+        'has_set_password',
+        'registration_source',
+        'is_public',
+        'registration_step',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password_hash',
+        'remember_token',
+    ];
+
+    /**
+     * Get the password for the user (handles legacy column name password_hash).
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
+    /**
+     * Get the name of the password attribute for the user.
+     *
+     * @return string
+     */
+    public function getAuthPasswordName()
+    {
+        return 'password_hash';
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'birth_date' => 'date',
+            'approved_at' => 'datetime',
+            'featured_until' => 'date',
+            'verified' => 'boolean',
+            'is_public' => 'boolean',
+            'has_set_password' => 'boolean',
+            'monthly_income' => 'decimal:2',
+            'weight' => 'string',
+        ];
+    }
+
+    /* Scopes */
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where('is_public', true);
+    }
+
+    /* Relationships */
+    public function customData()
+    {
+        return $this->hasMany(UserCustomData::class, 'user_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'user_id');
+    }
+
+    public function memberships()
+    {
+        return $this->hasMany(UserMembership::class, 'user_id');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(UserLike::class, 'user_id');
+    }
+
+    public function relatives()
+    {
+        return $this->hasMany(UserRelative::class, 'user_id');
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(Admin::class, 'approved_by');
+    }
+}
