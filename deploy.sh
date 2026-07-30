@@ -42,7 +42,8 @@ echo "🗄️ Running database migrations..."
 php artisan migrate --force
 
 # 6. Clear application caches safely
-echo "🧹 Clearing application caches..."
+echo "🧹 Clearing application & route caches..."
+php artisan optimize:clear || true
 php artisan config:clear || true
 php artisan cache:clear || true
 php artisan route:clear || true

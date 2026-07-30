@@ -13,13 +13,15 @@ class ImageController extends Controller
      */
     public function serve(Request $request)
     {
-        $filePath = urldecode($request->query('file'));
+        $rawFile = $request->query('file');
 
-        if (empty($filePath)) {
-            return abort(404);
+        if (empty($rawFile)) {
+            return $this->fallbackNotFound();
         }
 
-        // 1. If it's a base64 data string
+        $filePath = urldecode($rawFile);
+
+        // 1. Base64 data strings
         if (Str::startsWith($filePath, 'data:')) {
             try {
                 list($type, $data) = explode(';', $filePath);
@@ -31,7 +33,7 @@ class ImageController extends Controller
                     ->header('Content-Type', $mime)
                     ->header('Cache-Control', 'public, max-age=86400');
             } catch (\Exception $e) {
-                return abort(404);
+                return $this->fallbackNotFound();
             }
         }
 
@@ -55,80 +57,65 @@ class ImageController extends Controller
         $safePath = str_replace(['..', '\\'], ['', '/'], $filePath);
         $safePath = ltrim($safePath, '/');
         
-        $cleanPathNoStorage = preg_replace('#^(storage/|public/)#', '', $safePath);
-        $cleanPathNoUploads = preg_replace('#^(uploads/|storage/uploads/|public/uploads/)#', '', $safePath);
-        $cleanPathNoImports = preg_replace('#^(imports/|private/imports/|public/imports/)#', '', $safePath);
+        $cleanPathNoStorage = preg_replace('#^(storage/|public/)#i', '', $safePath);
+        $cleanPathNoUploads = preg_replace('#^(uploads/|storage/uploads/|public/uploads/)#i', '', $safePath);
+        $cleanPathNoImports = preg_replace('#^(imports/|private/imports/|public/imports/)#i', '', $safePath);
+        $filename = basename($safePath);
 
-        // Multiple locations to search for the file
-        $possiblePaths = [
-            // Private Storage (Secure imports and private uploads)
-            storage_path('app/private/' . $safePath),
-            storage_path('app/private/imports/' . $cleanPathNoImports),
-            storage_path('app/private/uploads/' . $cleanPathNoUploads),
-
-            // Public Storage (New uploaded files)
-            storage_path('app/public/' . $safePath),
-            storage_path('app/public/' . $cleanPathNoStorage),
-            storage_path('app/public/uploads/' . $cleanPathNoUploads),
-
-            // Legacy Public Directory
-            public_path($safePath),
-            public_path('uploads/' . $cleanPathNoUploads),
-            public_path('imports/' . $cleanPathNoImports),
-
-            // General Storage Root
-            storage_path('app/' . $safePath),
-            base_path($safePath),
-            base_path('../digambar-samaj/' . $safePath),
-            base_path('../digambar-samaj/public/' . $safePath),
+        // Directories to search in priority order
+        $searchDirs = [
+            public_path('uploads'),
+            storage_path('app/public/uploads'),
+            storage_path('app/private/imports/profile_photos'),
+            storage_path('app/private/imports/payment_proofs'),
+            storage_path('app/private/imports'),
+            storage_path('app/private/uploads'),
+            storage_path('app/private'),
+            storage_path('app/public'),
+            public_path('imports/profile_photos'),
+            public_path('imports/payment_proofs'),
+            public_path('imports'),
+            public_path(),
+            base_path('uploads'),
+            base_path('uploads_backup_1785382420'),
+            base_path('../digambar-samaj/uploads'),
+            base_path('../digambar-samaj/public/uploads'),
+            base_path('../digambar-samaj'),
+            base_path(),
         ];
 
+        // 3. Direct exact path check
         $foundPath = null;
-        foreach ($possiblePaths as $path) {
+        $possibleExactPaths = [
+            public_path($safePath),
+            public_path('uploads/' . $cleanPathNoUploads),
+            storage_path('app/public/' . $safePath),
+            storage_path('app/public/uploads/' . $cleanPathNoUploads),
+            storage_path('app/private/' . $safePath),
+            storage_path('app/private/imports/' . $cleanPathNoImports),
+            storage_path('app/' . $safePath),
+            base_path($safePath),
+        ];
+
+        foreach ($possibleExactPaths as $path) {
             if (file_exists($path) && is_file($path)) {
                 $foundPath = $path;
                 break;
             }
         }
 
-        // 3. Smart Glob Fallback if exact filename fails (e.g. timestamp mismatches like 1785322671 vs 1785362050)
+        // 4. Case-insensitive and timestamp-independent search
         if (!$foundPath) {
-            $filename = basename($safePath);
-            $searchPattern = null;
-
-            if (preg_match('/_photo_(.+)$/', $filename, $matches)) {
-                $searchPattern = '*_photo_*' . $matches[1];
-            } elseif (preg_match('/_family_(.+)$/', $filename, $matches)) {
-                $searchPattern = '*_family_*' . $matches[1];
-            } elseif (preg_match('/_idproof_(.+)$/', $filename, $matches)) {
-                $searchPattern = '*_idproof_*' . $matches[1];
-            } elseif (preg_match('/_payment_(.+)$/', $filename, $matches)) {
-                $searchPattern = '*_payment_*' . $matches[1];
-            }
-
-            if ($searchPattern) {
-                $searchDirs = [
-                    storage_path('app/public/uploads'),
-                    storage_path('app/private/imports/profile_photos'),
-                    storage_path('app/private/imports/payment_proofs'),
-                    public_path('uploads'),
-                    public_path('imports/profile_photos'),
-                    public_path('imports/payment_proofs'),
-                ];
-
-                foreach ($searchDirs as $dir) {
-                    if (is_dir($dir)) {
-                        $matches = glob($dir . '/' . $searchPattern);
-                        if (!empty($matches) && is_file($matches[0])) {
-                            $foundPath = $matches[0];
-                            break;
-                        }
-                    }
+            foreach ($searchDirs as $dir) {
+                $matched = $this->findMatchingFile($dir, $filename);
+                if ($matched) {
+                    $foundPath = $matched;
+                    break;
                 }
             }
         }
 
-        if ($foundPath) {
+        if ($foundPath && is_file($foundPath)) {
             $mime = @mime_content_type($foundPath) ?: 'application/octet-stream';
             
             $ext = strtolower(pathinfo($foundPath, PATHINFO_EXTENSION));
@@ -155,6 +142,71 @@ class ImageController extends Controller
             ]);
         }
 
-        return abort(404);
+        return $this->fallbackNotFound();
+    }
+
+    /**
+     * Case-insensitive and partial suffix file finder for legacy / timestamped uploads.
+     */
+    private function findMatchingFile($dir, $filename)
+    {
+        if (!is_dir($dir)) {
+            return null;
+        }
+
+        $dh = @opendir($dir);
+        if (!$dh) {
+            return null;
+        }
+
+        $targetLower = strtolower($filename);
+        
+        // Extract suffix after _photo_, _family_, _idproof_, _payment_
+        $cleanSuffix = null;
+        if (preg_match('/_(photo|family|idproof|payment)_(.+)$/i', $filename, $m)) {
+            $cleanSuffix = strtolower($m[2]);
+        } elseif (preg_match('/^([0-9]+)_(.+)$/', $filename, $m)) {
+            $cleanSuffix = strtolower($m[2]);
+        }
+
+        $bestMatch = null;
+        while (($file = readdir($dh)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $filePath = $dir . '/' . $file;
+            if (!is_file($filePath)) {
+                continue;
+            }
+
+            $fileLower = strtolower($file);
+
+            // Exact case-insensitive match
+            if ($fileLower === $targetLower) {
+                closedir($dh);
+                return $filePath;
+            }
+
+            // Suffix match if timestamp prefix differs
+            if ($cleanSuffix && strpos($fileLower, $cleanSuffix) !== false) {
+                $bestMatch = $filePath;
+            }
+        }
+        closedir($dh);
+
+        return $bestMatch;
+    }
+
+    /**
+     * Fallback when file is truly missing (returns default SVG avatar or 404).
+     */
+    private function fallbackNotFound()
+    {
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>';
+        
+        return response($svg, 404)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Cache-Control', 'no-cache');
     }
 }
