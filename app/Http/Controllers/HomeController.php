@@ -35,14 +35,18 @@ class HomeController extends Controller
         // 3. Fetch active advertisements
         $advertisements = [];
         try {
-            $advertisements = Advertisement::where('status', true)->orderBy('id', 'desc')->get()->toArray();
+            $query = Advertisement::where('status', true);
+            if (\Illuminate\Support\Facades\Schema::hasColumn('advertisements', 'sort_order')) {
+                $query->orderBy('sort_order', 'asc');
+            }
+            $advertisements = $query->orderBy('created_at', 'desc')->get()->toArray();
         } catch (\Exception $e) {}
 
-        $home_top_ads = array_filter($advertisements, fn($ad) => $ad['position'] === 'home_top');
-        $home_bottom_ads = array_filter($advertisements, fn($ad) => $ad['position'] === 'home_bottom');
-        $left_sidebar_ads = array_filter($advertisements, fn($ad) => in_array($ad['position'], ['left_side', 'left_sidebar']));
-        $right_sidebar_ads = array_filter($advertisements, fn($ad) => in_array($ad['position'], ['right_side', 'right_sidebar']));
-        $footer_ads = array_filter($advertisements, fn($ad) => $ad['position'] === 'footer');
+        $home_top_ads = array_values(array_filter($advertisements, fn($ad) => $ad['position'] === 'home_top'));
+        $left_sidebar_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['left', 'left_side', 'left_sidebar'])));
+        $right_sidebar_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['right', 'right_side', 'right_sidebar'])));
+        $bottom_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['bottom', 'bottom_banner', 'home_bottom', 'footer'])));
+        $home_bottom_ads = !empty($bottom_ads) ? $bottom_ads : array_values(array_filter($advertisements, fn($ad) => $ad['position'] === 'home_bottom'));
 
         // 4. Determine user auth status & view access permissions
         $is_logged_in = false;

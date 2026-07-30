@@ -79,36 +79,42 @@
             @if (!isset($settings['show_hero_left_ad']) || $settings['show_hero_left_ad'] == '1')
             <div class="flex flex-col w-full xl:w-56 space-y-3 flex-shrink-0 xl:order-1">
                 @if (!empty($left_sidebar_ads))
-                    @foreach($left_sidebar_ads as $ad)
-                        @php
-                            $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
-                            $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
-                            
-                            if (str_starts_with($ad_img, 'data:image/')) {
-                                $img_src = $ad_img;
-                            } else {
-                                $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
-                                $img_src = route('image.serve', ['file' => $img_path]);
-                            }
-                        @endphp
-                        @if(!empty($ad['link']))
-                            <a href="{{ $ad['link'] }}" target="_blank" class="block relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden hover:opacity-90 transition">
-                                @if($is_video)
-                                    <video src="{{ $img_src }}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+                    <div class="ad-rotator-container relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden bg-slate-900">
+                        @foreach($left_sidebar_ads as $index => $ad)
+                            @php
+                                $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
+                                $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
+                                $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
+                                
+                                if (str_starts_with($ad_img, 'data:image/')) {
+                                    $img_src = $ad_img;
+                                } else {
+                                    $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
+                                    $img_src = route('image.serve', ['file' => $img_path]);
+                                }
+                            @endphp
+                            <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                                 data-duration="{{ $duration * 1000 }}">
+                                @if(!empty($ad['link']))
+                                    <a href="{{ $ad['link'] }}" target="_blank" class="block w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </a>
                                 @else
-                                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="absolute inset-0 w-full h-full object-cover">
-                                @endif
-                            </a>
-                        @else
-                            <div class="relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden">
-                                @if($is_video)
-                                    <video src="{{ $img_src }}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-                                @else
-                                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
-                        @endif
-                    @endforeach
+                        @endforeach
+                    </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
                     <div class="relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden group">
@@ -156,36 +162,42 @@
             @if (!isset($settings['show_hero_right_ad']) || $settings['show_hero_right_ad'] == '1')
             <div class="flex flex-col w-full xl:w-56 space-y-3 flex-shrink-0 xl:order-3">
                 @if (!empty($right_sidebar_ads))
-                    @foreach($right_sidebar_ads as $ad)
-                        @php
-                            $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
-                            $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
-                            
-                            if (str_starts_with($ad_img, 'data:image/')) {
-                                $img_src = $ad_img;
-                            } else {
-                                $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
-                                $img_src = route('image.serve', ['file' => $img_path]);
-                            }
-                        @endphp
-                        @if(!empty($ad['link']))
-                            <a href="{{ $ad['link'] }}" target="_blank" class="block relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden hover:opacity-90 transition">
-                                @if($is_video)
-                                    <video src="{{ $img_src }}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+                    <div class="ad-rotator-container relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden bg-slate-900">
+                        @foreach($right_sidebar_ads as $index => $ad)
+                            @php
+                                $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
+                                $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
+                                $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
+                                
+                                if (str_starts_with($ad_img, 'data:image/')) {
+                                    $img_src = $ad_img;
+                                } else {
+                                    $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
+                                    $img_src = route('image.serve', ['file' => $img_path]);
+                                }
+                            @endphp
+                            <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                                 data-duration="{{ $duration * 1000 }}">
+                                @if(!empty($ad['link']))
+                                    <a href="{{ $ad['link'] }}" target="_blank" class="block w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </a>
                                 @else
-                                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="absolute inset-0 w-full h-full object-cover">
-                                @endif
-                            </a>
-                        @else
-                            <div class="relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden">
-                                @if($is_video)
-                                    <video src="{{ $img_src }}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-                                @else
-                                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
-                        @endif
-                    @endforeach
+                        @endforeach
+                    </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
                     <div class="relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden group">
@@ -207,19 +219,41 @@
     <div class="container mx-auto px-4 relative z-20 w-full mt-3">
         <div class="flex flex-wrap justify-center gap-4 w-full">
             @if (!empty($home_bottom_ads))
-                @foreach($home_bottom_ads as $ad)
-                    @php
-                        $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
-                        if (str_starts_with($ad_img, 'data:image/')) {
-                            $img_src = $ad_img;
-                        } else {
-                            $img_src = route('image.serve', ['file' => ltrim(str_replace('../', '', $ad_img), '/\\')]);
-                        }
-                    @endphp
-                    <div class="relative w-full h-[80px] sm:h-[90px] md:h-[100px] rounded shadow-lg border border-gray-700 overflow-hidden">
-                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="absolute inset-0 w-full h-full object-cover">
-                    </div>
-                @endforeach
+                <div class="ad-rotator-container relative w-full h-[80px] sm:h-[90px] md:h-[100px] rounded shadow-lg border border-gray-700 overflow-hidden bg-slate-900">
+                    @foreach($home_bottom_ads as $index => $ad)
+                        @php
+                            $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
+                            $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
+                            $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
+                            
+                            if (str_starts_with($ad_img, 'data:image/')) {
+                                $img_src = $ad_img;
+                            } else {
+                                $img_src = route('image.serve', ['file' => ltrim(str_replace('../', '', $ad_img), '/\\')]);
+                            }
+                        @endphp
+                        <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                             data-duration="{{ $duration * 1000 }}">
+                            @if(!empty($ad['link']))
+                                <a href="{{ $ad['link'] }}" target="_blank" class="block w-full h-full">
+                                    @if($is_video)
+                                        <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                    @else
+                                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                    @endif
+                                </a>
+                            @else
+                                <div class="w-full h-full">
+                                    @if($is_video)
+                                        <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                    @else
+                                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
             @else
                 <!-- Unsplash Placeholder Ad -->
                 <div class="relative w-full h-[80px] sm:h-[90px] md:h-[100px] rounded shadow-lg border border-gray-700 overflow-hidden group">
@@ -545,4 +579,50 @@
         </div>
     </div>
 </section>
+
+<!-- Advertisement Rotator Engine (Continuous Infinite Loop) -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rotators = document.querySelectorAll('.ad-rotator-container');
+    rotators.forEach(container => {
+        const slides = container.querySelectorAll('.ad-slide');
+        if (slides.length <= 1) return; // Only 1 ad exists in this section: stay static without rotation
+
+        let currentIndex = 0;
+        let timer = null;
+
+        function playNextSlide(index) {
+            slides.forEach((slide, idx) => {
+                if (idx === index) {
+                    slide.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    slide.classList.add('opacity-100', 'z-10');
+                    const video = slide.querySelector('video');
+                    if (video) {
+                        video.currentTime = 0;
+                        video.play().catch(() => {});
+                    }
+                } else {
+                    slide.classList.remove('opacity-100', 'z-10');
+                    slide.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                    const video = slide.querySelector('video');
+                    if (video) {
+                        video.pause();
+                    }
+                }
+            });
+
+            const currentSlide = slides[index];
+            const duration = parseInt(currentSlide.getAttribute('data-duration')) || 3000;
+
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                playNextSlide(currentIndex);
+            }, duration);
+        }
+
+        playNextSlide(0);
+    });
+});
+</script>
 @endsection

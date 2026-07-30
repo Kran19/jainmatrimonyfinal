@@ -17,18 +17,17 @@ class Advertisement extends Model
         'link',
         'position',
         'media_type',
+        'sort_order',
+        'duration_seconds',
         'status'
     ];
-
-    /**
-     * advertisements has created_at but no updated_at.
-     */
-    const UPDATED_AT = null;
 
     protected function casts(): array
     {
         return [
-            'status' => 'boolean'
+            'status' => 'boolean',
+            'sort_order' => 'integer',
+            'duration_seconds' => 'integer',
         ];
     }
 

@@ -187,6 +187,30 @@ return new class extends Migration
                 });
             }
         }
+
+        // 10. Ensure advertisements table has media_type, sort_order, duration_seconds, updated_at
+        if (Schema::hasTable('advertisements')) {
+            if (!Schema::hasColumn('advertisements', 'media_type')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->string('media_type', 20)->default('image');
+                });
+            }
+            if (!Schema::hasColumn('advertisements', 'sort_order')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->integer('sort_order')->default(0);
+                });
+            }
+            if (!Schema::hasColumn('advertisements', 'duration_seconds')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->integer('duration_seconds')->default(3);
+                });
+            }
+            if (!Schema::hasColumn('advertisements', 'updated_at')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->timestamp('updated_at')->nullable();
+                });
+            }
+        }
     }
 
     public function down(): void

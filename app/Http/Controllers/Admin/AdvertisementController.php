@@ -15,33 +15,51 @@ class AdvertisementController extends Controller
      */
     public function index()
     {
-        // Dynamic schema check/alter
-        if (!Schema::hasColumn('advertisements', 'media_type')) {
-            Schema::table('advertisements', function (Blueprint $table) {
-                $table->string('media_type', 20)->default('image')->after('image');
-            });
+        // Dynamic schema check/alter to self-heal columns
+        if (Schema::hasTable('advertisements')) {
+            if (!Schema::hasColumn('advertisements', 'media_type')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->string('media_type', 20)->default('image');
+                });
+            }
+            if (!Schema::hasColumn('advertisements', 'sort_order')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->integer('sort_order')->default(0);
+                });
+            }
+            if (!Schema::hasColumn('advertisements', 'duration_seconds')) {
+                Schema::table('advertisements', function (Blueprint $table) {
+                    $table->integer('duration_seconds')->default(3);
+                });
+            }
         }
 
-        $ads = Advertisement::orderBy('created_at', 'desc')->get();
+        $ads = Advertisement::orderBy('position', 'asc')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('admin.cms.ads.index', compact('ads'));
     }
 
     /**
-     * Store new advertisement banner.
+     * Store new advertisement campaign.
      */
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
-            'position' => 'required|string|max:50',
-            'image' => 'required|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm|max:20480', // 20MB max for videos
+            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar',
+            'image' => 'required|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm,mov,avi|max:20480',
+            'sort_order' => 'nullable|integer|min:0',
+            'duration_seconds' => 'nullable|integer|min:1|max:60',
         ]);
 
         $file = $request->file('image');
         $mime = $file->getClientMimeType();
         $ext = strtolower($file->getClientOriginalExtension());
-        $is_video = str_contains($mime, 'video') || in_array($ext, ['mp4', 'webm']);
+        $is_video = str_contains($mime, 'video') || in_array($ext, ['mp4', 'webm', 'mov', 'avi']);
 
         $upload_dir = public_path('uploads/ads');
         if (!is_dir($upload_dir)) {
@@ -58,10 +76,12 @@ class AdvertisementController extends Controller
             'position' => $request->position,
             'image' => $dbPath,
             'media_type' => $is_video ? 'video' : 'image',
+            'sort_order' => $request->input('sort_order', 0),
+            'duration_seconds' => $request->input('duration_seconds', 3),
             'status' => true,
         ]);
 
-        return back()->with('success', 'Advertisement saved successfully.');
+        return back()->with('success', 'Advertisement campaign published successfully.');
     }
 
     /**
@@ -72,8 +92,10 @@ class AdvertisementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
-            'position' => 'required|string|max:50',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm|max:20480',
+            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar',
+            'image' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm,mov,avi|max:20480',
+            'sort_order' => 'nullable|integer|min:0',
+            'duration_seconds' => 'nullable|integer|min:1|max:60',
             'status' => 'nullable|boolean',
         ]);
 
@@ -81,11 +103,13 @@ class AdvertisementController extends Controller
             'title' => $request->title,
             'link' => $request->link,
             'position' => $request->position,
+            'sort_order' => $request->input('sort_order', 0),
+            'duration_seconds' => $request->input('duration_seconds', 3),
             'status' => $request->has('status'),
         ];
 
         if ($request->hasFile('image')) {
-            // Delete old file
+            // Delete old media file
             if ($ad->image && file_exists(public_path($ad->image))) {
                 @unlink(public_path($ad->image));
             }
@@ -93,7 +117,7 @@ class AdvertisementController extends Controller
             $file = $request->file('image');
             $mime = $file->getClientMimeType();
             $ext = strtolower($file->getClientOriginalExtension());
-            $is_video = str_contains($mime, 'video') || in_array($ext, ['mp4', 'webm']);
+            $is_video = str_contains($mime, 'video') || in_array($ext, ['mp4', 'webm', 'mov', 'avi']);
 
             $upload_dir = public_path('uploads/ads');
             if (!is_dir($upload_dir)) {
@@ -109,16 +133,16 @@ class AdvertisementController extends Controller
 
         $ad->update($updateData);
 
-        return back()->with('success', 'Advertisement updated successfully.');
+        return back()->with('success', 'Advertisement campaign updated successfully.');
     }
 
     /**
-     * Toggle advertisement status.
+     * Toggle advertisement active status.
      */
     public function toggle(Advertisement $ad)
     {
         $ad->update(['status' => !$ad->status]);
-        return back()->with('success', 'Advertisement status toggled.');
+        return back()->with('success', 'Advertisement status toggled successfully.');
     }
 
     /**
@@ -130,6 +154,6 @@ class AdvertisementController extends Controller
             @unlink(public_path($ad->image));
         }
         $ad->delete();
-        return back()->with('success', 'Advertisement deleted.');
+        return back()->with('success', 'Advertisement deleted successfully.');
     }
 }
