@@ -135,9 +135,36 @@ class MemberController extends Controller
      */
     public function requests()
     {
+        // Auto-sync any existing deactivated users into account_requests table
+        if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
+            $deactivatedUsers = User::where('status', 'deactivated')
+                ->whereNotIn('id', function ($q) {
+                    $q->select('user_id')->from('account_requests');
+                })
+                ->get();
+
+            foreach ($deactivatedUsers as $dUser) {
+                \DB::table('account_requests')->insert([
+                    'user_id' => $dUser->id,
+                    'request_type' => 'deactivation',
+                    'reason' => $dUser->delete_reason ?: 'User deactivated profile directly.',
+                    'status' => 'pending',
+                    'created_at' => $dUser->updated_at ?? now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
         $requests = \DB::table('account_requests')
             ->join('users', 'account_requests.user_id', '=', 'users.id')
-            ->select('account_requests.*', 'users.full_name', 'users.profile_id', 'users.profile_photo', 'users.gender')
+            ->select(
+                'account_requests.*',
+                'users.full_name',
+                'users.profile_id',
+                'users.profile_photo',
+                'users.gender',
+                'users.delete_reason'
+            )
             ->where('account_requests.status', 'pending')
             ->orderBy('account_requests.created_at', 'desc')
             ->get();
@@ -158,7 +185,10 @@ class MemberController extends Controller
         $userId = $req->user_id;
 
         if ($req->request_type === 'deactivation') {
-            User::where('id', $userId)->update(['status' => 'blocked']);
+            User::where('id', $userId)->update([
+                'status' => 'blocked',
+                'is_public' => false
+            ]);
         } else {
             User::where('id', $userId)->delete();
         }

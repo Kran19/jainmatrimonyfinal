@@ -345,6 +345,18 @@ class ProfileController extends Controller
             'status' => 'deactivated',
             'is_public' => false
         ]);
+
+        // Insert pending deactivation request into account_requests for Admin panel
+        if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
+            DB::table('account_requests')->insert([
+                'user_id' => $user->id,
+                'request_type' => 'deactivation',
+                'reason' => $reason,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
         
         Auth::logout();
         
