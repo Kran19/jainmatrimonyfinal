@@ -16,25 +16,25 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse min-w-[650px]">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
-                            <th class="py-3 px-6">Media Preview</th>
-                            <th class="py-3 px-6">Title / Link</th>
-                            <th class="py-3 px-6">Position</th>
-                            <th class="py-3 px-6">Loop Duration</th>
-                            <th class="py-3 px-6">Order</th>
-                            <th class="py-3 px-6">Status</th>
-                            <th class="py-3 px-6 text-center">Actions</th>
+                        <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold tracking-wider">
+                            <th class="py-3.5 px-4">Media Preview</th>
+                            <th class="py-3.5 px-4">Title / Link</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Position</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Loop Duration</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap">Order</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap">Status</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm divide-y divide-gray-100">
                         @forelse($ads as $ad)
-                        <tr class="hover:bg-slate-50 transition duration-150">
-                            <td class="py-4 px-6 w-36">
+                        <tr class="hover:bg-slate-50/80 transition duration-150">
+                            <td class="py-3.5 px-4 w-32">
                                 @if($ad->image)
-                                    <div class="w-28 h-16 bg-slate-900 rounded border border-gray-200 overflow-hidden relative shadow-sm cursor-pointer group" onclick='previewMedia("{{ asset($ad->image) }}", "{{ $ad->media_type ?? "image" }}", "{{ e($ad->title) }}")'>
+                                    <div class="w-28 h-16 bg-slate-900 rounded-lg border border-gray-200 overflow-hidden relative shadow-xs cursor-pointer group" onclick='previewMedia("{{ asset($ad->image) }}", "{{ $ad->media_type ?? "image" }}", "{{ e($ad->title) }}")'>
                                         @if(isset($ad->media_type) && $ad->media_type === 'video')
                                             <video src="{{ asset($ad->image) }}" muted class="w-full h-full object-cover"></video>
                                             <span class="absolute bottom-1 right-1 bg-indigo-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded flex items-center gap-1 shadow">
@@ -51,20 +51,20 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="w-28 h-16 bg-slate-100 rounded border flex items-center justify-center text-slate-400 text-xs font-bold">No Media</div>
+                                    <div class="w-28 h-16 bg-slate-100 rounded-lg border flex items-center justify-center text-slate-400 text-xs font-bold">No Media</div>
                                 @endif
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="font-bold text-gray-900 leading-tight">{{ $ad->title }}</div>
+                            <td class="py-3.5 px-4 max-w-[180px]">
+                                <div class="font-bold text-slate-800 leading-snug truncate" title="{{ $ad->title }}">{{ $ad->title }}</div>
                                 @if($ad->link)
-                                    <a href="{{ $ad->link }}" target="_blank" class="text-xs text-indigo-600 hover:underline block mt-1 truncate max-w-xs font-medium">
+                                    <a href="{{ $ad->link }}" target="_blank" class="text-xs text-indigo-600 hover:underline block mt-0.5 truncate font-medium" title="{{ $ad->link }}">
                                         <i class="fa-solid fa-link text-[10px]"></i> {{ $ad->link }}
                                     </a>
                                 @else
-                                    <span class="text-xs text-slate-400 block mt-1">No click link</span>
+                                    <span class="text-xs text-slate-400 block mt-0.5">No click link</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-6">
+                            <td class="py-3.5 px-4 whitespace-nowrap">
                                 @php
                                     $posLabel = match($ad->position) {
                                         'left_sidebar', 'left' => 'Left Sidebar',
@@ -73,28 +73,28 @@
                                         default => ucfirst(str_replace('_', ' ', $ad->position))
                                     };
                                     $posBadge = match($ad->position) {
-                                        'left_sidebar', 'left' => 'bg-purple-50 text-purple-700 border-purple-100',
-                                        'right_sidebar', 'right' => 'bg-indigo-50 text-indigo-700 border-indigo-100',
-                                        'bottom_banner', 'bottom', 'home_bottom' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                                        default => 'bg-slate-50 text-slate-700 border-slate-100'
+                                        'left_sidebar', 'left' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                        'right_sidebar', 'right' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                        'bottom_banner', 'bottom', 'home_bottom' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                        default => 'bg-slate-50 text-slate-700 border-slate-200'
                                     };
                                 @endphp
-                                <span class="font-bold text-xs uppercase border px-2.5 py-1 rounded-full {{ $posBadge }}">
+                                <span class="font-bold text-[11px] uppercase border px-2.5 py-1 rounded-full whitespace-nowrap inline-block {{ $posBadge }}">
                                     {{ $posLabel }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6 text-gray-600 font-semibold text-xs">
-                                <span class="bg-slate-100 px-2 py-1 rounded border text-slate-700">
-                                    <i class="fa-regular fa-clock mr-1 text-slate-400"></i> {{ $ad->duration_seconds ?? 3 }} sec
+                            <td class="py-3.5 px-4 text-gray-600 font-semibold text-xs whitespace-nowrap">
+                                <span class="bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 whitespace-nowrap inline-flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-slate-400"></i> {{ $ad->duration_seconds ?? 3 }} sec
                                 </span>
                             </td>
-                            <td class="py-4 px-6 text-gray-600 font-mono text-xs">
+                            <td class="py-3.5 px-4 text-center text-gray-600 font-mono text-xs whitespace-nowrap">
                                 {{ $ad->sort_order ?? 0 }}
                             </td>
-                            <td class="py-4 px-6">
-                                <form action="{{ route('admin.cms.ads.toggle', $ad->id) }}" method="POST" class="m-0 p-0">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                <form action="{{ route('admin.cms.ads.toggle', $ad->id) }}" method="POST" class="m-0 p-0 inline-block">
                                     @csrf
-                                    <button type="submit" class="px-2.5 py-1 rounded-full text-xs font-bold transition flex items-center gap-1.5
+                                    <button type="submit" class="px-3 py-1 rounded-full text-xs font-bold transition inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer
                                         @if($ad->status) bg-emerald-100 text-emerald-800 hover:bg-emerald-200
                                         @else bg-slate-100 text-slate-600 hover:bg-slate-200 @endif">
                                         <span class="w-2 h-2 rounded-full {{ $ad->status ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
@@ -102,16 +102,16 @@
                                     </button>
                                 </form>
                             </td>
-                            <td class="py-4 px-6 text-center">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button onclick='openEditAdModal({!! json_encode($ad) !!})' class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition" title="Edit Campaign">
-                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    <button onclick='openEditAdModal({!! json_encode($ad) !!})' class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition cursor-pointer" title="Edit Campaign">
+                                        <i class="fa-solid fa-pen-to-square text-sm"></i>
                                     </button>
-                                    <form action="{{ route('admin.cms.ads.destroy', $ad->id) }}" method="POST" class="m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this advertisement campaign?');">
+                                    <form action="{{ route('admin.cms.ads.destroy', $ad->id) }}" method="POST" class="m-0 p-0 inline-block" onsubmit="return confirm('Are you sure you want to delete this advertisement campaign?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition" title="Delete Campaign">
-                                            <i class="fa-solid fa-trash-can"></i>
+                                        <button type="submit" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition cursor-pointer" title="Delete Campaign">
+                                            <i class="fa-solid fa-trash-can text-sm"></i>
                                         </button>
                                     </form>
                                 </div>
