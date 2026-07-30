@@ -7,42 +7,60 @@ use App\Models\Advertisement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 
 class AdvertisementController extends Controller
 {
+    /**
+     * Self-healing DB schema helper to guarantee all missing columns are added in production.
+     */
+    protected function ensureSchema()
+    {
+        if (Schema::hasTable('advertisements')) {
+            if (!Schema::hasColumn('advertisements', 'updated_at')) {
+                try {
+                    Schema::table('advertisements', function (Blueprint $table) {
+                        $table->timestamp('updated_at')->nullable();
+                    });
+                } catch (\Exception $e) {}
+            }
+            if (!Schema::hasColumn('advertisements', 'media_type')) {
+                try {
+                    Schema::table('advertisements', function (Blueprint $table) {
+                        $table->string('media_type', 20)->default('image');
+                    });
+                } catch (\Exception $e) {}
+            }
+            if (!Schema::hasColumn('advertisements', 'sort_order')) {
+                try {
+                    Schema::table('advertisements', function (Blueprint $table) {
+                        $table->integer('sort_order')->default(0);
+                    });
+                } catch (\Exception $e) {}
+            }
+            if (!Schema::hasColumn('advertisements', 'duration_seconds')) {
+                try {
+                    Schema::table('advertisements', function (Blueprint $table) {
+                        $table->integer('duration_seconds')->default(3);
+                    });
+                } catch (\Exception $e) {}
+            }
+
+            // Remove printmines.com redirection links automatically
+            try {
+                DB::table('advertisements')
+                    ->where('link', 'like', '%printmines%')
+                    ->update(['link' => null]);
+            } catch (\Exception $e) {}
+        }
+    }
+
     /**
      * Display listing of advertisements.
      */
     public function index()
     {
-        // Dynamic schema check/alter to self-heal columns
-        if (Schema::hasTable('advertisements')) {
-            if (!Schema::hasColumn('advertisements', 'media_type')) {
-                Schema::table('advertisements', function (Blueprint $table) {
-                    $table->string('media_type', 20)->default('image');
-                });
-            }
-            if (!Schema::hasColumn('advertisements', 'sort_order')) {
-                Schema::table('advertisements', function (Blueprint $table) {
-                    $table->integer('sort_order')->default(0);
-                });
-            }
-            if (!Schema::hasColumn('advertisements', 'duration_seconds')) {
-                Schema::table('advertisements', function (Blueprint $table) {
-                    $table->integer('duration_seconds')->default(3);
-                });
-            }
-            if (!Schema::hasColumn('advertisements', 'updated_at')) {
-                Schema::table('advertisements', function (Blueprint $table) {
-                    $table->timestamp('updated_at')->nullable();
-                });
-            }
-
-            // Remove printmines.com redirection links automatically
-            \Illuminate\Support\Facades\DB::table('advertisements')
-                ->where('link', 'like', '%printmines%')
-                ->update(['link' => null]);
-        }
+        $this->ensureSchema();
 
         $ads = Advertisement::orderBy('position', 'asc')
             ->orderBy('sort_order', 'asc')
@@ -57,6 +75,8 @@ class AdvertisementController extends Controller
      */
     public function store(Request $request)
     {
+        $this->ensureSchema();
+
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
@@ -80,7 +100,7 @@ class AdvertisementController extends Controller
         $file->move($upload_dir, $filename);
         $dbPath = 'uploads/ads/' . $filename;
 
-        Advertisement::create([
+        $insertData = [
             'title' => $request->title,
             'link' => $request->link,
             'position' => $request->position,
@@ -89,7 +109,15 @@ class AdvertisementController extends Controller
             'sort_order' => $request->input('sort_order', 0),
             'duration_seconds' => $request->input('duration_seconds', 3),
             'status' => true,
-        ]);
+        ];
+        if (Schema::hasColumn('advertisements', 'created_at')) {
+            $insertData['created_at'] = now();
+        }
+        if (Schema::hasColumn('advertisements', 'updated_at')) {
+            $insertData['updated_at'] = now();
+        }
+
+        DB::table('advertisements')->insert($insertData);
 
         return back()->with('success', 'Advertisement campaign published successfully.');
     }
@@ -97,8 +125,12 @@ class AdvertisementController extends Controller
     /**
      * Update the specified advertisement.
      */
-    public function update(Request $request, Advertisement $ad)
+    public function update(Request $request, $id)
     {
+        $this->ensureSchema();
+
+        $ad = Advertisement::findOrFail($id);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
@@ -117,6 +149,10 @@ class AdvertisementController extends Controller
             'duration_seconds' => $request->input('duration_seconds', 3),
             'status' => $request->has('status'),
         ];
+
+        if (Schema::hasColumn('advertisements', 'updated_at')) {
+            $updateData['updated_at'] = now();
+        }
 
         if ($request->hasFile('image')) {
             // Delete old media file
@@ -141,7 +177,7 @@ class AdvertisementController extends Controller
             $updateData['media_type'] = $is_video ? 'video' : 'image';
         }
 
-        \Illuminate\Support\Facades\DB::table('advertisements')->where('id', $ad->id)->update($updateData);
+        DB::table('advertisements')->where('id', $ad->id)->update($updateData);
 
         return back()->with('success', 'Advertisement campaign updated successfully.');
     }
@@ -149,17 +185,28 @@ class AdvertisementController extends Controller
     /**
      * Toggle advertisement active status.
      */
-    public function toggle(Advertisement $ad)
+    public function toggle($id)
     {
-        \Illuminate\Support\Facades\DB::table('advertisements')->where('id', $ad->id)->update(['status' => !$ad->status]);
+        $this->ensureSchema();
+
+        $ad = Advertisement::findOrFail($id);
+        $updateData = ['status' => !$ad->status];
+        if (Schema::hasColumn('advertisements', 'updated_at')) {
+            $updateData['updated_at'] = now();
+        }
+        DB::table('advertisements')->where('id', $ad->id)->update($updateData);
+
         return back()->with('success', 'Advertisement status toggled successfully.');
     }
 
     /**
      * Delete advertisement.
      */
-    public function destroy(Advertisement $ad)
+    public function destroy($id)
     {
+        $this->ensureSchema();
+
+        $ad = Advertisement::findOrFail($id);
         if ($ad->image && file_exists(public_path($ad->image))) {
             @unlink(public_path($ad->image));
         }
