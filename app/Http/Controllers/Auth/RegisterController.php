@@ -120,13 +120,16 @@ class RegisterController extends Controller
             $user->mobile       = $regData['mobile'];
             $user->password_hash = $hashedPassword;  // Used by Laravel Auth
             $user->status       = 'account_approved';
-            $user->has_set_password = true;
-            $user->registration_source = 'website';
             $user->is_public    = true;
 
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
+                $user->has_set_password = true;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'registration_source')) {
+                $user->registration_source = 'website';
+            }
+
             // Bypass Eloquent to also write the legacy 'password' column (NOT NULL in DB)
-            // This prevents "Field 'password' doesn't have a default value" SQL error.
-            // Once the DB column is made nullable (run run-patch.php), this line becomes harmless.
             $user->forceFill(['password' => $hashedPassword]);
 
             $user->save();

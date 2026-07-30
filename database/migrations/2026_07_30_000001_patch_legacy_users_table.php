@@ -97,6 +97,20 @@ return new class extends Migration
                 DB::statement("ALTER TABLE `users` MODIFY COLUMN `weight` VARCHAR(50) NULL");
             }
         }
+
+        // 6. Ensure has_set_password and registration_source columns exist if missing
+        if (Schema::hasTable('users')) {
+            if (!Schema::hasColumn('users', 'has_set_password')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->boolean('has_set_password')->default(true);
+                });
+            }
+            if (!Schema::hasColumn('users', 'registration_source')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('registration_source', 50)->default('website');
+                });
+            }
+        }
     }
 
     public function down(): void
