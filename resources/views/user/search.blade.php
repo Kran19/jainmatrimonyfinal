@@ -283,17 +283,36 @@
             alert('Biodata is not loaded yet.');
             return;
         }
+        element.style.position = 'fixed';
+        element.style.left = '-9999px';
+        element.style.top = '0';
         element.style.display = 'block';
+
         const opt = {
-          margin: 8,
+          margin: [5, 5, 5, 5],
           filename: 'Profile_Biodata.pdf',
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-        html2pdf().set(opt).from(element).save().then(function() {
-            element.style.display = 'none';
-        });
+
+        setTimeout(function() {
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf().set(opt).from(element).save().then(function() {
+                    element.style.display = 'none';
+                    element.style.position = 'static';
+                }).catch(function(err) {
+                    console.error('Modal PDF Download error:', err);
+                    element.style.display = 'none';
+                    element.style.position = 'static';
+                    window.print();
+                });
+            } else {
+                element.style.display = 'none';
+                element.style.position = 'static';
+                window.print();
+            }
+        }, 150);
     }
 
     // Escape key modal closer

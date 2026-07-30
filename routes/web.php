@@ -88,6 +88,7 @@ Route::middleware(['auth:web', 'profile.completed'])->group(function () {
     
     Route::get('/profiles', [ProfileSearchController::class, 'index'])->name('profiles');
     Route::get('/profiles/{profile}', [ProfileSearchController::class, 'showDetail'])->name('profiles.detail');
+    Route::get('/profiles/{profile}/pdf', [ProfileSearchController::class, 'downloadPdf'])->name('profiles.pdf');
     Route::post('/profiles/{profile}/like', [ProfileSearchController::class, 'toggleLike'])->name('profiles.like');
     Route::post('/user/profile/photo/rotate', [PhotoEditorController::class, 'rotate'])->name('user.photo.rotate');
 

@@ -1,100 +1,67 @@
-@php
-    // Verify if logged-in user can view contacts
-    $me = Auth::user();
-    $activePlan = $me->memberships()
-        ->where('status', 'active')
-        ->where('end_date', '>=', now()->toDateString())
-        ->where('can_view_contacts', true)
-        ->exists();
-@endphp
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodata - {{ $profile->full_name }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 20px;
+            color: #111;
+        }
+        .action-bar {
+            max-width: 720px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            background-color: #0f1754;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover {
+            background-color: #1e293b;
+        }
+        @media print {
+            .action-bar {
+                display: none !important;
+            }
+            body {
+                background: #fff;
+                padding: 0;
+            }
+            #pdf-card {
+                border-width: 2px !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
 
-<div class="space-y-6">
-    <div class="flex flex-col md:flex-row gap-6 items-center border-b pb-6">
-        <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 bg-gray-50">
-            @if($profile->profile_photo)
-                <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo" class="w-full h-full object-cover">
-            @else
-                <div class="w-full h-full bg-slate-100 flex items-center justify-center font-bold text-3xl text-slate-400">
-                    {{ substr($profile->full_name, 0, 1) }}
-                </div>
-            @endif
-        </div>
-        <div class="text-center md:text-left flex-grow">
-            <h3 class="text-2xl font-black text-gray-900">{{ $profile->full_name }}</h3>
-            <p class="text-sm font-semibold text-primary mt-1 font-mono">ID: {{ $profile->profile_id }}</p>
-            <p class="text-xs text-slate-400 mt-0.5 font-medium">Subcast: {{ $profile->subcast ?? 'N/A' }} | Gotra: {{ $profile->gotra ?? 'N/A' }}</p>
-        </div>
-    </div>
-
-    <!-- Details Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-        
-        <!-- Personal -->
-        <div class="space-y-3">
-            <h4 class="font-bold text-gray-800 uppercase text-xs tracking-wider border-l-2 border-primary pl-2">Personal info</h4>
-            <div class="space-y-1 bg-slate-50 p-3 rounded-xl border border-gray-100">
-                <div><span class="text-gray-400 font-semibold">Age:</span> <span class="font-bold text-gray-800">{{ $profile->birth_date ? $profile->birth_date->age . ' Years' : 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Height:</span> <span class="font-bold text-gray-800">{{ $profile->height ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Marital Status:</span> <span class="font-bold text-gray-800">{{ $profile->marital_status ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Native Place:</span> <span class="font-bold text-gray-800">{{ $profile->native_place ?? 'N/A' }}</span></div>
-            </div>
-        </div>
-
-        <!-- Profession -->
-        <div class="space-y-3">
-            <h4 class="font-bold text-gray-800 uppercase text-xs tracking-wider border-l-2 border-primary pl-2">Professional details</h4>
-            <div class="space-y-1 bg-slate-50 p-3 rounded-xl border border-gray-100">
-                <div><span class="text-gray-400 font-semibold">Education:</span> <span class="font-bold text-gray-800">{{ $profile->higher_education ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Occupation:</span> <span class="font-bold text-gray-800">{{ $profile->occupation ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Monthly Income:</span> <span class="font-bold text-gray-800">₹{{ $profile->monthly_income ? number_format($profile->monthly_income, 2) : 'N/A' }}</span></div>
-            </div>
-        </div>
-
-        <!-- Family details -->
-        <div class="space-y-3 md:col-span-2">
-            <h4 class="font-bold text-gray-800 uppercase text-xs tracking-wider border-l-2 border-primary pl-2">Family background</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-gray-100">
-                <div><span class="text-gray-400 font-semibold">Father's Name:</span> <span class="font-bold text-gray-800">{{ $profile->father_name ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Mother's Name:</span> <span class="font-bold text-gray-800">{{ $profile->mother_name ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">Brothers:</span> <span class="font-bold text-gray-800">{{ $profile->brothers ?? 0 }} ({{ $profile->brothers_married ?? 0 }} Married)</span></div>
-                <div><span class="text-gray-400 font-semibold">Sisters:</span> <span class="font-bold text-gray-800">{{ $profile->sisters ?? 0 }} ({{ $profile->sisters_married ?? 0 }} Married)</span></div>
-            </div>
-        </div>
-
-        <!-- Custom Fields EAV -->
-        @if($customData->count() > 0)
-        <div class="space-y-3 md:col-span-2">
-            <h4 class="font-bold text-gray-800 uppercase text-xs tracking-wider border-l-2 border-primary pl-2">Other Details</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-gray-100">
-                @foreach($customData as $data)
-                    <div>
-                        <span class="text-gray-400 font-semibold">{{ $data->field->field_label }}:</span>
-                        <span class="font-bold text-gray-800 block mt-0.5">{{ $data->field_value ?? 'N/A' }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        <div class="space-y-3 md:col-span-2">
-            <h4 class="font-bold text-gray-800 uppercase text-xs tracking-wider border-l-2 border-primary pl-2">Contact details</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-200">
-                <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-phone mr-1"></i> Mobile:</span> <span class="font-black text-slate-900">{{ $profile->mobile }}</span></div>
-                <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-envelope mr-1"></i> Email:</span> <span class="font-black text-slate-900">{{ $profile->email }}</span></div>
-            </div>
-        </div>
-
-    </div>
+<div class="action-bar">
+    <a href="{{ url()->previous() }}" class="btn" style="background:#64748b;">&larr; Back to Profile</a>
+    <button onclick="downloadPdfCard()" class="btn">Download / Save PDF</button>
 </div>
 
-<!-- HIDDEN PDF CARD TEMPLATE FOR MODAL DOWNLOAD -->
 @php
     $gc = (strtolower($profile->gender ?? '') === 'female') ? 'F' : 'M';
     $rawNum = preg_replace('/[^0-9]/', '', $profile->profile_id ?: $profile->id);
     $pnum = !empty($rawNum) ? $rawNum : $profile->id;
     $badgeCode = $gc . '-' . $pnum;
-    
-    // Server-side base64 encode the profile photo to support CORS-free HTML2PDF generation
+
     $pdfPhoto = '';
     $photoPath = !empty($profile->profile_photo) ? resolve_media_path($profile->profile_photo) : null;
     if (!empty($photoPath) && file_exists($photoPath)) {
@@ -114,7 +81,8 @@
     }
     $parentMobileStr = count($parentMobiles) > 0 ? implode(' / ', $parentMobiles) : ($profile->mobile ?? 'N/A');
 @endphp
-<div id="pdf-content" style="display:none; font-family:Arial, sans-serif; width:720px; background:#ffffff; padding:0; margin:0 auto; color:#111; box-sizing:border-box;">
+
+<div id="pdf-card" style="width:720px; background:#ffffff; padding:0; margin:0 auto; color:#111; box-sizing:border-box;">
   <div style="border:3px solid #0f1754; background:#ffffff;">
     
     <!-- Top Pill Badge Row -->
@@ -256,3 +224,23 @@
 
   </div>
 </div>
+
+<script>
+function downloadPdfCard() {
+    const element = document.getElementById('pdf-card');
+    const filename = 'Profile_MID_{{ $pnum }}.pdf';
+    const opt = {
+        margin:       [5, 5, 5, 5],
+        filename:     filename,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save().catch(function() {
+        window.print();
+    });
+}
+</script>
+
+</body>
+</html>

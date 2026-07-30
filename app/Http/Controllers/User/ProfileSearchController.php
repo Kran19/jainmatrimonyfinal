@@ -233,6 +233,16 @@ class ProfileSearchController extends Controller
         return view('user.detail', compact('profile', 'customData'));
     }
 
+    public function downloadPdf(Request $request, User $profile)
+    {
+        if ($profile->status !== 'approved' || !$profile->is_public) {
+            return abort(403, 'Profile is not active.');
+        }
+
+        $customData = $profile->customData()->with('field')->get();
+        return view('user.pdf-view', compact('profile', 'customData'));
+    }
+
     /**
      * Toggle shortlisting status (Like / Unlike).
      */
