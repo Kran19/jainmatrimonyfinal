@@ -87,9 +87,10 @@
     <!-- Sidebar Wrapper -->
     <aside class="w-64 bg-sidebar text-slate-700 flex-shrink-0 flex flex-col h-screen border-r border-pink-100 shadow-sm">
         <!-- Logo Branding -->
-        <div class="h-16 flex items-center px-6 border-b border-pink-200 bg-white/50">
-            <a href="{{ route('admin.dashboard') }}" class="text-lg font-bold text-primary tracking-wider flex items-center">
-                <i class="fa-solid fa-gopuram mr-2 text-secondary"></i>JDM Admin Panel
+        <div class="h-20 flex items-center px-6 py-4 border-b border-pink-200 bg-white/75 shadow-xs mb-2">
+            <a href="{{ route('admin.dashboard') }}" class="text-xl font-extrabold text-primary tracking-wide flex items-center gap-3 py-1.5 transition hover:opacity-90">
+                <i class="fa-solid fa-gopuram text-2xl text-secondary drop-shadow-xs"></i>
+                <span class="text-xl font-black tracking-wider text-primary uppercase">JDM Admin Panel</span>
             </a>
         </div>
         
