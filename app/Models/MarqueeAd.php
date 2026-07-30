@@ -13,11 +13,23 @@ class MarqueeAd extends Model
 
     protected $fillable = [
         'notice_text',
+        'advertisement_text',
         'status'
     ];
 
     /**
-     * marquee_ads has created_at but no updated_at.
+     * Get notice text accessor (supports both notice_text and advertisement_text columns).
+     */
+    public function getNoticeTextAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+        return $this->attributes['advertisement_text'] ?? null;
+    }
+
+    /**
+     * marquee_ads created_at handling.
      */
     const UPDATED_AT = null;
 

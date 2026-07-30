@@ -76,10 +76,19 @@ class NewsController extends Controller
             'notice_text' => 'required|string|max:500',
         ]);
 
-        MarqueeAd::create([
-            'notice_text' => $request->notice_text,
+        $data = [
             'status' => true,
-        ]);
+        ];
+
+        // Fill notice_text and/or advertisement_text depending on existing DB columns
+        if (\Illuminate\Support\Facades\Schema::hasColumn('marquee_ads', 'notice_text')) {
+            $data['notice_text'] = $request->notice_text;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('marquee_ads', 'advertisement_text')) {
+            $data['advertisement_text'] = $request->notice_text;
+        }
+
+        MarqueeAd::create($data);
 
         return back()->with('success', 'Marquee notice added successfully.');
     }
@@ -142,10 +151,18 @@ class NewsController extends Controller
             'status' => 'nullable|boolean',
         ]);
 
-        $marquee->update([
-            'notice_text' => $request->notice_text,
+        $updateData = [
             'status' => $request->has('status'),
-        ]);
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('marquee_ads', 'notice_text')) {
+            $updateData['notice_text'] = $request->notice_text;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('marquee_ads', 'advertisement_text')) {
+            $updateData['advertisement_text'] = $request->notice_text;
+        }
+
+        $marquee->update($updateData);
 
         return back()->with('success', 'Marquee notice updated successfully.');
     }
