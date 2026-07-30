@@ -123,6 +123,19 @@ return new class extends Migration
                     DB::statement("ALTER TABLE `users` MODIFY COLUMN `birth_time` VARCHAR(50) NULL DEFAULT NULL");
                 }
             }
+
+            // 8. Relax status column to VARCHAR(50) to support 'deactivated', 'blocked', 'account_approved', etc.
+            if (Schema::hasColumn('users', 'status')) {
+                $colType = DB::selectOne("
+                    SELECT DATA_TYPE, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'users' 
+                    AND COLUMN_NAME = 'status'
+                ");
+                if ($colType && strtolower($colType->DATA_TYPE) === 'enum') {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `status` VARCHAR(50) NULL DEFAULT 'account_approved'");
+                }
+            }
         }
 
         // 8. Ensure cast and subcast entries exist in registration_fields so Admin can manage sub-cast options

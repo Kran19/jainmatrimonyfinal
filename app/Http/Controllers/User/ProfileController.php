@@ -318,6 +318,19 @@ class ProfileController extends Controller
                 $table->string('delete_reason')->nullable();
             });
         }
+
+        // Ensure status column supports 'deactivated' value (prevents 1265 Data truncated warning)
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'status')) {
+            $colInfo = DB::selectOne("
+                SELECT DATA_TYPE, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'users' 
+                AND COLUMN_NAME = 'status'
+            ");
+            if ($colInfo && (strtolower($colInfo->DATA_TYPE) === 'enum' && strpos($colInfo->COLUMN_TYPE, 'deactivated') === false)) {
+                DB::statement("ALTER TABLE `users` MODIFY COLUMN `status` VARCHAR(50) NULL DEFAULT 'account_approved'");
+            }
+        }
         
         $reason = $request->input('delete_reason');
         if (empty($reason)) {
