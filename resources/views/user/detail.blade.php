@@ -110,7 +110,7 @@
                     <div class="text-gray-400 font-semibold">Gender</div>
                     <div class="font-bold text-gray-800">{{ $profile->gender ?? 'N/A' }}</div>
                     <div class="text-gray-400 font-semibold">Weight</div>
-                    <div class="font-bold text-gray-800">{{ $profile->weight ? $profile->weight . ' kg' : 'N/A' }}</div>
+                    <div class="font-bold text-gray-800">{{ format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null)) }}</div>
                     <div class="text-gray-400 font-semibold">Marital Status</div>
                     <div class="font-bold text-gray-800">{{ $profile->marital_status ?? 'N/A' }}</div>
                     <div class="text-gray-400 font-semibold">Disability</div>
@@ -383,7 +383,7 @@
               <strong style="color:#000; width:80px; display:inline-block;">Height</strong> : &nbsp;{{ $profile->height ?? 'N/A' }}
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Weight</strong> : &nbsp;{{ $profile->weight ?? ($profile->weight_kg ? $profile->weight_kg : 'N/A') }}
+              <strong style="color:#000; width:80px; display:inline-block;">Weight</strong> : &nbsp;{{ format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null)) }}
             </div>
             <div style="margin-bottom:3px;">
               <strong style="color:#000; width:80px; display:inline-block;">Native</strong> : &nbsp;{{ $profile->native_place ?? 'N/A' }}

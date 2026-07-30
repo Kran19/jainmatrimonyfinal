@@ -273,10 +273,11 @@ class ProfileController extends Controller
 
         // Dual update for weight and weight_kg columns
         if ($request->has('weight')) {
-            $weightVal = $request->input('weight');
-            $userUpdate['weight'] = $weightVal;
+            $rawWeight = $request->input('weight');
+            $cleanWeight = trim(preg_replace('/(\s*kg)+/i', '', $rawWeight));
+            $userUpdate['weight'] = !empty($cleanWeight) ? $cleanWeight . ' kg' : null;
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'weight_kg')) {
-                $numericWeight = floatval(preg_replace('/[^0-9.]/', '', $weightVal));
+                $numericWeight = floatval(preg_replace('/[^0-9.]/', '', $cleanWeight));
                 if ($numericWeight > 0) {
                     $userUpdate['weight_kg'] = $numericWeight;
                 }

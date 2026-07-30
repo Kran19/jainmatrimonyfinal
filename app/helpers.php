@@ -96,3 +96,20 @@ if (!function_exists('resolve_media_path')) {
         return null;
     }
 }
+
+if (!function_exists('format_weight')) {
+    /**
+     * Clean and format weight value ensuring 'kg' appears exactly once.
+     *
+     * @param string|null $weight
+     * @return string
+     */
+    function format_weight(?string $weight): string
+    {
+        if (empty($weight)) {
+            return 'N/A';
+        }
+        $clean = trim(preg_replace('/(\s*kg)+/i', '', $weight));
+        return !empty($clean) ? $clean . ' kg' : 'N/A';
+    }
+}

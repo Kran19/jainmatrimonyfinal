@@ -261,7 +261,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Weight</p>
-                                <p class="font-medium text-dark">{{ $user->weight ?? 'N/A' }} kg</p>
+                                <p class="font-medium text-dark">{{ format_weight($user->weight ?? ($user->weight_kg ? $user->weight_kg . ' kg' : null)) }}</p>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Marital Status</p>

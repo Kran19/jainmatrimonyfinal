@@ -40,11 +40,25 @@ class ProfileWizardController extends Controller
             'handicapped' => 'required|string',
         ]);
 
-        Auth::user()->update($request->only([
+        $updateData = $request->only([
             'gender', 'birth_date', 'birth_time', 'birth_place',
             'native_place', 'gotra', 'mama_gotra', 'manglik',
-            'height', 'weight', 'marital_status', 'handicapped'
-        ]));
+            'height', 'marital_status', 'handicapped'
+        ]);
+
+        if ($request->has('weight')) {
+            $rawWeight = $request->input('weight');
+            $cleanWeight = trim(preg_replace('/(\s*kg)+/i', '', $rawWeight));
+            $updateData['weight'] = !empty($cleanWeight) ? $cleanWeight . ' kg' : null;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'weight_kg')) {
+                $numericWeight = floatval(preg_replace('/[^0-9.]/', '', $cleanWeight));
+                if ($numericWeight > 0) {
+                    $updateData['weight_kg'] = $numericWeight;
+                }
+            }
+        }
+
+        Auth::user()->update($updateData);
 
         return response()->json(['success' => true, 'message' => 'Personal details saved.']);
     }

@@ -30,7 +30,7 @@
                 <div><span class="font-semibold text-gray-400">Mama Gotra:</span> <span class="font-bold text-gray-900">{{ $member->mama_gotra ?? 'N/A' }}</span></div>
                 <div><span class="font-semibold text-gray-400">Manglik Status:</span> <span class="font-bold text-gray-900">{{ $member->manglik ?? 'N/A' }}</span></div>
                 <div><span class="font-semibold text-gray-400">Height:</span> <span class="font-bold text-gray-900">{{ $member->height ?? 'N/A' }}</span></div>
-                <div><span class="font-semibold text-gray-400">Weight:</span> <span class="font-bold text-gray-900">{{ $member->weight ? $member->weight . ' kg' : 'N/A' }}</span></div>
+                <div><span class="font-semibold text-gray-400">Weight:</span> <span class="font-bold text-gray-900">{{ format_weight($member->weight) }}</span></div>
                 <div><span class="font-semibold text-gray-400">Handicapped:</span> <span class="font-bold text-gray-900">{{ $member->handicapped ?? 'No' }}</span></div>
             </div>
         </div>

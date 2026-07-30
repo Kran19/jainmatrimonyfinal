@@ -214,7 +214,7 @@
               <strong style="color:#000; width:80px; display:inline-block;">Height</strong> : &nbsp;{{ $profile->height ?? 'N/A' }}
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Weight</strong> : &nbsp;{{ $profile->weight ?? ($profile->weight_kg ? $profile->weight_kg : 'N/A') }}
+              <strong style="color:#000; width:80px; display:inline-block;">Weight</strong> : &nbsp;{{ format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null)) }}
             </div>
             <div style="margin-bottom:3px;">
               <strong style="color:#000; width:80px; display:inline-block;">Native</strong> : &nbsp;{{ $profile->native_place ?? 'N/A' }}
