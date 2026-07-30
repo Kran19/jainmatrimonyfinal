@@ -13,6 +13,38 @@ class RegistrationFieldController extends Controller
      */
     public function index()
     {
+        // Self-heal core subcast & cast fields if missing in database
+        if (\Illuminate\Support\Facades\Schema::hasTable('registration_fields')) {
+            if (!RegistrationField::where('field_key', 'subcast')->exists()) {
+                RegistrationField::create([
+                    'field_group' => 'Personal Details',
+                    'field_key' => 'subcast',
+                    'field_label' => 'Sub-Cast (उपजाति)',
+                    'field_type' => 'dropdown',
+                    'field_options' => 'Khandelwal,Agrawal,Oswal,Porwal,Golalare,Humad,Bagherwal,Chaturth,Pancham,Other (अन्य)',
+                    'is_custom' => false,
+                    'is_visible' => true,
+                    'is_required' => false,
+                    'is_core' => false,
+                    'sort_order' => 2,
+                ]);
+            }
+            if (!RegistrationField::where('field_key', 'cast')->exists()) {
+                RegistrationField::create([
+                    'field_group' => 'Personal Details',
+                    'field_key' => 'cast',
+                    'field_label' => 'Cast (जाति)',
+                    'field_type' => 'dropdown',
+                    'field_options' => 'Digambar Jain,Other',
+                    'is_custom' => false,
+                    'is_visible' => true,
+                    'is_required' => true,
+                    'is_core' => false,
+                    'sort_order' => 1,
+                ]);
+            }
+        }
+
         $fields = RegistrationField::orderBy('is_custom', 'asc')
             ->orderBy('sort_order', 'asc')
             ->orderBy('id', 'asc')
