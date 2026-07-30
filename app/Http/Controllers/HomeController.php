@@ -69,14 +69,22 @@ class HomeController extends Controller
         // 5. Fetch marquee advertisements notice texts
         $marquee_ads_text = [];
         try {
-            $marquee_items = MarqueeAd::where('status', true)->orderBy('created_at', 'desc')->get();
+            $marquee_items = MarqueeAd::where(function($q) {
+                $q->where('status', true)->orWhere('status', 1)->orWhere('status', '1');
+            })->orderBy('created_at', 'desc')->get();
+
             foreach ($marquee_items as $item) {
                 $text = $item->notice_text ?? ($item->advertisement_text ?? '');
-                if (!empty($text)) {
-                    $marquee_ads_text[] = htmlspecialchars($text);
+                if (!empty(trim($text))) {
+                    $marquee_ads_text[] = trim($text);
                 }
             }
         } catch (\Exception $e) {}
+
+        // Fallback default marquee notice if no active items exist in DB
+        if (empty($marquee_ads_text)) {
+            $marquee_ads_text[] = 'दिगम्बर जैन परिचय मेत्रीमोनीयल दिगम्बर जैन समाज के विवाह योग्य युवक-युवतियों के जीवनसाथी चयन में सहायक एकमात्र वेबसाईट';
+        }
 
         // 6. Fetch scrolling news
         $scrolling_news = [];

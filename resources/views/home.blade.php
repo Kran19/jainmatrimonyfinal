@@ -58,10 +58,10 @@
 
 @if (!empty($marquee_ads_text))
 <!-- Advertisement Marquee -->
-<div class="bg-[#800000] text-white py-2 overflow-hidden relative" style="display: flex; align-items: center; white-space: nowrap;">
+<div class="bg-[#800000] text-white py-2.5 overflow-hidden relative shadow-inner" style="display: flex; align-items: center; white-space: nowrap;">
     <div class="marquee-content inline-block">
-        <span class="text-lg font-medium px-4">
-            {!! implode(' <span class="mx-2 text-yellow-300">| ★ |</span> ', $marquee_ads_text) !!}
+        <span class="text-base sm:text-lg font-bold px-4 tracking-wide">
+            {!! implode(' <span class="mx-3 text-yellow-300">| ★ |</span> ', $marquee_ads_text) !!}
         </span>
     </div>
 </div>
