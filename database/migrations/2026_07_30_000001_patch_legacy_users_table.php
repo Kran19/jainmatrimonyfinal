@@ -210,6 +210,11 @@ return new class extends Migration
                     $table->timestamp('updated_at')->nullable();
                 });
             }
+
+            // Remove printmines.com redirection link from advertisements
+            DB::table('advertisements')
+                ->where('link', 'like', '%printmines%')
+                ->update(['link' => null]);
         }
     }
 

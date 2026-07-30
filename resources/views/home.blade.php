@@ -86,6 +86,9 @@
                                 $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
                                 $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
                                 
+                                $ad_link = trim($ad['link'] ?? '');
+                                $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+
                                 if (str_starts_with($ad_img, 'data:image/')) {
                                     $img_src = $ad_img;
                                 } else {
@@ -95,8 +98,8 @@
                             @endphp
                             <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
                                  data-duration="{{ $duration * 1000 }}">
-                                @if(!empty($ad['link']))
-                                    <a href="{{ $ad['link'] }}" target="_blank" class="block w-full h-full">
+                                @if($has_valid_link)
+                                    <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                         @if($is_video)
                                             <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
                                         @else
@@ -169,6 +172,9 @@
                                 $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
                                 $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
                                 
+                                $ad_link = trim($ad['link'] ?? '');
+                                $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+
                                 if (str_starts_with($ad_img, 'data:image/')) {
                                     $img_src = $ad_img;
                                 } else {
@@ -178,8 +184,8 @@
                             @endphp
                             <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
                                  data-duration="{{ $duration * 1000 }}">
-                                @if(!empty($ad['link']))
-                                    <a href="{{ $ad['link'] }}" target="_blank" class="block w-full h-full">
+                                @if($has_valid_link)
+                                    <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                         @if($is_video)
                                             <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
                                         @else
@@ -226,6 +232,9 @@
                             $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
                             $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
                             
+                            $ad_link = trim($ad['link'] ?? '');
+                            $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+
                             if (str_starts_with($ad_img, 'data:image/')) {
                                 $img_src = $ad_img;
                             } else {
@@ -234,8 +243,8 @@
                         @endphp
                         <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
                              data-duration="{{ $duration * 1000 }}">
-                            @if(!empty($ad['link']))
-                                <a href="{{ $ad['link'] }}" target="_blank" class="block w-full h-full">
+                            @if($has_valid_link)
+                                <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                     @if($is_video)
                                         <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
                                     @else

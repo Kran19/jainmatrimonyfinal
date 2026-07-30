@@ -32,6 +32,11 @@ class AdvertisementController extends Controller
                     $table->integer('duration_seconds')->default(3);
                 });
             }
+
+            // Remove printmines.com redirection links automatically
+            \Illuminate\Support\Facades\DB::table('advertisements')
+                ->where('link', 'like', '%printmines%')
+                ->update(['link' => null]);
         }
 
         $ads = Advertisement::orderBy('position', 'asc')
