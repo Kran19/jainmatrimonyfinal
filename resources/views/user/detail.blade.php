@@ -263,13 +263,7 @@
     $pnum = preg_replace('/[^0-9]/', '', $profile->profile_id ?: $profile->id);
 
     $pdfPhoto = '';
-    $photoPath = '';
-    if (!empty($profile->profile_photo)) {
-        $photoPath = public_path($profile->profile_photo);
-        if (!file_exists($photoPath)) {
-            $photoPath = base_path('../digambar-samaj/' . $profile->profile_photo);
-        }
-    }
+    $photoPath = !empty($profile->profile_photo) ? resolve_media_path($profile->profile_photo) : null;
     if (!empty($photoPath) && file_exists($photoPath)) {
         $mime = mime_content_type($photoPath);
         $b64 = base64_encode(file_get_contents($photoPath));

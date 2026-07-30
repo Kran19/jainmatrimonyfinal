@@ -119,12 +119,7 @@ class HomeController extends Controller
                 $p->computed_age = $age;
 
                 // Fallback image URL
-                $photoExists = false;
-                if (!empty($p->profile_photo)) {
-                    if (file_exists(public_path($p->profile_photo)) || file_exists(base_path('../digambar-samaj/' . $p->profile_photo))) {
-                        $photoExists = true;
-                    }
-                }
+                $photoExists = !empty($p->profile_photo) && (str_starts_with($p->profile_photo, 'data:image/') || resolve_media_path($p->profile_photo) !== null);
 
                 if ($photoExists) {
                     $p->computed_img = route('image.serve', ['file' => $p->profile_photo]);

@@ -84,27 +84,10 @@ class ImageController extends Controller
             base_path(),
         ];
 
-        // 3. Direct exact path check
-        $foundPath = null;
-        $possibleExactPaths = [
-            public_path($safePath),
-            public_path('uploads/' . $cleanPathNoUploads),
-            storage_path('app/public/' . $safePath),
-            storage_path('app/public/uploads/' . $cleanPathNoUploads),
-            storage_path('app/private/' . $safePath),
-            storage_path('app/private/imports/' . $cleanPathNoImports),
-            storage_path('app/' . $safePath),
-            base_path($safePath),
-        ];
+        // 3. Resolve media file path across all local & production storage locations
+        $foundPath = resolve_media_path($filePath);
 
-        foreach ($possibleExactPaths as $path) {
-            if (file_exists($path) && is_file($path)) {
-                $foundPath = $path;
-                break;
-            }
-        }
-
-        // 4. Case-insensitive and timestamp-independent search
+        // 4. Case-insensitive and timestamp-independent search fallback if needed
         if (!$foundPath) {
             foreach ($searchDirs as $dir) {
                 $matched = $this->findMatchingFile($dir, $filename);

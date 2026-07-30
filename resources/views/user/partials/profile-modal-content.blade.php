@@ -94,9 +94,10 @@
     
     // Server-side base64 encode the profile photo to support CORS-free HTML2PDF generation
     $pdfPhoto = '';
-    if (!empty($profile->profile_photo) && file_exists(public_path($profile->profile_photo))) {
-        $mime = mime_content_type(public_path($profile->profile_photo));
-        $b64 = base64_encode(file_get_contents(public_path($profile->profile_photo)));
+    $photoPath = !empty($profile->profile_photo) ? resolve_media_path($profile->profile_photo) : null;
+    if (!empty($photoPath) && file_exists($photoPath)) {
+        $mime = mime_content_type($photoPath);
+        $b64 = base64_encode(file_get_contents($photoPath));
         $pdfPhoto = 'data:' . $mime . ';base64,' . $b64;
     } else {
         $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=200&background=1a1a6e&color=fff';

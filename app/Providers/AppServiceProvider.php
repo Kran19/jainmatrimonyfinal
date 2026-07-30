@@ -81,12 +81,7 @@ class AppServiceProvider extends ServiceProvider
                 $user_gender = $user->gender;
                 $hdr_user_name = $user->full_name;
 
-                $photoExists = false;
-                if (!empty($user->profile_photo)) {
-                    if (file_exists(public_path($user->profile_photo)) || file_exists(base_path('../digambar-samaj/' . $user->profile_photo))) {
-                        $photoExists = true;
-                    }
-                }
+                $photoExists = !empty($user->profile_photo) && (str_starts_with($user->profile_photo, 'data:image/') || resolve_media_path($user->profile_photo) !== null);
 
                 if ($photoExists) {
                     $hdr_profile_img = route('image.serve', ['file' => $user->profile_photo]);

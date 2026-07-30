@@ -214,4 +214,29 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Admin::class, 'approved_by');
     }
+
+    /**
+     * Determine if candidate has a valid profile photo on disk or as data URI.
+     */
+    public function hasProfilePhoto(): bool
+    {
+        if (empty($this->profile_photo)) {
+            return false;
+        }
+        if (str_starts_with($this->profile_photo, 'data:image/')) {
+            return true;
+        }
+        return resolve_media_path($this->profile_photo) !== null;
+    }
+
+    /**
+     * Get computed profile photo URL or default avatar fallback.
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->hasProfilePhoto()) {
+            return route('image.serve', ['file' => $this->profile_photo]);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&background=random';
+    }
 }

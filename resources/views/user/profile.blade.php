@@ -69,7 +69,7 @@
                         </div>
                         <div class="px-6 pb-6 relative">
                             <div class="w-28 h-28 rounded-full border-4 border-white bg-gray-100 mx-auto -mt-14 flex items-center justify-center shadow-md overflow-hidden relative z-10">
-                                @if(!empty($user->profile_photo))
+                                @if(!empty($user->profile_photo) && (str_starts_with($user->profile_photo, 'data:image/') || resolve_media_path($user->profile_photo) !== null))
                                     <img src="{{ route('image.serve', ['file' => $user->profile_photo]) }}" alt="Profile Photo" class="w-full h-full object-cover">
                                 @else
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($user->full_name) }}&background=random" alt="Profile Photo" class="w-full h-full object-cover">

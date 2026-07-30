@@ -135,12 +135,7 @@
                     <!-- Photo Header -->
                     <div class="h-48 bg-slate-100 relative">
                         @php
-                            $photoExists = false;
-                            if (!empty($profile->profile_photo)) {
-                                if (file_exists(public_path($profile->profile_photo)) || file_exists(base_path('../digambar-samaj/' . $profile->profile_photo))) {
-                                    $photoExists = true;
-                                }
-                            }
+                            $photoExists = !empty($profile->profile_photo) && (str_starts_with($profile->profile_photo, 'data:image/') || resolve_media_path($profile->profile_photo) !== null);
                         @endphp
                         @if($photoExists)
                             <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo" class="w-full h-full object-contain object-center bg-slate-200">
