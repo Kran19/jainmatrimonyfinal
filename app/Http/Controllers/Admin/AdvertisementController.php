@@ -141,7 +141,7 @@ class AdvertisementController extends Controller
             $updateData['media_type'] = $is_video ? 'video' : 'image';
         }
 
-        $ad->update($updateData);
+        \Illuminate\Support\Facades\DB::table('advertisements')->where('id', $ad->id)->update($updateData);
 
         return back()->with('success', 'Advertisement campaign updated successfully.');
     }
@@ -151,7 +151,7 @@ class AdvertisementController extends Controller
      */
     public function toggle(Advertisement $ad)
     {
-        $ad->update(['status' => !$ad->status]);
+        \Illuminate\Support\Facades\DB::table('advertisements')->where('id', $ad->id)->update(['status' => !$ad->status]);
         return back()->with('success', 'Advertisement status toggled successfully.');
     }
 

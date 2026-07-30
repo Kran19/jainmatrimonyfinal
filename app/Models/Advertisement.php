@@ -12,9 +12,9 @@ class Advertisement extends Model
     protected $table = 'advertisements';
 
     /**
-     * Legacy advertisements table has created_at but no updated_at column.
+     * Disable automatic timestamp updating to support legacy schema without updated_at column.
      */
-    const UPDATED_AT = null;
+    public $timestamps = false;
 
     protected $fillable = [
         'title',
