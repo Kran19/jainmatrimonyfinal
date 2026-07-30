@@ -135,9 +135,9 @@ class MemberController extends Controller
      */
     public function requests()
     {
-        // Auto-sync any existing deactivated users into account_requests table
+        // Auto-sync any existing deleted or deactivated users into account_requests table
         if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
-            $deactivatedUsers = User::where('status', 'deactivated')
+            $deletedOrDeactivatedUsers = User::whereIn('status', ['deleted', 'deactivated'])
                 ->whereNotIn('id', function ($q) {
                     $q->select('user_id')->from('account_requests');
                 })
@@ -146,12 +146,13 @@ class MemberController extends Controller
             $hasCreatedAt = \Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'created_at');
             $hasUpdatedAt = \Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'updated_at');
 
-            foreach ($deactivatedUsers as $dUser) {
+            foreach ($deletedOrDeactivatedUsers as $dUser) {
+                $reqType = ($dUser->status === 'deleted') ? 'deletion' : 'deactivation';
                 $insertData = [
                     'user_id' => $dUser->id,
-                    'request_type' => 'deactivation',
-                    'reason' => $dUser->delete_reason ?: 'User deactivated profile directly.',
-                    'status' => 'pending',
+                    'request_type' => $reqType,
+                    'reason' => $dUser->delete_reason ?: 'User deleted account directly from profile.',
+                    'status' => ($dUser->status === 'deleted') ? 'processed' : 'pending',
                 ];
                 if ($hasCreatedAt) {
                     $insertData['created_at'] = $dUser->updated_at ?? now();
@@ -168,12 +169,14 @@ class MemberController extends Controller
             ->select(
                 'account_requests.*',
                 'users.full_name',
+                'users.email',
+                'users.mobile',
                 'users.profile_id',
                 'users.profile_photo',
                 'users.gender',
+                'users.status as user_status',
                 'users.delete_reason'
             )
-            ->where('account_requests.status', 'pending')
             ->orderBy('account_requests.created_at', 'desc')
             ->get();
 

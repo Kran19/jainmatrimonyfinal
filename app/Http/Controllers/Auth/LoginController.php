@@ -39,11 +39,22 @@ class LoginController extends Controller
         $loginField = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
 
         // Find the user by email or mobile
-        $user = \App\Models\User::where($loginField, $loginInput)->first();
+        $query = \App\Models\User::query();
+        if (method_exists(\App\Models\User::class, 'withTrashed')) {
+            $query->withTrashed();
+        }
+        $user = $query->where($loginField, $loginInput)->first();
 
         if (!$user) {
             throw ValidationException::withMessages([
                 'login_input' => ['These credentials do not match our records.'],
+            ]);
+        }
+
+        // Block login if account has been deleted by user or administrator
+        if (in_array($user->status, ['deleted', 'deactivated']) || !empty($user->deleted_at)) {
+            throw ValidationException::withMessages([
+                'login_input' => ['Your account has been deleted. This account has been permanently deleted and cannot be recovered. Please contact the administrator if you believe this is an error.'],
             ]);
         }
 

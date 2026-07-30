@@ -306,20 +306,20 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete candidate profile (Deactivate)
+     * Delete candidate profile (Account Deletion)
      */
     public function deleteProfile(Request $request)
     {
         $user = Auth::user();
         
-        // Ensure delete_reason column exists
+        // 1. Ensure delete_reason column exists
         if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'delete_reason')) {
             \Illuminate\Support\Facades\Schema::table('users', function ($table) {
                 $table->string('delete_reason')->nullable();
             });
         }
 
-        // Ensure status column supports 'deactivated' value (prevents 1265 Data truncated warning)
+        // 2. Ensure status column is relaxed if ENUM
         if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'status')) {
             $colInfo = DB::selectOne("
                 SELECT DATA_TYPE, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
@@ -327,44 +327,55 @@ class ProfileController extends Controller
                 AND TABLE_NAME = 'users' 
                 AND COLUMN_NAME = 'status'
             ");
-            if ($colInfo && (strtolower($colInfo->DATA_TYPE) === 'enum' && strpos($colInfo->COLUMN_TYPE, 'deactivated') === false)) {
+            if ($colInfo && strtolower($colInfo->DATA_TYPE) === 'enum') {
                 DB::statement("ALTER TABLE `users` MODIFY COLUMN `status` VARCHAR(50) NULL DEFAULT 'account_approved'");
             }
         }
         
         $reason = $request->input('delete_reason');
         if (empty($reason)) {
-            $reason = 'User deactivated profile directly.';
+            $reason = 'User deleted account directly from profile.';
         } elseif ($reason === 'Other') {
             $reason = 'Other: ' . $request->input('delete_reason_other');
         }
-        
-        // Deactivate the user by setting status to deactivated
-        DB::table('users')->where('id', $user->id)->update([
-            'delete_reason' => $reason,
-            'status' => 'deactivated',
-            'is_public' => false
-        ]);
 
-        // Insert pending deactivation request into account_requests for Admin panel
+        $now = now();
+        
+        // 3. Mark user account as DELETED and inactive
+        $updateData = [
+            'delete_reason' => $reason,
+            'status' => 'deleted',
+            'is_public' => false
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deleted_at')) {
+            $updateData['deleted_at'] = $now;
+        }
+
+        DB::table('users')->where('id', $user->id)->update($updateData);
+
+        // 4. Log deletion record in account_requests table for Administrative Tracking
         if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
             $insertData = [
                 'user_id' => $user->id,
-                'request_type' => 'deactivation',
+                'request_type' => 'deletion',
                 'reason' => $reason,
-                'status' => 'pending',
+                'status' => 'processed',
             ];
             if (\Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'created_at')) {
-                $insertData['created_at'] = now();
+                $insertData['created_at'] = $now;
             }
             if (\Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'updated_at')) {
-                $insertData['updated_at'] = now();
+                $insertData['updated_at'] = $now;
             }
             DB::table('account_requests')->insert($insertData);
         }
         
-        Auth::logout();
+        // 5. Logout & invalidate session
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         
-        return redirect()->route('login')->with('success', 'Your profile has been deactivated and is no longer visible.');
+        // 6. Display exact required message
+        return redirect()->route('login')->with('success', 'Your account has been deleted successfully.');
     }
 }

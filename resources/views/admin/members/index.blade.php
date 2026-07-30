@@ -22,6 +22,7 @@
                 <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved (Active)</option>
                 <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
                 <option value="blocked" {{ request('status') === 'blocked' ? 'selected' : '' }}>Blocked</option>
+                <option value="deleted" {{ request('status') === 'deleted' ? 'selected' : '' }}>Account Deleted (by User)</option>
             </select>
         </div>
         <div>
@@ -97,8 +98,10 @@
                             @if($member->status === 'approved') bg-green-100 text-green-800
                             @elseif($member->status === 'pending') bg-orange-100 text-orange-800
                             @elseif($member->status === 'blocked') bg-red-100 text-red-800
+                            @elseif($member->status === 'deleted') bg-rose-100 text-rose-800 border border-rose-200
                             @else bg-slate-100 text-slate-800 @endif">
-                            {{ ucfirst($member->status) }}
+                            @if($member->status === 'deleted') Account Deleted
+                            @else {{ ucfirst($member->status) }} @endif
                         </span>
                     </td>
                     <td class="py-4 px-6 text-center">

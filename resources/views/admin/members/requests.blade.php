@@ -34,31 +34,45 @@
                             <div class="font-bold text-gray-900 leading-tight">
                                 {{ $req->full_name }}
                             </div>
-                            <div class="text-xs text-slate-400 mt-1 font-mono">
+                            <div class="text-xs text-slate-500 font-medium">
+                                {{ $req->email ?? 'No Email' }} | {{ $req->mobile ?? 'No Mobile' }}
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-mono">
                                 {{ $req->profile_id ?? 'No Profile ID' }}
                             </div>
                         </div>
                     </td>
                     <td class="py-4 px-6">
                         <span class="px-2.5 py-1 rounded-full text-xs font-bold
-                            @if($req->request_type === 'deletion') bg-red-100 text-red-800
-                            @else bg-amber-100 text-amber-800 @endif">
-                            {{ ucfirst($req->request_type) }}
+                            @if($req->request_type === 'deletion' || $req->user_status === 'deleted') bg-rose-100 text-rose-800 border border-rose-200
+                            @else bg-amber-100 text-amber-800 border border-amber-200 @endif">
+                            @if($req->request_type === 'deletion' || $req->user_status === 'deleted')
+                                Deleted by User
+                            @else
+                                {{ ucfirst($req->request_type) }}
+                            @endif
                         </span>
                     </td>
                     <td class="py-4 px-6 text-gray-600 font-medium italic">
                         "{{ $req->reason ?? 'No reason provided' }}"
                     </td>
-                    <td class="py-4 px-6 text-gray-500">
-                        {{ \Carbon\Carbon::parse($req->created_at)->format('M d, Y') }}
+                    <td class="py-4 px-6 text-gray-500 text-xs">
+                        <div>{{ \Carbon\Carbon::parse($req->created_at)->format('M d, Y') }}</div>
+                        <div class="text-[10px] text-gray-400 font-mono">{{ \Carbon\Carbon::parse($req->created_at)->format('h:i A') }}</div>
                     </td>
                     <td class="py-4 px-6 text-center">
-                        <form action="{{ route('admin.members.requests.process', $req->id) }}" method="POST" onsubmit="return confirmProcess(event, this, '{{ $req->request_type }}')">
-                            @csrf
-                            <button type="submit" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-150 shadow-sm border border-indigo-100">
-                                Process Request
-                            </button>
-                        </form>
+                        @if($req->status === 'processed' || $req->user_status === 'deleted')
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> Account Deleted
+                            </span>
+                        @else
+                            <form action="{{ route('admin.members.requests.process', $req->id) }}" method="POST" onsubmit="return confirmProcess(event, this, '{{ $req->request_type }}')">
+                                @csrf
+                                <button type="submit" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-150 shadow-sm border border-indigo-100">
+                                    Process Request
+                                </button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
                 @empty
