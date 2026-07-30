@@ -26,9 +26,9 @@ class OTPService
             'created_at' => now(),
         ]);
 
-        // 3. Primary attempt: Send via Laravel Configured SMTP
+        // 3. Primary attempt: Send via Configured Hostinger SMTP
         try {
-            Mail::to($email)->send(new OTPMailable($otpCode));
+            Mail::mailer('smtp')->to($email)->send(new OTPMailable($otpCode));
             logger()->info("OTP sent successfully via SMTP to $email");
             return true;
         } catch (\Throwable $e) {

@@ -50,9 +50,12 @@ php artisan cache:clear || true
 php artisan route:clear || true
 php artisan view:clear || true
 
-# 7. Set file & directory permissions for shared hosting
-echo "🔒 Setting storage & cache directory permissions..."
+# 7. Set file & directory permissions for shared hosting (prevents Hostinger 403 Forbidden)
+echo "🔒 Setting folder & file permissions for Hostinger..."
+chmod -R 755 . 2>/dev/null || true
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+find . -type f -exec chmod 644 {} + 2>/dev/null || true
+chmod +x deploy.sh 2>/dev/null || true
 
 echo "=================================================="
 echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
