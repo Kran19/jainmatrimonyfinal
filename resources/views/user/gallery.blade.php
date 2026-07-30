@@ -2,10 +2,20 @@
 
 @section('title', 'Photo Gallery - Jain Digambar Matrimony')
 
+@php
+    $galleryBanner = $settings['gallery_banner'] ?? null;
+    $bannerSrc = null;
+    if (!empty($galleryBanner)) {
+        $bannerSrc = (str_starts_with($galleryBanner, 'data:image/') || preg_match('/^https?:\/\//i', $galleryBanner))
+            ? $galleryBanner
+            : route('image.serve', ['file' => $galleryBanner]);
+    }
+@endphp
+
 @section('content')
 <!-- Page Header -->
-<section class="relative py-16 md:py-24 bg-primary text-white text-center">
-    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+<section class="relative py-16 md:py-24 bg-primary text-white text-center bg-cover bg-center" style="{{ $bannerSrc ? 'background-image: url(' . $bannerSrc . ');' : '' }}">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
     <div class="container mx-auto px-4 relative z-10">
         <h1 class="text-4xl md:text-5xl font-black drop-shadow-md" data-aos="fade-up">Photo Gallery</h1>
         <p class="text-gray-200 mt-2 text-sm md:text-base font-medium">Glimpses of our community events and gatherings.</p>

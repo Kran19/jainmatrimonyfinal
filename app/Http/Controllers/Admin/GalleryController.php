@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
 use App\Models\VideoGallery;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class GalleryController extends Controller
@@ -16,8 +17,9 @@ class GalleryController extends Controller
     {
         $galleryItems = Gallery::orderBy('created_at', 'desc')->paginate(9, ['*'], 'photo_page');
         $videoItems = VideoGallery::orderBy('display_order', 'asc')->paginate(6, ['*'], 'video_page');
+        $galleryBanner = Setting::where('setting_key', 'gallery_banner')->value('setting_value');
 
-        return view('admin.cms.gallery.index', compact('galleryItems', 'videoItems'));
+        return view('admin.cms.gallery.index', compact('galleryItems', 'videoItems', 'galleryBanner'));
     }
 
     /**
@@ -141,5 +143,44 @@ class GalleryController extends Controller
     {
         $video->delete();
         return back()->with('success', 'Video deleted.');
+    }
+
+    /**
+     * Update Photo Gallery Background Banner Image.
+     */
+    public function updateBanner(Request $request)
+    {
+        $request->validate([
+            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB max
+        ]);
+
+        if ($request->hasFile('banner_image')) {
+            $file = $request->file('banner_image');
+            $uploadDir = storage_path('app/public/uploads');
+
+            if (!file_exists($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
+
+            $filename = 'gallery_banner_' . time() . '.' . $file->getClientOriginalExtension();
+
+            try {
+                $file->move($uploadDir, $filename);
+                $bannerPath = 'storage/uploads/' . $filename;
+            } catch (\Exception $e) {
+                $type = $file->getClientMimeType();
+                $data = file_get_contents($file->getRealPath());
+                $bannerPath = 'data:' . $type . ';base64,' . base64_encode($data);
+            }
+
+            Setting::updateOrCreate(
+                ['setting_key' => 'gallery_banner'],
+                ['setting_value' => $bannerPath]
+            );
+
+            return back()->with('success', 'Gallery background banner updated successfully.');
+        }
+
+        return back()->with('error', 'Please select a valid image file for the banner.');
     }
 }

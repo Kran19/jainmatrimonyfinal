@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             return new CustomUserProvider($config['model']);
         });
 
-        view()->composer(['layouts.header', 'layouts.footer', 'home', 'layouts.app'], function ($view) {
+        view()->composer(['layouts.header', 'layouts.footer', 'home', 'layouts.app', 'user.gallery'], function ($view) {
             $settings = [];
             $left_ads = [];
             $right_ads = [];

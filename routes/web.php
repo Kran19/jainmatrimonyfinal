@@ -196,6 +196,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/cms/gallery/photo/{photo}/toggle', [GalleryController::class, 'togglePhoto'])->name('admin.cms.gallery.photo.toggle');
     Route::delete('/admin/cms/gallery/photo/{photo}', [GalleryController::class, 'destroyPhoto'])->name('admin.cms.gallery.photo.destroy');
 
+    Route::post('/admin/cms/gallery/banner', [GalleryController::class, 'updateBanner'])->name('admin.cms.gallery.banner.update');
     Route::post('/admin/cms/gallery/video', [GalleryController::class, 'storeVideo'])->name('admin.cms.gallery.video.store');
     Route::post('/admin/cms/gallery/video/{video}/toggle', [GalleryController::class, 'toggleVideo'])->name('admin.cms.gallery.video.toggle');
     Route::delete('/admin/cms/gallery/video/{video}', [GalleryController::class, 'destroyVideo'])->name('admin.cms.gallery.video.destroy');
