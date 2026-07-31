@@ -53,11 +53,20 @@ class ChangePasswordController extends Controller
 
         $newHash = Hash::make($request->new_password);
 
-        // Update password_hash and mark has_set_password = true
-        $user->update([
-            'password_hash'    => $newHash,
-            'has_set_password' => true,
-        ]);
+        $updatePayload = [
+            'password_hash' => $newHash,
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
+            $updatePayload['has_set_password'] = true;
+        }
+
+        // Support legacy DB table structure if legacy 'password' column exists
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'password')) {
+            $user->forceFill(['password' => $newHash]);
+        }
+
+        $user->update($updatePayload);
 
         return back()->with('success', 'Password successfully changed.');
     }

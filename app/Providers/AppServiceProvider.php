@@ -21,6 +21,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('users') && !\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
+                \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                    $table->boolean('has_set_password')->default(true);
+                });
+            }
+        } catch (\Throwable $e) {
+            // Ignore if DB connection or permissions issue during boot
+        }
+
         Auth::provider('custom-users', function ($app, array $config) {
             return new CustomUserProvider($config['model']);
         });

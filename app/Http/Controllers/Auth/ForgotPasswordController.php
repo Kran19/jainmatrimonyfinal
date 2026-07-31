@@ -124,11 +124,21 @@ class ForgotPasswordController extends Controller
             return back()->with('error', 'User not found.');
         }
 
-        // Update password and flag
-        $user->update([
-            'password_hash' => Hash::make($request->password),
-            'has_set_password' => true,
-        ]);
+        $newHash = Hash::make($request->password);
+
+        $updatePayload = [
+            'password_hash' => $newHash,
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
+            $updatePayload['has_set_password'] = true;
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'password')) {
+            $user->forceFill(['password' => $newHash]);
+        }
+
+        $user->update($updatePayload);
 
         // Clean up resets
         DB::table('password_resets')->where('email', $request->email)->delete();
