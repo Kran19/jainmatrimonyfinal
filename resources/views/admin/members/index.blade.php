@@ -5,8 +5,8 @@
 
 @section('content')
 <!-- Filter Panel -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-    <form action="{{ route('admin.members.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 sm:mb-8">
+    <form action="{{ route('admin.members.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Profile</label>
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Name, Email, Mobile, ID..."
@@ -62,7 +62,7 @@
                 @forelse($members as $member)
                 <tr class="hover:bg-slate-50 transition duration-150">
                     <td class="py-4 px-6 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border">
+                        <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
                             @if($member->profile_photo)
                                 <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
                             @else

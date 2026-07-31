@@ -55,7 +55,7 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-pink-50 text-slate-700 antialiased min-h-screen flex overflow-hidden">
+<body class="bg-pink-50 text-slate-700 antialiased min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
 
     <!-- Admin Success/Error Notifications -->
     @if(session('success'))
@@ -84,14 +84,21 @@
         </script>
     @endif
 
+    <!-- Backdrop for Mobile Sidebar -->
+    <div id="sidebar-backdrop" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 lg:hidden hidden transition-opacity duration-300"></div>
+
     <!-- Sidebar Wrapper -->
-    <aside class="w-64 bg-sidebar text-slate-700 flex-shrink-0 flex flex-col h-screen border-r border-pink-100 shadow-sm">
+    <aside id="admin-sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar text-slate-700 flex-shrink-0 flex flex-col h-full lg:h-screen border-r border-pink-100 shadow-xl lg:shadow-sm -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <!-- Logo Branding -->
-        <div class="h-20 flex items-center px-6 py-4 border-b border-pink-200 bg-white/75 shadow-xs mb-2">
+        <div class="h-20 flex items-center justify-between px-6 py-4 border-b border-pink-200 bg-white/75 shadow-xs mb-2">
             <a href="{{ route('admin.dashboard') }}" class="text-xl font-extrabold text-primary tracking-wide flex items-center gap-3 py-1.5 transition hover:opacity-90">
                 <i class="fa-solid fa-gopuram text-2xl text-secondary drop-shadow-xs"></i>
-                <span class="text-xl font-black tracking-wider text-primary uppercase">JDM Admin Panel</span>
+                <span class="text-xl font-black tracking-wider text-primary uppercase">JDM Admin</span>
             </a>
+            <!-- Mobile Close Button -->
+            <button type="button" onclick="toggleAdminSidebar()" class="lg:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-pink-100/50 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
         </div>
         
         <!-- Navigation Links -->
@@ -105,21 +112,34 @@
             <a href="{{ route('admin.approvals.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/approvals*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-stamp mr-3 w-5 text-center"></i>Profile Approvals (Stage 2)
             </a>
-            <a href="{{ route('admin.members.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/members') && !Request::has('status') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
-                <i class="fa-solid fa-users mr-3 w-5 text-center"></i>All Members
-            </a>
-            <a href="{{ route('admin.members.index', ['status' => 'approved']) }}" class="flex items-center pl-8 pr-4 py-1.5 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'approved' ? 'bg-primary/80 text-white' : 'text-slate-500' }}">
-                <i class="fa-solid fa-user-check mr-2 w-4 text-center"></i>Approved Members
-            </a>
-            <a href="{{ route('admin.members.index', ['status' => 'blocked']) }}" class="flex items-center pl-8 pr-4 py-1.5 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'blocked' ? 'bg-primary/80 text-white' : 'text-slate-500' }}">
-                <i class="fa-solid fa-user-xmark mr-2 w-4 text-center"></i>Blocked Members
-            </a>
-            <a href="{{ route('admin.members.index', ['status' => 'paid']) }}" class="flex items-center pl-8 pr-4 py-1.5 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'paid' ? 'bg-primary/80 text-white' : 'text-slate-500' }}">
-                <i class="fa-solid fa-user-shield mr-2 w-4 text-center"></i>Paid Members
-            </a>
-            <a href="{{ route('admin.members.index', ['status' => 'rejected']) }}" class="flex items-center pl-8 pr-4 py-1.5 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'rejected' ? 'bg-primary/80 text-white' : 'text-slate-500' }}">
-                <i class="fa-solid fa-user-minus mr-2 w-4 text-center"></i>Rejected Members
-            </a>
+            <!-- Collapsible All Members Dropdown -->
+            <div class="space-y-1">
+                <button type="button" onclick="toggleMembersSubmenu()" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ (Request::is('admin/members') || Request::is('admin/members/*')) && !Request::is('admin/members-incomplete*') && !Request::is('admin/members-requests*') ? 'bg-primary/10 text-primary font-black' : 'text-slate-600' }}">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-users mr-3 w-5 text-center"></i>
+                        <span>All Members</span>
+                    </div>
+                    <i id="members-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {{ (Request::is('admin/members') || Request::is('admin/members/*')) && !Request::is('admin/members-incomplete*') && !Request::is('admin/members-requests*') ? '' : '-rotate-90' }}"></i>
+                </button>
+                
+                <div id="members-submenu" class="pl-3 space-y-1 {{ (Request::is('admin/members') || Request::is('admin/members/*')) && !Request::is('admin/members-incomplete*') && !Request::is('admin/members-requests*') ? '' : 'hidden' }}">
+                    <a href="{{ route('admin.members.index') }}" class="flex items-center pl-6 pr-4 py-2 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::is('admin/members') && !Request::has('status') ? 'bg-primary text-white shadow-xs' : 'text-slate-600' }}">
+                        <i class="fa-solid fa-users-viewfinder mr-2.5 w-4 text-center"></i>All Members List
+                    </a>
+                    <a href="{{ route('admin.members.index', ['status' => 'approved']) }}" class="flex items-center pl-6 pr-4 py-2 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'approved' ? 'bg-primary text-white shadow-xs' : 'text-slate-600' }}">
+                        <i class="fa-solid fa-user-check mr-2.5 w-4 text-center"></i>Approved Members
+                    </a>
+                    <a href="{{ route('admin.members.index', ['status' => 'blocked']) }}" class="flex items-center pl-6 pr-4 py-2 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'blocked' ? 'bg-primary text-white shadow-xs' : 'text-slate-600' }}">
+                        <i class="fa-solid fa-user-xmark mr-2.5 w-4 text-center"></i>Blocked Members
+                    </a>
+                    <a href="{{ route('admin.members.index', ['status' => 'paid']) }}" class="flex items-center pl-6 pr-4 py-2 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'paid' ? 'bg-primary text-white shadow-xs' : 'text-slate-600' }}">
+                        <i class="fa-solid fa-user-shield mr-2.5 w-4 text-center"></i>Paid Members
+                    </a>
+                    <a href="{{ route('admin.members.index', ['status' => 'rejected']) }}" class="flex items-center pl-6 pr-4 py-2 rounded-lg text-xs font-bold hover:bg-white hover:text-secondary transition duration-150 {{ Request::input('status') === 'rejected' ? 'bg-primary text-white shadow-xs' : 'text-slate-600' }}">
+                        <i class="fa-solid fa-user-minus mr-2.5 w-4 text-center"></i>Rejected Members
+                    </a>
+                </div>
+            </div>
             <a href="{{ route('admin.members.incomplete') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/members-incomplete*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-user-slash mr-3 w-5 text-center"></i>Incomplete Registrations
             </a>
@@ -169,7 +189,7 @@
         <div class="p-4 border-t border-pink-200 bg-white/50">
             <div class="flex items-center mb-3 px-2">
                 <i class="fa-solid fa-circle-user text-2xl text-secondary mr-3"></i>
-                <div class="text-sm font-bold text-slate-700 truncate">{{ Auth::guard('admin')->user()->name }}</div>
+                <div class="text-sm font-bold text-slate-700 truncate">{{ Auth::guard('admin')->user()->name ?? 'Admin User' }}</div>
             </div>
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
@@ -181,12 +201,66 @@
     </aside>
 
     <!-- Main Content Container -->
-    <div class="flex-grow flex flex-col h-screen overflow-hidden">
+    <div class="flex-grow flex flex-col h-screen overflow-hidden min-w-0">
+        <!-- Top Admin Header -->
+        <header class="bg-white border-b border-pink-200 px-4 py-3 sm:px-6 flex items-center justify-between shadow-xs z-20 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <!-- Mobile Sidebar Toggle Button -->
+                <button type="button" onclick="toggleAdminSidebar()" class="lg:hidden p-2 text-slate-600 hover:text-primary hover:bg-pink-50 rounded-xl transition duration-150 focus:outline-none" aria-label="Toggle Navigation Menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+                        @yield('header_title', 'Admin Panel')
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">Jain Digambar Matrimony Administration</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="{{ url('/') }}" target="_blank" class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-primary text-xs font-bold rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span class="hidden sm:inline">Visit Site</span>
+                </a>
+                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-user text-xl text-secondary"></i>
+                    <span class="text-xs font-bold text-slate-700 hidden md:inline">{{ Auth::guard('admin')->user()->name ?? 'Admin' }}</span>
+                </div>
+            </div>
+        </header>
+
         <!-- Main Inner Content -->
-        <div class="flex-grow p-8 overflow-y-auto">
+        <div class="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto custom-scrollbar">
             @yield('content')
         </div>
     </div>
+
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function toggleMembersSubmenu() {
+            const submenu = document.getElementById('members-submenu');
+            const chevron = document.getElementById('members-chevron');
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                chevron.classList.remove('-rotate-90');
+            } else {
+                submenu.classList.add('hidden');
+                chevron.classList.add('-rotate-90');
+            }
+        }
+    </script>
 
 </body>
 </html>

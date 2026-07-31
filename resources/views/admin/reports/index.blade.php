@@ -93,14 +93,14 @@
             @endif
         </div>
 
-        <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-gray-100">
-            <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap cursor-pointer">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-4 border-t border-gray-100">
+            <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap cursor-pointer">
                 <i class="fa-solid fa-filter text-xs"></i> Generate Report
             </button>
-            <a href="{{ route('admin.reports.export', request()->all()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap" title="Export Excel (CSV)">
+            <a href="{{ route('admin.reports.export', request()->all()) }}" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap" title="Export Excel (CSV)">
                 <i class="fa-solid fa-file-excel text-base"></i> Export Excel
             </a>
-            <button type="button" onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap" title="Print Report">
+            <button type="button" onclick="window.print()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-sm transition duration-150 flex items-center justify-center gap-2 shadow-sm whitespace-nowrap" title="Print Report">
                 <i class="fa-solid fa-print text-sm"></i> Print
             </button>
         </div>
@@ -140,33 +140,36 @@
         <h3 class="font-bold text-gray-800 text-base">Auditable Audit Trail</h3>
     </div>
 
+    <div class="overflow-x-auto">
     @if($reportType === 'members')
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
-                    <th class="py-3 px-6">ID</th>
-                    <th class="py-3 px-6">Name</th>
-                    <th class="py-3 px-6">Gender</th>
-                    <th class="py-3 px-6">Gotra</th>
-                    <th class="py-3 px-6">Status</th>
-                    <th class="py-3 px-6">Date Registered</th>
+                    <th class="py-3 px-6 whitespace-nowrap">ID</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Name</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Gender</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Gotra</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Status</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Date Registered</th>
                 </tr>
             </thead>
             <tbody class="text-sm divide-y divide-gray-100">
                 @forelse($results as $member)
                 <tr>
-                    <td class="py-3.5 px-6 font-mono font-bold text-xs text-slate-500">{{ $member->profile_id ?? 'N/A' }}</td>
-                    <td class="py-3.5 px-6 font-bold text-slate-900">{{ $member->full_name }}</td>
-                    <td class="py-3.5 px-6 text-slate-600">{{ $member->gender }}</td>
-                    <td class="py-3.5 px-6 text-slate-600">{{ $member->gotra ?? 'N/A' }}</td>
-                    <td class="py-3.5 px-6">
-                        <span class="px-2 py-0.5 rounded text-xs font-bold uppercase
-                            @if($member->status === 'approved') text-green-700 bg-green-50
+                    <td class="py-3.5 px-6 whitespace-nowrap font-mono font-bold text-xs text-slate-500">{{ $member->profile_id ?? 'N/A' }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap font-bold text-slate-900">{{ $member->full_name }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap text-slate-600">{{ $member->gender }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap text-slate-600">{{ $member->gotra ?? 'N/A' }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap
+                            @if($member->status === 'approved' || $member->status === 'account_approved') text-green-700 bg-green-50 border border-green-100
+                            @elseif($member->status === 'pending' || $member->status === 'account_pending') text-orange-700 bg-orange-50 border border-orange-100
+                            @elseif($member->status === 'blocked') text-red-700 bg-red-50 border border-red-100
                             @else text-slate-600 bg-slate-100 @endif">
-                            {{ $member->status }}
+                            {{ str_replace('_', ' ', ucfirst($member->status)) }}
                         </span>
                     </td>
-                    <td class="py-3.5 px-6 text-slate-400">{{ $member->created_at->format('d M Y, H:i') }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap text-slate-500 font-medium">{{ $member->created_at->format('d M Y, h:i A') }}</td>
                 </tr>
                 @empty
                 <tr>
@@ -179,21 +182,21 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
-                    <th class="py-3 px-6">Date</th>
-                    <th class="py-3 px-6">Transaction ID</th>
-                    <th class="py-3 px-6">Member</th>
-                    <th class="py-3 px-6">Method</th>
-                    <th class="py-3 px-6">Amount</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Date</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Transaction ID</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Member</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Method</th>
+                    <th class="py-3 px-6 whitespace-nowrap">Amount</th>
                 </tr>
             </thead>
             <tbody class="text-sm divide-y divide-gray-100">
                 @forelse($results as $payment)
                 <tr>
-                    <td class="py-3.5 px-6 text-slate-500">{{ $payment->created_at->format('d M Y, H:i') }}</td>
-                    <td class="py-3.5 px-6 font-mono text-xs text-slate-700">{{ $payment->transaction_id }}</td>
-                    <td class="py-3.5 px-6 font-bold text-slate-900">{{ $payment->user->full_name ?? 'Unknown Candidate' }}</td>
-                    <td class="py-3.5 px-6 text-slate-600">{{ $payment->payment_method }}</td>
-                    <td class="py-3.5 px-6 font-black text-green-700">₹{{ number_format($payment->amount, 2) }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap text-slate-500 font-medium">{{ $payment->created_at->format('d M Y, h:i A') }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap font-mono text-xs text-slate-700">{{ $payment->transaction_id }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap font-bold text-slate-900">{{ $payment->user->full_name ?? 'Unknown Candidate' }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap text-slate-600">{{ $payment->payment_method }}</td>
+                    <td class="py-3.5 px-6 whitespace-nowrap font-black text-green-700">₹{{ number_format($payment->amount, 2) }}</td>
                 </tr>
                 @empty
                 <tr>
@@ -203,5 +206,6 @@
             </tbody>
         </table>
     @endif
+    </div>
 </div>
 @endsection

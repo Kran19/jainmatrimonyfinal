@@ -40,7 +40,7 @@
                 <tr class="hover:bg-slate-50/50 transition duration-150">
                     <td class="py-4 px-6">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border">
+                            <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode($member->full_name) }}" class="w-full h-full object-cover" alt="Profile Photo">
                             </div>
                             <div>

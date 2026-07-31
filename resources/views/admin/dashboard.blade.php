@@ -5,7 +5,7 @@
 
 @section('content')
 <!-- KPI Cards -->
-<div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6 md:mb-8">
     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
         <div>
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Members</p>
@@ -57,7 +57,7 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-6 md:mb-8">
     <!-- Gender Distribution & Stats -->
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h3 class="font-bold text-gray-800 text-lg mb-4">Gender Ratio</h3>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Recent Profiles Table -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-gray-800 text-lg">Recent Signups</h3>
             <a href="{{ route('admin.members.index') }}" class="text-indigo-600 hover:text-indigo-500 text-sm font-semibold">View All</a>

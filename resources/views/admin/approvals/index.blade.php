@@ -30,7 +30,7 @@
                     <!-- Candidate -->
                     <td class="py-4 px-6">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border">
+                            <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
                                 @if($member->profile_photo)
                                     <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
                                 @else
@@ -92,10 +92,10 @@
                     </td>
 
                     <!-- Actions -->
-                    <td class="py-4 px-6 text-center w-40">
-                        <div class="flex items-center justify-center gap-2">
+                    <td class="py-4 px-6 text-center min-w-[160px]">
+                        <div class="flex flex-wrap items-center justify-center gap-1.5">
                             <a href="{{ route('admin.members.show', $member->id) }}" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition">
-                                Audit Details
+                                Audit
                             </a>
                             
                             <form action="{{ route('admin.approvals.approve', $member->id) }}" method="POST" class="inline">
