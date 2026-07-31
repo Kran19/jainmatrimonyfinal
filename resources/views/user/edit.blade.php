@@ -75,7 +75,7 @@
                     
                     @if(count($customFieldsByGroup) > 0)
                     <button type="button" onclick="switchTab('additional')" id="tab-btn-additional" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-50 transition flex items-center gap-2.5 border-t mt-2 pt-3">
-                        <i class="fas fa-info-circle text-xs w-4"></i> Additional Fields
+                        <i class="fas fa-info-circle text-xs w-4"></i> Other Details
                     </button>
                     @endif
                 </div>
@@ -524,7 +524,7 @@
                 <div id="tab-panel-additional" class="tab-panel hidden space-y-8">
                     @foreach($customFieldsByGroup as $groupTitle => $fields)
                         <div class="space-y-6">
-                            <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-info-circle text-primary"></i> {{ $groupTitle }}</h3>
+                            <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-info-circle text-primary"></i> {{ in_array($groupTitle, ['Additional Information', 'Custom Fields', 'Additional Fields']) ? 'Other Details' : $groupTitle }}</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                                 @foreach($fields as $field)
                                     @php

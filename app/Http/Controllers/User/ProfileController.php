@@ -127,9 +127,9 @@ class ProfileController extends Controller
             
         $customFieldsByGroup = [];
         foreach ($customFields as $field) {
-            $group = $field->field_group ?: 'Additional Information';
-            if ($group === 'Custom Fields') {
-                $group = 'Additional Information';
+            $group = $field->field_group ?: 'Other Details';
+            if (in_array($group, ['Custom Fields', 'Additional Information', 'Additional Fields'])) {
+                $group = 'Other Details';
             }
             $customFieldsByGroup[$group][] = $field;
         }
