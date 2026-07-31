@@ -203,12 +203,12 @@ class ProfileController extends Controller
             'mandir_pincode' => 'nullable|string|max:20',
 
             // References
-            'ref1_name' => 'nullable|string|max:255',
-            'ref1_mobile' => 'nullable|string|max:20',
-            'ref1_relation' => 'nullable|string|max:100',
-            'ref2_name' => 'nullable|string|max:255',
-            'ref2_mobile' => 'nullable|string|max:20',
-            'ref2_relation' => 'nullable|string|max:100',
+            'ref1_name' => 'required|string|max:255',
+            'ref1_mobile' => 'required|string|max:20',
+            'ref1_relation' => 'required|string|max:100',
+            'ref2_name' => 'required|string|max:255',
+            'ref2_mobile' => 'required|string|max:20',
+            'ref2_relation' => 'required|string|max:100',
 
             // Preferences & Address
             'current_address' => 'nullable|string',

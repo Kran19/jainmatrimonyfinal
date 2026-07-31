@@ -378,21 +378,34 @@
                 <div id="tab-panel-references" class="tab-panel hidden space-y-6">
                     <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-address-book text-primary"></i> Reference Contacts</h3>
                     <div class="space-y-6 text-sm">
+                        @php
+                            $relationsList = ['Relative', 'Friend', 'Neighbor', 'Mandir / Samaj Member', 'Samiti Member', 'Family Friend', 'Other'];
+                            $currentRef1Rel = old('ref1_relation', $user->ref1_relation);
+                            $currentRef2Rel = old('ref2_relation', $user->ref2_relation);
+                        @endphp
                         <!-- Reference 1 -->
                         <div class="bg-gray-50 p-4 rounded-xl border space-y-4">
                             <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 1</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
-                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
+                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
-                                    <input type="text" name="ref1_mobile" value="{{ old('ref1_mobile', $user->ref1_mobile) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                                    <input type="tel" name="ref1_mobile" value="{{ old('ref1_mobile', preg_replace('/^\+?91/', '', $user->ref1_mobile)) }}" required pattern="[0-9]{10}" maxlength="10" minlength="10" title="Exactly 10 digit mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
-                                    <input type="text" name="ref1_relation" value="{{ old('ref1_relation', $user->ref1_relation) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-red-500">*</span></label>
+                                    <select name="ref1_relation" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                        <option value="">Select Relation</option>
+                                        @foreach($relationsList as $rel)
+                                            <option value="{{ $rel }}" {{ ($currentRef1Rel == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
+                                        @endforeach
+                                        @if($currentRef1Rel && !in_array($currentRef1Rel, $relationsList))
+                                            <option value="{{ $currentRef1Rel }}" selected>{{ $currentRef1Rel }}</option>
+                                        @endif
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -402,16 +415,24 @@
                             <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 2</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
-                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
+                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
-                                    <input type="text" name="ref2_mobile" value="{{ old('ref2_mobile', $user->ref2_mobile) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                                    <input type="tel" name="ref2_mobile" value="{{ old('ref2_mobile', preg_replace('/^\+?91/', '', $user->ref2_mobile)) }}" required pattern="[0-9]{10}" maxlength="10" minlength="10" title="Exactly 10 digit mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
-                                    <input type="text" name="ref2_relation" value="{{ old('ref2_relation', $user->ref2_relation) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-red-500">*</span></label>
+                                    <select name="ref2_relation" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                        <option value="">Select Relation</option>
+                                        @foreach($relationsList as $rel)
+                                            <option value="{{ $rel }}" {{ ($currentRef2Rel == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
+                                        @endforeach
+                                        @if($currentRef2Rel && !in_array($currentRef2Rel, $relationsList))
+                                            <option value="{{ $currentRef2Rel }}" selected>{{ $currentRef2Rel }}</option>
+                                        @endif
+                                    </select>
                                 </div>
                             </div>
                         </div>

@@ -647,7 +647,18 @@ if (!function_exists('renderCustomFieldHTML')) {
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 font-semibold mb-1">Relation *</label>
-                                        <input type="text" name="ref1_relation" id="ref1_relation" value="{{ $user->ref1_relation }}" required class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:border-primary">
+                                        @php
+                                            $relationsList = ['Relative', 'Friend', 'Neighbor', 'Mandir / Samaj Member', 'Samiti Member', 'Family Friend', 'Other'];
+                                        @endphp
+                                        <select name="ref1_relation" id="ref1_relation" required class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:border-primary">
+                                            <option value="">Select Relation</option>
+                                            @foreach($relationsList as $rel)
+                                                <option value="{{ $rel }}" {{ ($user->ref1_relation == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
+                                            @endforeach
+                                            @if($user->ref1_relation && !in_array($user->ref1_relation, $relationsList))
+                                                <option value="{{ $user->ref1_relation }}" selected>{{ $user->ref1_relation }}</option>
+                                            @endif
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -669,7 +680,15 @@ if (!function_exists('renderCustomFieldHTML')) {
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 font-semibold mb-1">Relation *</label>
-                                        <input type="text" name="ref2_relation" id="ref2_relation" value="{{ $user->ref2_relation }}" required class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:border-primary">
+                                        <select name="ref2_relation" id="ref2_relation" required class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:border-primary">
+                                            <option value="">Select Relation</option>
+                                            @foreach($relationsList as $rel)
+                                                <option value="{{ $rel }}" {{ ($user->ref2_relation == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
+                                            @endforeach
+                                            @if($user->ref2_relation && !in_array($user->ref2_relation, $relationsList))
+                                                <option value="{{ $user->ref2_relation }}" selected>{{ $user->ref2_relation }}</option>
+                                            @endif
+                                        </select>
                                     </div>
                                 </div>
                             </div>
