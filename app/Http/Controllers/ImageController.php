@@ -45,10 +45,25 @@ class ImageController extends Controller
 
         if ($isSensitiveDocument) {
             $isAdmin = Auth::guard('admin')->check();
-            $isUserApproved = Auth::guard('web')->check() && 
-                              Auth::guard('web')->user()->status === 'approved';
+            $webUser = Auth::guard('web')->user();
             
-            if (!$isAdmin && !$isUserApproved) {
+            $isOwner = false;
+            if ($webUser) {
+                $filename = basename($filePath);
+                if (!empty($webUser->payment_screenshot) && Str::contains($webUser->payment_screenshot, $filename)) {
+                    $isOwner = true;
+                } elseif (!empty($webUser->id_proof_path) && Str::contains($webUser->id_proof_path, $filename)) {
+                    $isOwner = true;
+                } elseif (!empty($webUser->profile_photo) && Str::contains($webUser->profile_photo, $filename)) {
+                    $isOwner = true;
+                } elseif (Str::contains($filename, 'payment_' . $webUser->id . '_') || Str::contains($filename, 'idproof_' . $webUser->id . '_')) {
+                    $isOwner = true;
+                }
+            }
+
+            $isUserApproved = $webUser && $webUser->status === 'approved';
+            
+            if (!$isAdmin && !$isUserApproved && !$isOwner) {
                 return abort(403, 'Unauthorized access to confidential candidate media.');
             }
         }
@@ -64,22 +79,26 @@ class ImageController extends Controller
 
         // Directories to search in priority order
         $searchDirs = [
+            public_path('uploads/receipts'),
             public_path('uploads'),
+            storage_path('app/public/uploads/receipts'),
             storage_path('app/public/uploads'),
+            storage_path('app/private/uploads/receipts'),
+            storage_path('app/private/uploads'),
             storage_path('app/private/imports/profile_photos'),
+            storage_path('app/private/imports/family_photos'),
             storage_path('app/private/imports/payment_proofs'),
             storage_path('app/private/imports'),
-            storage_path('app/private/uploads'),
             storage_path('app/private'),
             storage_path('app/public'),
             public_path('imports/profile_photos'),
             public_path('imports/payment_proofs'),
             public_path('imports'),
             public_path(),
+            base_path('uploads/receipts'),
             base_path('uploads'),
-            base_path('uploads_backup_1785382420'),
+            base_path('../digambar-samaj/uploads/receipts'),
             base_path('../digambar-samaj/uploads'),
-            base_path('../digambar-samaj/public/uploads'),
             base_path('../digambar-samaj'),
             base_path(),
         ];
