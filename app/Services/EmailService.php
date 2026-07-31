@@ -19,20 +19,7 @@ class EmailService
         $fromEmail = config('mail.from.address', 'help@digambarjainparichay.com');
         $fromName = config('mail.from.name', 'Jain Digambar Matrimony');
 
-        // Tier 1: Primary Laravel Mailer with explicit from header
-        try {
-            Mail::html($htmlContent, function ($message) use ($toEmail, $subject, $fromEmail, $fromName) {
-                $message->from($fromEmail, $fromName)
-                    ->to($toEmail)
-                    ->subject($subject);
-            });
-            logger()->info("EmailService: Sent via Laravel Mailer to {$toEmail}");
-            return true;
-        } catch (\Throwable $e) {
-            logger()->error("EmailService: Primary Laravel Mailer failed for {$toEmail}: " . $e->getMessage());
-        }
-
-        // Tier 2: Direct Socket SMTP to Hostinger
+        // Tier 1: Direct Verified Socket SMTP to Hostinger (smtp.hostinger.com:465)
         try {
             $host = env('MAIL_HOST');
             if (empty($host) || in_array($host, ['127.0.0.1', 'localhost'])) {
@@ -52,11 +39,24 @@ class EmailService
             }
 
             if (self::sendSocketSmtp($host, $port, $username, $password, $toEmail, $subject, $htmlContent, $fromName)) {
-                logger()->info("EmailService: Sent via Direct Socket SMTP to {$toEmail}");
+                logger()->info("EmailService: Sent via Direct Verified Socket SMTP to {$toEmail}");
                 return true;
             }
         } catch (\Throwable $e) {
             logger()->error("EmailService: Direct Socket SMTP failed for {$toEmail}: " . $e->getMessage());
+        }
+
+        // Tier 2: Laravel Mailer fallback
+        try {
+            Mail::html($htmlContent, function ($message) use ($toEmail, $subject, $fromEmail, $fromName) {
+                $message->from($fromEmail, $fromName)
+                    ->to($toEmail)
+                    ->subject($subject);
+            });
+            logger()->info("EmailService: Sent via Laravel Mailer to {$toEmail}");
+            return true;
+        } catch (\Throwable $e) {
+            logger()->error("EmailService: Primary Laravel Mailer failed for {$toEmail}: " . $e->getMessage());
         }
 
         // Tier 3: Native PHP mail() fallback with explicit return path (-f) for cPanel / Hostinger
