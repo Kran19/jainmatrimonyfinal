@@ -601,7 +601,8 @@ if (!function_exists('renderCustomFieldHTML')) {
                 
                 <!-- Section 4: Temple & Docs -->
                 <div class="form-section mb-8 pb-4 border-b border-gray-200" data-step="4">
-                    <h2 class="text-xl font-bold text-primary mb-4">Section 4: Temple & Docs</h2>
+                    <h2 class="text-xl font-bold text-primary mb-1">Mandir / Community Verification</h2>
+                    <p class="text-sm text-gray-600 mb-4">आपका परिवार किस दिगंबर जैन मंदिर से जुड़ा है.</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Mandir details -->

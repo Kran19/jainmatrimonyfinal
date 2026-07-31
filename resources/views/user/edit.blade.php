@@ -356,7 +356,8 @@
                         </div>
                         
                         <div class="border-t pt-4 md:col-span-2">
-                            <h4 class="font-bold text-dark text-sm mb-3 flex items-center gap-2"><i class="fas fa-gopuram text-primary"></i> Mandir / Community Verification</h4>
+                            <h4 class="font-bold text-dark text-sm mb-1 flex items-center gap-2"><i class="fas fa-gopuram text-primary"></i> Mandir / Community Verification</h4>
+                            <p class="text-xs text-gray-600 mb-3">आपका परिवार किस दिगंबर जैन मंदिर से जुड़ा है.</p>
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Jain Mandir / Temple Name</label>
