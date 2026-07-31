@@ -210,13 +210,13 @@
                             <input type="text" name="higher_education" required value="{{ old('higher_education', $user->higher_education) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. B.Tech / M.Com / MBA / CA">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Occupation (व्यवसाय)</label>
+                            <label class="block font-semibold text-gray-700 mb-1.5">Occupation (व्यवसाय) <span class="text-red-500">*</span></label>
                             @php
                                 $stdOccs = ['Job', 'Business', 'Service', 'Professional', 'Private Sector', 'Government Sector', 'Self Employed', 'Housewife', 'Retired'];
                                 $currOcc = old('occupation', $user->occupation);
                                 $isOtherOcc = !empty($currOcc) && !in_array($currOcc, $stdOccs);
                             @endphp
-                            <select name="occupation" id="occupation" onchange="toggleCustomOccupation(this.value)" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <select name="occupation" id="occupation" required onchange="toggleCustomOccupation(this.value)" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                                 <option value="">Select Occupation</option>
                                 @foreach($stdOccs as $occ)
                                     <option value="{{ $occ }}" {{ $currOcc === $occ ? 'selected' : '' }}>{{ $occ }}</option>
@@ -606,11 +606,15 @@ function toggleCustomSubcast(val) {
 
 function toggleCustomOccupation(val) {
     const input = document.getElementById('custom_occupation');
-    if (val === 'Other') {
-        input.classList.remove('hidden');
-    } else {
-        input.classList.add('hidden');
-        input.value = '';
+    if (input) {
+        if (val === 'Other') {
+            input.classList.remove('hidden');
+            input.required = true;
+        } else {
+            input.classList.add('hidden');
+            input.required = false;
+            input.value = '';
+        }
     }
 }
 

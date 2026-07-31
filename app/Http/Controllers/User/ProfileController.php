@@ -176,8 +176,8 @@ class ProfileController extends Controller
             
             // Professional
             'higher_education' => 'required|string|max:255',
-            'occupation' => 'nullable|string|max:100',
-            'custom_occupation' => 'nullable|string|max:255',
+            'occupation' => 'required|string|max:100',
+            'custom_occupation' => 'required_if:occupation,Other|nullable|string|max:255',
             'company_name' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:100',
             'monthly_income' => 'nullable|numeric|min:0',

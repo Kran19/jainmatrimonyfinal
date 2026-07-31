@@ -291,8 +291,15 @@
                                 <p class="font-medium text-dark">{{ $user->higher_education ?? 'N/A' }}</p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Occupation</p>
-                                <p class="font-medium text-dark">{{ $user->occupation ?? 'N/A' }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Occupation (व्यवसाय)</p>
+                                <p class="font-medium text-dark">
+                                    {{ !empty($user->occupation) ? $user->occupation : 'N/A' }}
+                                    @if(!empty($user->designation) || !empty($user->company_name))
+                                        <span class="text-xs text-gray-500 block font-normal mt-0.5">
+                                            {{ implode(' at ', array_filter([$user->designation, $user->company_name])) }}
+                                        </span>
+                                    @endif
+                                </p>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Monthly Income</p>
