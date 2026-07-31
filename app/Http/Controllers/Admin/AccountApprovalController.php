@@ -41,31 +41,25 @@ class AccountApprovalController extends Controller
 
         // Send approval notification email
         if ($user->email) {
-            try {
-                $loginUrl = route('login');
-                $html = "
-                <div style='font-family:Arial,sans-serif;max-width:500px;margin:auto;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden'>
-                  <div style='background:#7c3aed;padding:20px;text-align:center'>
-                    <h2 style='color:#fff;margin:0'>Digambar Jain Matrimony</h2>
-                  </div>
-                  <div style='padding:30px'>
-                    <h3 style='color:#16a34a;margin:0 0 12px'>🎉 Congratulations, " . htmlspecialchars($user->full_name) . "!</h3>
-                    <p style='font-size:15px;color:#374151;'>Your account registration request has been <strong>successfully approved</strong> by the admin.</p>
-                    <p style='font-size:14px;color:#6b7280;'>You can now log in and complete your matrimonial profile setup.</p>
-                    <div style='text-align:center;margin:24px 0'>
-                      <a href='{$loginUrl}' style='background:#7c3aed;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px;'>Login Now</a>
-                    </div>
-                    <p style='font-size:12px;color:#9ca3af;text-align:center;margin-top:20px;'>Digambar Jain Matrimony &mdash; Trusted Community Platform</p>
-                  </div>
-                </div>";
+            $loginUrl = route('login');
+            $subject = 'Account Approved - Digambar Jain Matrimony';
+            $html = "
+            <div style='font-family:Arial,sans-serif;max-width:500px;margin:auto;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden'>
+              <div style='background:#1E3A5F;padding:20px;text-align:center'>
+                <h2 style='color:#fff;margin:0'>Digambar Jain Matrimony</h2>
+              </div>
+              <div style='padding:30px'>
+                <h3 style='color:#16a34a;margin:0 0 12px'>🎉 Congratulations, " . htmlspecialchars($user->full_name) . "!</h3>
+                <p style='font-size:15px;color:#374151;'>Your account registration request has been <strong>successfully approved</strong> by the admin.</p>
+                <p style='font-size:14px;color:#6b7280;'>You can now log in and complete your matrimonial profile setup.</p>
+                <div style='text-align:center;margin:24px 0'>
+                  <a href='{$loginUrl}' style='background:#1E3A5F;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block;'>Login Now</a>
+                </div>
+                <p style='font-size:12px;color:#9ca3af;text-align:center;margin-top:20px;'>Digambar Jain Matrimony &mdash; Trusted Community Platform</p>
+              </div>
+            </div>";
 
-                Mail::html($html, function ($message) use ($user) {
-                    $message->to($user->email)
-                        ->subject('Account Approved - Digambar Jain Matrimony');
-                });
-            } catch (\Exception $e) {
-                logger()->error("Failed sending Stage 1 approval email to {$user->email}: " . $e->getMessage());
-            }
+            \App\Services\EmailService::sendHtml($user->email, $subject, $html);
         }
 
         return back()->with('success', "Account request for {$user->full_name} has been approved.");

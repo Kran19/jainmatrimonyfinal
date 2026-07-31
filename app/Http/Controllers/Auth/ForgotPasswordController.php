@@ -50,33 +50,35 @@ class ForgotPasswordController extends Controller
         // Generate link
         $resetLink = route('password.reset', ['token' => $token]);
 
-        try {
-            Mail::send([], [], function ($message) use ($email, $user, $resetLink) {
-                $message->to($email)
-                    ->subject('Password Reset Request')
-                    ->html("
-                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                            <h2>Password Reset Request</h2>
-                            <p>Hello " . htmlspecialchars($user->full_name) . ",</p>
-                            <p>We received a request to reset your password for your Digambar Jain Parichay account.</p>
-                            <p>Please click the button below to reset your password. This link will expire in 1 hour.</p>
-                            <p style='text-align: center; margin: 30px 0;'>
-                                <a href='{$resetLink}' style='background-color: #1E3A5F; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Reset Password</a>
-                            </p>
-                            <p>If the button doesn't work, copy and paste this link into your browser:</p>
-                            <p><a href='{$resetLink}'>{$resetLink}</a></p>
-                            <p>If you did not request this, please ignore this email.</p>
-                            <hr>
-                            <p style='font-size: 12px; color: #666;'>Regards,<br>Digambar Jain Parichay Team</p>
-                        </div>
-                    ");
-            });
+        $subject = 'Password Reset Request - Digambar Jain Parichay';
+        $htmlContent = "
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;'>
+                <div style='background-color: #1E3A5F; color: #ffffff; padding: 20px; text-align: center;'>
+                    <h2 style='margin: 0;'>Digambar Jain Parichay</h2>
+                </div>
+                <div style='padding: 24px;'>
+                    <p style='font-size: 16px; color: #111827;'>Hello <strong>" . htmlspecialchars($user->full_name) . "</strong>,</p>
+                    <p style='font-size: 14px; color: #374151;'>We received a request to reset your password for your Digambar Jain Parichay account.</p>
+                    <p style='font-size: 14px; color: #374151;'>Please click the button below to reset your password. This link will expire in 1 hour.</p>
+                    <div style='text-align: center; margin: 28px 0;'>
+                        <a href='{$resetLink}' style='background-color: #1E3A5F; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block;'>Reset Password</a>
+                    </div>
+                    <p style='font-size: 13px; color: #6b7280;'>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p style='font-size: 13px; word-break: break-all;'><a href='{$resetLink}' style='color: #2563eb;'>{$resetLink}</a></p>
+                    <p style='font-size: 13px; color: #6b7280;'>If you did not request this password reset, please ignore this email.</p>
+                    <hr style='border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;'>
+                    <p style='font-size: 12px; color: #9ca3af; text-align: center; margin: 0;'>Regards,<br>Digambar Jain Parichay Committee</p>
+                </div>
+            </div>
+        ";
 
+        $sent = \App\Services\EmailService::sendHtml($email, $subject, $htmlContent);
+
+        if ($sent) {
             return back()->with('success', 'A password reset link has been sent to your email address.');
-        } catch (\Exception $e) {
-            logger()->error("Password reset mail failed: " . $e->getMessage());
-            return back()->with('error', 'There was a problem sending the email. Please try again later.');
         }
+
+        return back()->with('error', 'Failed to send password reset email. Please try again later.');
     }
 
     /**

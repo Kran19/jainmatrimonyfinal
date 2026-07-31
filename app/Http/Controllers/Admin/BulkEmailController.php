@@ -43,19 +43,13 @@ class BulkEmailController extends Controller
         $failCount = 0;
 
         foreach ($emails as $email) {
-            try {
-                Mail::html($messageBody, function ($message) use ($email, $subject) {
-                    $message->to($email)
-                        ->subject($subject);
-                });
+            if (\App\Services\EmailService::sendHtml($email, $subject, $messageBody)) {
                 $successCount++;
-                
-                // Add a tiny delay to avoid spam/rate limits
-                usleep(300000); // 0.3 seconds
-            } catch (\Exception $e) {
-                logger()->error("Failed sending bulk email to $email: " . $e->getMessage());
+            } else {
                 $failCount++;
             }
+            // Add a tiny delay to avoid spam/rate limits
+            usleep(300000); // 0.3 seconds
         }
 
         return back()->with('success', "Bulk emails sent successfully to {$successCount} users. Failed: {$failCount}.");
