@@ -95,7 +95,7 @@
                                 </div>
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-users w-4 text-center text-gray-400"></i> Gotra</span>
-                                    <span class="font-medium text-dark">{{ $user->mama_gotra ?? 'N/A' }}</span>
+                                    <span class="font-medium text-dark">{{ $user->gotra ?? 'N/A' }}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-id-card w-4 text-center text-gray-400"></i> Profile ID</span>
@@ -266,6 +266,10 @@
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Marital Status</p>
                                 <p class="font-medium text-dark">{{ $user->marital_status ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Self Gotra</p>
+                                <p class="font-medium text-dark">{{ $user->gotra ?? 'N/A' }}</p>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Mama Gotra</p>
