@@ -291,6 +291,12 @@ class ProfileController extends Controller
         if ($request->subcast === 'Other' && $request->filled('custom_subcast')) {
             $userUpdate['subcast'] = $request->custom_subcast;
         }
+        if (($request->gotra === 'Others' || $request->gotra === 'Other') && $request->filled('custom_gotra')) {
+            $userUpdate['gotra'] = $request->custom_gotra;
+        }
+        if (($request->mama_gotra === 'Others' || $request->mama_gotra === 'Other') && $request->filled('custom_mama_gotra')) {
+            $userUpdate['mama_gotra'] = $request->custom_mama_gotra;
+        }
 
         // File uploads for profile/family/id proof
         $uploadDir = storage_path('app/public/uploads');

@@ -272,13 +272,44 @@ if (!function_exists('renderCustomFieldHTML')) {
                         </div>
 
                         <!-- Gotra & Mama Gotra -->
+                        @php
+                            $gotraList = [
+                                'Agrawal', 'Bagherval', 'Bagar/ Bogar', 'Chaturtha', 'Chittauda',
+                                'Dasa Humad', 'Dasa Nagda', 'Dasa Narsinhpura', 'Golalare', 'Golapurab',
+                                'GolSingare', 'Humad', 'Jaiswal', 'Kathnera', 'Keshval',
+                                'Khandelwal', 'Kharva', 'Lamechu', 'Levechval', 'Mevada',
+                                'Narsinhpura', 'Padmavati Porval', 'Pallival', 'Parvar', 'Raikwad',
+                                'Saitwal', 'Saraogi', 'Shrimal', 'Vagad Chhappan', 'Varahiya',
+                                'Visa Humad', 'Visa Mevada', 'Visa Nagda', 'Visa Narsinhpura'
+                            ];
+                            $userGotra = $user->gotra ?? '';
+                            $isCustomGotra = !empty($userGotra) && !in_array($userGotra, $gotraList);
+
+                            $userMamaGotra = $user->mama_gotra ?? '';
+                            $isCustomMamaGotra = !empty($userMamaGotra) && !in_array($userMamaGotra, $gotraList);
+                        @endphp
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Gotra (गोत्र) *</label>
-                            <input type="text" name="gotra" value="{{ $user->gotra }}" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                            <select name="gotra" id="gotra" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                                <option value="">Select Gotra</option>
+                                @foreach ($gotraList as $g)
+                                    <option value="{{ $g }}" {{ $userGotra === $g ? 'selected' : '' }}>{{ $g }}</option>
+                                @endforeach
+                                <option value="Others" {{ $isCustomGotra ? 'selected' : '' }}>Others</option>
+                            </select>
+                            <input type="text" name="custom_gotra" id="custom_gotra" value="{{ $isCustomGotra ? $userGotra : '' }}" placeholder="Specify Gotra" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-sm focus:border-primary mt-2 {{ $isCustomGotra ? '' : 'hidden' }}">
                         </div>
+
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Mama Gotra (मामा का गोत्र) *</label>
-                            <input type="text" name="mama_gotra" value="{{ $user->mama_gotra }}" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                            <select name="mama_gotra" id="mama_gotra" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                                <option value="">Select Mama Gotra</option>
+                                @foreach ($gotraList as $g)
+                                    <option value="{{ $g }}" {{ $userMamaGotra === $g ? 'selected' : '' }}>{{ $g }}</option>
+                                @endforeach
+                                <option value="Others" {{ $isCustomMamaGotra ? 'selected' : '' }}>Others</option>
+                            </select>
+                            <input type="text" name="custom_mama_gotra" id="custom_mama_gotra" value="{{ $isCustomMamaGotra ? $userMamaGotra : '' }}" placeholder="Specify Mama Gotra" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-sm focus:border-primary mt-2 {{ $isCustomMamaGotra ? '' : 'hidden' }}">
                         </div>
                         
                         <!-- Manglik -->
@@ -1268,6 +1299,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('subcast')?.addEventListener('change', function() {
         handleOtherWithSwal(this, 'custom_subcast', 'Other');
+    });
+
+    document.getElementById('gotra')?.addEventListener('change', function() {
+        handleOtherWithSwal(this, 'custom_gotra', 'Others');
+    });
+
+    document.getElementById('mama_gotra')?.addEventListener('change', function() {
+        handleOtherWithSwal(this, 'custom_mama_gotra', 'Others');
     });
 
     document.querySelectorAll('input[name="occupation"]').forEach(radio => {

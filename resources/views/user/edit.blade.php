@@ -309,13 +309,43 @@
                 <div id="tab-panel-astro" class="tab-panel hidden space-y-6">
                     <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-om text-primary"></i> Gotra & Mandir Details</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+                        @php
+                            $gotraList = [
+                                'Agrawal', 'Bagherval', 'Bagar/ Bogar', 'Chaturtha', 'Chittauda',
+                                'Dasa Humad', 'Dasa Nagda', 'Dasa Narsinhpura', 'Golalare', 'Golapurab',
+                                'GolSingare', 'Humad', 'Jaiswal', 'Kathnera', 'Keshval',
+                                'Khandelwal', 'Kharva', 'Lamechu', 'Levechval', 'Mevada',
+                                'Narsinhpura', 'Padmavati Porval', 'Pallival', 'Parvar', 'Raikwad',
+                                'Saitwal', 'Saraogi', 'Shrimal', 'Vagad Chhappan', 'Varahiya',
+                                'Visa Humad', 'Visa Mevada', 'Visa Nagda', 'Visa Narsinhpura'
+                            ];
+                            $editGotra = old('gotra', $user->gotra);
+                            $isCustomEditGotra = !empty($editGotra) && !in_array($editGotra, $gotraList);
+
+                            $editMamaGotra = old('mama_gotra', $user->mama_gotra);
+                            $isCustomEditMamaGotra = !empty($editMamaGotra) && !in_array($editMamaGotra, $gotraList);
+                        @endphp
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Self Gotra <span class="text-red-500">*</span></label>
-                            <input type="text" name="gotra" required value="{{ old('gotra', $user->gotra) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <select name="gotra" id="edit_gotra" required onchange="toggleCustomGotra(this.value)" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                                <option value="">Select Self Gotra</option>
+                                @foreach($gotraList as $g)
+                                    <option value="{{ $g }}" {{ $editGotra === $g ? 'selected' : '' }}>{{ $g }}</option>
+                                @endforeach
+                                <option value="Others" {{ $isCustomEditGotra ? 'selected' : '' }}>Others</option>
+                            </select>
+                            <input type="text" name="custom_gotra" id="custom_gotra" value="{{ $isCustomEditGotra ? $editGotra : '' }}" placeholder="Specify custom Gotra" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium mt-2 {{ $isCustomEditGotra ? '' : 'hidden' }}">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Maternal Gotra (Mama Gotra) <span class="text-red-500">*</span></label>
-                            <input type="text" name="mama_gotra" required value="{{ old('mama_gotra', $user->mama_gotra) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <select name="mama_gotra" id="edit_mama_gotra" required onchange="toggleCustomMamaGotra(this.value)" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                                <option value="">Select Mama Gotra</option>
+                                @foreach($gotraList as $g)
+                                    <option value="{{ $g }}" {{ $editMamaGotra === $g ? 'selected' : '' }}>{{ $g }}</option>
+                                @endforeach
+                                <option value="Others" {{ $isCustomEditMamaGotra ? 'selected' : '' }}>Others</option>
+                            </select>
+                            <input type="text" name="custom_mama_gotra" id="custom_mama_gotra" value="{{ $isCustomEditMamaGotra ? $editMamaGotra : '' }}" placeholder="Specify custom Mama Gotra" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium mt-2 {{ $isCustomEditMamaGotra ? '' : 'hidden' }}">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Manglik Status <span class="text-red-500">*</span></label>
@@ -580,6 +610,34 @@ function toggleCustomOccupation(val) {
     } else {
         input.classList.add('hidden');
         input.value = '';
+    }
+}
+
+function toggleCustomGotra(val) {
+    const input = document.getElementById('custom_gotra');
+    if (input) {
+        if (val === 'Others' || val === 'Other') {
+            input.classList.remove('hidden');
+            input.required = true;
+        } else {
+            input.classList.add('hidden');
+            input.required = false;
+            input.value = '';
+        }
+    }
+}
+
+function toggleCustomMamaGotra(val) {
+    const input = document.getElementById('custom_mama_gotra');
+    if (input) {
+        if (val === 'Others' || val === 'Other') {
+            input.classList.remove('hidden');
+            input.required = true;
+        } else {
+            input.classList.add('hidden');
+            input.required = false;
+            input.value = '';
+        }
     }
 }
 
