@@ -47,8 +47,8 @@ class ForgotPasswordController extends Controller
             'created_at' => now(),
         ]);
 
-        // Generate link
-        $resetLink = route('password.reset', ['token' => $token]);
+        // Generate link dynamically for local & production environments
+        $resetLink = url('/reset-password/' . $token);
 
         $subject = 'Password Reset Request - Digambar Jain Parichay';
         $htmlContent = "

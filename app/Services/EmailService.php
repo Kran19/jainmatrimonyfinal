@@ -34,10 +34,22 @@ class EmailService
 
         // Tier 2: Direct Socket SMTP to Hostinger
         try {
-            $host = env('MAIL_HOST', 'smtp.hostinger.com');
+            $host = env('MAIL_HOST');
+            if (empty($host) || in_array($host, ['127.0.0.1', 'localhost'])) {
+                $host = 'smtp.hostinger.com';
+            }
             $port = (int) env('MAIL_PORT', 465);
-            $username = env('MAIL_USERNAME', 'help@digambarjainparichay.com');
-            $password = env('MAIL_PASSWORD', 'King@0706');
+            if ($port <= 0) {
+                $port = 465;
+            }
+            $username = env('MAIL_USERNAME');
+            if (empty($username)) {
+                $username = 'help@digambarjainparichay.com';
+            }
+            $password = env('MAIL_PASSWORD');
+            if (empty($password)) {
+                $password = 'King@0706';
+            }
 
             if (self::sendSocketSmtp($host, $port, $username, $password, $toEmail, $subject, $htmlContent, $fromName)) {
                 logger()->info("EmailService: Sent via Direct Socket SMTP to {$toEmail}");
@@ -47,7 +59,7 @@ class EmailService
             logger()->error("EmailService: Direct Socket SMTP failed for {$toEmail}: " . $e->getMessage());
         }
 
-        // Tier 3: Native PHP mail() fallback
+        // Tier 3: Native PHP mail() fallback with explicit return path (-f) for cPanel / Hostinger
         try {
             $headers = "MIME-Version: 1.0\r\n" .
                        "Content-type: text/html; charset=UTF-8\r\n" .
@@ -55,7 +67,9 @@ class EmailService
                        "Reply-To: {$fromEmail}\r\n" .
                        "X-Mailer: PHP/" . phpversion();
 
-            if (@mail($toEmail, $subject, $htmlContent, $headers)) {
+            $additionalParams = "-f " . $fromEmail;
+
+            if (@mail($toEmail, $subject, $htmlContent, $headers, $additionalParams)) {
                 logger()->info("EmailService: Sent via native PHP mail() to {$toEmail}");
                 return true;
             }
@@ -89,6 +103,8 @@ class EmailService
         
         $message .= "--{$boundary}--";
 
+        $domain = parse_url(config('app.url', 'https://digambarjainparichay.com'), PHP_URL_HOST) ?: 'digambarjainparichay.com';
+
         $protocol = ($port == 465) ? 'ssl://' : '';
         $socket = @fsockopen($protocol . $host, $port, $errno, $errstr, 10);
         if (!$socket) {
@@ -97,7 +113,7 @@ class EmailService
 
         if (!self::serverParse($socket, "220")) { fclose($socket); return false; }
 
-        fwrite($socket, "EHLO " . $host . "\r\n");
+        fwrite($socket, "EHLO " . $domain . "\r\n");
         if (!self::serverParse($socket, "250")) { fclose($socket); return false; }
 
         fwrite($socket, "AUTH LOGIN\r\n");
