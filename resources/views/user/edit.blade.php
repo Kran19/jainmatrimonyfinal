@@ -500,6 +500,10 @@
                                     <option value="Passport" {{ old('id_proof_type', $user->id_proof_type) === 'Passport' ? 'selected' : '' }}>Passport</option>
                                     <option value="Other" {{ old('id_proof_type', $user->id_proof_type) === 'Other' ? 'selected' : '' }}>Other</option>
                                 </select>
+                                <p class="text-xs text-blue-800 bg-blue-50/80 p-3 rounded-lg border border-blue-100 mt-2.5 flex items-start gap-2 leading-relaxed font-medium">
+                                    <i class="fas fa-user-shield text-blue-600 text-sm mt-0.5 flex-shrink-0"></i>
+                                    <span>This ID proof is required only for verification purposes. It will not be shared publicly or used for any purpose other than verification. Your information will remain confidential.</span>
+                                </p>
                             </div>
                             <div>
                                 <label class="block font-semibold text-gray-700 mb-1.5">Upload / Update ID Proof Document</label>
