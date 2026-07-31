@@ -85,30 +85,30 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b border-gray-100 text-gray-400 text-xs uppercase font-semibold">
-                        <th class="py-2.5">Name</th>
-                        <th class="py-2.5">Email</th>
-                        <th class="py-2.5">Status</th>
-                        <th class="py-2.5">Created At</th>
+                        <th class="py-2.5 px-4 whitespace-nowrap">Name</th>
+                        <th class="py-2.5 px-4 whitespace-nowrap">Email</th>
+                        <th class="py-2.5 px-4 whitespace-nowrap">Status</th>
+                        <th class="py-2.5 px-4 whitespace-nowrap">Created At</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm divide-y divide-gray-100">
                     @foreach($recentProfiles as $profile)
                     <tr class="hover:bg-slate-50 transition duration-150">
-                        <td class="py-3 font-semibold text-gray-900">
+                        <td class="py-3 px-4 whitespace-nowrap font-semibold text-gray-900">
                             <a href="{{ route('admin.members.show', $profile->id) }}" class="hover:text-indigo-600">
                                 {{ $profile->full_name }}
                             </a>
                         </td>
-                        <td class="py-3 text-gray-600">{{ $profile->email }}</td>
-                        <td class="py-3">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-bold
-                                @if($profile->status === 'approved') bg-green-100 text-green-800
-                                @elseif($profile->status === 'pending') bg-orange-100 text-orange-800
+                        <td class="py-3 px-4 whitespace-nowrap text-gray-600">{{ $profile->email }}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap
+                                @if($profile->status === 'approved' || $profile->status === 'account_approved') bg-green-100 text-green-800
+                                @elseif($profile->status === 'pending' || $profile->status === 'account_pending') bg-orange-100 text-orange-800
                                 @else bg-slate-100 text-slate-800 @endif">
-                                {{ ucfirst($profile->status) }}
+                                {{ str_replace('_', ' ', ucfirst($profile->status)) }}
                             </span>
                         </td>
-                        <td class="py-3 text-gray-400">{{ $profile->created_at->format('M d, Y') }}</td>
+                        <td class="py-3 px-4 whitespace-nowrap text-gray-500 font-medium text-xs">{{ $profile->created_at->format('M d, Y h:i A') }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -127,32 +127,32 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b border-gray-100 text-gray-400 text-xs uppercase font-semibold">
-                    <th class="py-2.5">Member</th>
-                    <th class="py-2.5">Amount</th>
-                    <th class="py-2.5">Transaction ID</th>
-                    <th class="py-2.5">Method</th>
-                    <th class="py-2.5">Status</th>
-                    <th class="py-2.5">Date</th>
+                    <th class="py-2.5 px-4 whitespace-nowrap">Member</th>
+                    <th class="py-2.5 px-4 whitespace-nowrap">Amount</th>
+                    <th class="py-2.5 px-4 whitespace-nowrap">Transaction ID</th>
+                    <th class="py-2.5 px-4 whitespace-nowrap">Method</th>
+                    <th class="py-2.5 px-4 whitespace-nowrap">Status</th>
+                    <th class="py-2.5 px-4 whitespace-nowrap">Payment Date</th>
                 </tr>
             </thead>
             <tbody class="text-sm divide-y divide-gray-100">
                 @foreach($recentPayments as $payment)
                 <tr class="hover:bg-slate-50 transition duration-150">
-                    <td class="py-3 font-semibold text-gray-900">
+                    <td class="py-3 px-4 whitespace-nowrap font-semibold text-gray-900">
                         {{ $payment->user->full_name ?? 'Unknown Candidate' }}
                     </td>
-                    <td class="py-3 font-bold text-green-700">₹{{ number_format($payment->amount, 2) }}</td>
-                    <td class="py-3 text-mono text-xs text-gray-600">{{ $payment->transaction_id }}</td>
-                    <td class="py-3 text-gray-500">{{ $payment->payment_method }}</td>
-                    <td class="py-3">
-                        <span class="px-2 py-0.5 rounded-full text-xs font-bold
+                    <td class="py-3 px-4 whitespace-nowrap font-bold text-green-700">₹{{ number_format($payment->amount, 2) }}</td>
+                    <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-gray-600">{{ $payment->transaction_id }}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-gray-500">{{ $payment->payment_method }}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap
                             @if($payment->status === 'verified') bg-green-100 text-green-800
                             @elseif($payment->status === 'pending') bg-orange-100 text-orange-800
                             @else bg-red-100 text-red-800 @endif">
                             {{ ucfirst($payment->status) }}
                         </span>
                     </td>
-                    <td class="py-3 text-gray-400">{{ $payment->created_at->format('M d, H:i') }}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-gray-500 font-medium text-xs">{{ $payment->created_at->format('M d, Y h:i A') }}</td>
                 </tr>
                 @endforeach
             </tbody>
