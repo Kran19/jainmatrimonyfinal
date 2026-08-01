@@ -18,7 +18,10 @@ class News extends Model
         'status'
     ];
 
-    public $timestamps = true;
+    /**
+     * news table has created_at timestamp but no updated_at column.
+     */
+    const UPDATED_AT = null;
 
     protected function casts(): array
     {
