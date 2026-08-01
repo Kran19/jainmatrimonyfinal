@@ -66,7 +66,10 @@
                     title: 'Success!',
                     text: '{{ session('success') }}',
                     timer: 3000,
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl border border-pink-100'
+                    }
                 });
             });
         </script>
@@ -78,11 +81,130 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: '{{ session('error') }}'
+                    text: '{{ session('error') }}',
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl border border-pink-100'
+                    }
                 });
             });
         </script>
     @endif
+
+    <!-- Global SweetAlert2 Interceptor for Browser Alerts & Form/Button Confirmations -->
+    <script>
+        window.alert = function(message) {
+            Swal.fire({
+                title: 'Notification',
+                text: message,
+                icon: 'info',
+                confirmButtonColor: '#a78bfa',
+                confirmButtonText: 'OK',
+                customClass: {
+                    popup: 'rounded-2xl shadow-xl border border-purple-100',
+                    confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md'
+                }
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intercept Form Submissions with confirm()
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.dataset.swalConfirmed === 'true') {
+                    delete form.dataset.swalConfirmed;
+                    return true;
+                }
+                
+                const onsubmitAttr = form.getAttribute('onsubmit') || '';
+                if (onsubmitAttr.includes('confirm(')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    
+                    let msg = 'Are you sure you want to proceed with this action?';
+                    const match = onsubmitAttr.match(/confirm\s*\(\s*(['"])(.*?)\1\s*\)/i);
+                    if (match && match[2]) {
+                        msg = match[2];
+                    }
+                    
+                    Swal.fire({
+                        title: 'Confirm Action',
+                        text: msg,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#a78bfa',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: 'Yes, proceed',
+                        cancelButtonText: 'Cancel',
+                        customClass: {
+                            popup: 'rounded-2xl shadow-2xl border border-pink-100',
+                            confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md text-white',
+                            cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm text-white'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.dataset.swalConfirmed = 'true';
+                            form.removeAttribute('onsubmit');
+                            form.submit();
+                        }
+                    });
+                    return false;
+                }
+            }, true);
+
+            // Intercept Click events on buttons/links with confirm()
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('a[onclick*="confirm"], button[onclick*="confirm"], input[onclick*="confirm"]');
+                if (!target) return;
+                
+                if (target.dataset.swalConfirmed === 'true') {
+                    delete target.dataset.swalConfirmed;
+                    return true;
+                }
+                
+                const onclickAttr = target.getAttribute('onclick') || '';
+                if (onclickAttr.includes('confirm(')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    
+                    let msg = 'Are you sure you want to proceed with this action?';
+                    const match = onclickAttr.match(/confirm\s*\(\s*(['"])(.*?)\1\s*\)/i);
+                    if (match && match[2]) {
+                        msg = match[2];
+                    }
+                    
+                    Swal.fire({
+                        title: 'Confirm Action',
+                        text: msg,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#a78bfa',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: 'Yes, proceed',
+                        cancelButtonText: 'Cancel',
+                        customClass: {
+                            popup: 'rounded-2xl shadow-2xl border border-pink-100',
+                            confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md text-white',
+                            cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm text-white'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            target.dataset.swalConfirmed = 'true';
+                            target.removeAttribute('onclick');
+                            if (target.tagName === 'A' && target.href) {
+                                window.location.href = target.href;
+                            } else if (target.form) {
+                                target.form.dataset.swalConfirmed = 'true';
+                                target.form.submit();
+                            } else {
+                                target.click();
+                            }
+                        }
+                    });
+                    return false;
+                }
+            }, true);
+        });
+    </script>
 
     <!-- Backdrop for Mobile Sidebar -->
     <div id="sidebar-backdrop" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 lg:hidden hidden transition-opacity duration-300"></div>
