@@ -44,16 +44,22 @@
 </style>
 
 <script>
-    // Hide preloader when page is fully loaded
-    window.addEventListener('load', function () {
+    // Hide preloader immediately on DOM ready to minimize render delays
+    function hidePreloader() {
         const preloader = document.getElementById('preloader');
         if (preloader) {
             preloader.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => {
-                preloader.remove();
-            }, 500);
+                if (preloader.parentNode) preloader.remove();
+            }, 300);
         }
-    });
+    }
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        hidePreloader();
+    } else {
+        document.addEventListener('DOMContentLoaded', hidePreloader);
+        window.addEventListener('load', hidePreloader);
+    }
 </script>
 
 @if (!empty($marquee_ads_text))
@@ -157,7 +163,7 @@
                             }
                         }
                     @endphp
-                    <img src="{{ $hero_img_src }}" alt="Matrimony Hero" class="w-full h-full object-contain max-h-[160px] sm:max-h-[220px] md:max-h-[280px] lg:max-h-[300px]">
+                    <img src="{{ $hero_img_src }}" alt="Matrimony Hero" fetchpriority="high" decoding="async" class="w-full h-full object-contain max-h-[160px] sm:max-h-[220px] md:max-h-[280px] lg:max-h-[300px]">
                 </div>
             </div>
 
@@ -414,12 +420,12 @@
         <div class="mt-4 flex justify-center">
             @if ($qr_exists)
                 @if ($is_base64_qr)
-                    <img src="{{ $payment_qr_code }}" alt="Payment QR" class="w-36 h-36 sm:w-48 sm:h-48 border border-yellow-300 rounded shadow-sm object-cover">
+                    <img src="{{ $payment_qr_code }}" alt="Payment QR" loading="lazy" decoding="async" class="w-36 h-36 sm:w-48 sm:h-48 border border-yellow-300 rounded shadow-sm object-cover">
                 @else
-                    <img src="{{ route('image.serve', ['file' => $clean_qr_code]) }}" alt="Payment QR" class="w-36 h-36 sm:w-48 sm:h-48 border border-yellow-300 rounded shadow-sm object-cover">
+                    <img src="{{ route('image.serve', ['file' => $clean_qr_code]) }}" alt="Payment QR" loading="lazy" decoding="async" class="w-36 h-36 sm:w-48 sm:h-48 border border-yellow-300 rounded shadow-sm object-cover">
                 @endif
             @else
-                <img src="https://placehold.co/200x200/fef08a/854d0e?text=QR+Code+Not+Found" alt="Payment QR Placeholder" class="w-36 h-36 sm:w-48 sm:h-48 border border-yellow-300 rounded shadow-sm object-cover">
+                <img src="https://placehold.co/200x200/fef08a/854d0e?text=QR+Code+Not+Found" alt="Payment QR Placeholder" loading="lazy" decoding="async" class="w-36 h-36 sm:w-48 sm:h-48 border border-yellow-300 rounded shadow-sm object-cover">
             @endif
         </div>
         <div class="mt-6">
@@ -445,7 +451,7 @@
                     }
                 @endphp
                 <div class="block w-full max-w-[295px] aspect-[2/3] rounded-xl overflow-hidden shadow-md transition bg-white">
-                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? 'Advertisement' }}" loading="lazy" decoding="async" class="w-full h-full object-cover">
                 </div>
             @endforeach
         </div>
@@ -482,13 +488,13 @@
                 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-gray-100" data-aos="fade-up" data-aos-delay="{{ $p->delay }}">
                     <div class="relative overflow-hidden aspect-[3/4]">
                         @if ($is_approved)
-                            <img src="{{ $p->computed_img }}" alt="Profile Photo" class="w-full h-full object-cover object-top group-hover:scale-110 transition duration-500">
+                            <img src="{{ $p->computed_img }}" alt="{{ $p->full_name }}" loading="lazy" decoding="async" class="w-full h-full object-cover object-top group-hover:scale-110 transition duration-500">
                         @else
                             @php
                                 $placeholder = ($p->gender == 'Female') ? asset('assets/images/bride_placeholder.png') : asset('assets/images/groom_placeholder.png');
                             @endphp
                             <div class="w-full h-full group-hover:scale-110 transition duration-500 relative">
-                                <img src="{{ $placeholder }}" alt="Profile Locked" class="w-full h-full object-cover object-top">
+                                <img src="{{ $placeholder }}" alt="Profile Locked" loading="lazy" decoding="async" class="w-full h-full object-cover object-top">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-30 text-white p-4 text-center z-10 backdrop-blur-[2px]">
                                     <i class="fas fa-lock text-2xl sm:text-3xl mb-2"></i>
                                 </div>

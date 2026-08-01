@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
             return route('login');
         });
 
+        $middleware->append(\App\Http\Middleware\PerformanceOptimizationMiddleware::class);
+
         $middleware->alias([
             'profile.completed' => \App\Http\Middleware\EnsureProfileIsCompleted::class,
         ]);

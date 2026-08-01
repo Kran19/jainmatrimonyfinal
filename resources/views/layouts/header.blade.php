@@ -5,7 +5,7 @@
 
 <!-- Mobile Menu -->
 <div class="mobile-menu" id="mobileMenu">
-    <button id="closeMobileMenu" class="absolute top-6 right-6 text-2xl text-gray-600 hover:text-red-500 transition focus:outline-none"><i class="fas fa-times"></i></button>
+    <button id="closeMobileMenu" aria-label="Close mobile menu" class="absolute top-6 right-6 text-2xl text-gray-600 hover:text-red-500 transition focus:outline-none"><i class="fas fa-times"></i></button>
     <div class="flex flex-col space-y-6 px-8 mt-4">
         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-primary font-bold' : 'text-dark hover:text-primary font-medium' }} transition text-lg">Home</a>
         <div class="relative group">
@@ -70,7 +70,7 @@
         </div>
         
         <!-- Hamburger Icon (Mobile) -->
-        <div class="md:hidden hamburger flex-shrink-0 ml-4" id="hamburger">
+        <div class="md:hidden hamburger flex-shrink-0 ml-4" id="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
             <span></span>
             <span></span>
             <span></span>

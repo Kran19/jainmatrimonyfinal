@@ -22,10 +22,10 @@
             <div class="w-full flex justify-center items-center">
                 @if(!empty($ad['link']))
                     <a href="{{ $ad['link'] }}" target="_blank" class="block w-full hover:opacity-90 transition">
-                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-auto object-contain max-h-48 rounded shadow-md border border-gray-200">
+                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? 'Advertisement' }}" loading="lazy" decoding="async" class="w-full h-auto object-contain max-h-48 rounded shadow-md border border-gray-200">
                     </a>
                 @else
-                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-auto object-contain max-h-48 rounded shadow-md border border-gray-200">
+                    <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? 'Advertisement' }}" loading="lazy" decoding="async" class="w-full h-auto object-contain max-h-48 rounded shadow-md border border-gray-200">
                 @endif
             </div>
         @endforeach
@@ -41,13 +41,13 @@
                 <h3 class="text-2xl font-bold text-accent mb-4">Digambar Jain Parichay Sammelan Samiti, Ahmedabad</h3>
                 <p class="text-gray-300 mb-6">Exclusive matrimony platform for the Digambar Jain Samaj. Find your perfect life partner within the community.</p>
                 <div class="flex space-x-4">
-                    <a href="https://www.facebook.com/profile.php?id=61591451942555" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition text-white">
+                    <a href="https://www.facebook.com/profile.php?id=61591451942555" target="_blank" aria-label="Facebook Page" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition text-white">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="https://www.instagram.com/digambarjainparichay/?hl=en" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 transition text-white">
+                    <a href="https://www.instagram.com/digambarjainparichay/?hl=en" target="_blank" aria-label="Instagram Profile" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 transition text-white">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="https://www.youtube.com/@DigambarJainParichaySammelan20" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-600 transition text-white">
+                    <a href="https://www.youtube.com/@DigambarJainParichaySammelan20" target="_blank" aria-label="YouTube Channel" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-600 transition text-white">
                         <i class="fab fa-youtube"></i>
                     </a>
                 </div>
@@ -84,17 +84,19 @@
 </footer>
 
 <!-- Sticky WhatsApp Button -->
-<a href="https://wa.me/{{ $whatsapp_number }}" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:bg-green-600 hover:scale-110 transition-all duration-300 z-50">
+<a href="https://wa.me/{{ $whatsapp_number }}" target="_blank" aria-label="Contact us on WhatsApp" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:bg-green-600 hover:scale-110 transition-all duration-300 z-50">
     <i class="fab fa-whatsapp text-3xl"></i>
 </a>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Scripts (Deferred for Performance Optimization) -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js" defer></script>
+@if(request()->routeIs('user.detail') || request()->routeIs('profile.*') || isset($include_pdf_js))
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+@endif
 
 <!-- Main App Scripts -->
 <script>

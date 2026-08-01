@@ -484,7 +484,7 @@
                             <label class="block font-semibold text-gray-700">Candidate Profile Photo</label>
                             @if($user->profile_photo)
                                 <div class="w-36 h-44 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm relative group">
-                                    <img src="{{ route('image.serve', ['file' => $user->profile_photo]) }}" class="w-full h-full object-cover">
+                                    <img src="{{ route('image.serve', ['file' => $user->profile_photo]) }}" class="w-full h-full object-cover" onerror="this.src='/images/default-avatar.png';">
                                     <span class="absolute bottom-1 right-1 bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">Uploaded</span>
                                 </div>
                             @endif
@@ -496,7 +496,11 @@
                             <label class="block font-semibold text-gray-700">Family Photo</label>
                             @if($user->family_photo)
                                 <div class="w-48 h-36 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm relative group">
-                                    <img src="{{ route('image.serve', ['file' => $user->family_photo]) }}" class="w-full h-full object-cover">
+                                    <img src="{{ route('image.serve', ['file' => $user->family_photo]) }}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                    <div class="hidden w-full h-full flex flex-col items-center justify-center bg-gray-50 text-gray-400 text-xs">
+                                        <i class="fas fa-users-viewfinder text-2xl mb-1 text-gray-300"></i>
+                                        <span>No Family Photo</span>
+                                    </div>
                                     <span class="absolute bottom-1 right-1 bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">Uploaded</span>
                                 </div>
                             @else
@@ -529,13 +533,32 @@
                             <div>
                                 <label class="block font-semibold text-gray-700 mb-1.5">Upload / Update ID Proof Document</label>
                                 @if($user->id_proof_path)
+                                    @php
+                                        $idProofPath = $user->id_proof_path;
+                                        $idProofExt = strtolower(pathinfo(parse_url($idProofPath, PHP_URL_PATH), PATHINFO_EXTENSION));
+                                        $isPdf = ($idProofExt === 'pdf') || str_contains(strtolower($idProofPath), 'application/pdf') || str_contains(strtolower($idProofPath), '.pdf');
+                                    @endphp
                                     <div class="mb-3 flex items-center gap-3">
-                                        <div class="w-40 h-28 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                                            <img src="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" class="w-full h-full object-contain bg-slate-100">
-                                        </div>
-                                        <a href="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-blue-50 px-3 py-2 rounded-lg">
-                                            <i class="fas fa-file-image"></i> View Full Document
-                                        </a>
+                                        @if($isPdf)
+                                            <div class="w-40 h-28 rounded-xl border border-red-200 bg-red-50/80 flex flex-col items-center justify-center text-red-600 gap-1.5 shadow-sm p-2 text-center flex-shrink-0">
+                                                <i class="fas fa-file-pdf text-3xl text-red-500"></i>
+                                                <span class="text-[11px] font-bold tracking-wide uppercase">PDF Document</span>
+                                            </div>
+                                            <a href="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 px-3.5 py-2.5 rounded-lg transition-colors">
+                                                <i class="fas fa-file-pdf text-red-500"></i> View PDF Document
+                                            </a>
+                                        @else
+                                            <div class="w-40 h-28 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center relative shadow-sm flex-shrink-0">
+                                                <img src="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" alt="ID Proof" class="w-full h-full object-contain bg-slate-100" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                                <div class="hidden w-full h-full flex flex-col items-center justify-center bg-blue-50/80 text-blue-700 gap-1.5 p-2 text-center">
+                                                    <i class="fas fa-file-invoice text-3xl text-blue-500"></i>
+                                                    <span class="text-[11px] font-bold uppercase">ID Document</span>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('image.serve', ['file' => $user->id_proof_path]) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-2.5 rounded-lg transition-colors">
+                                                <i class="fas fa-file-image text-blue-600"></i> View Full Document
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
                                 <input type="file" name="id_proof" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
