@@ -1,12 +1,46 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\CmsController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\RegistrationField;
 
+// Core & Auth Controllers
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CmsController;
+use App\Http\Controllers\ProfileWizardController;
+use App\Http\Controllers\ImageController;
+
+// User Area Controllers
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\ProfileSearchController;
+use App\Http\Controllers\User\PhotoEditorController;
+use App\Http\Controllers\User\ChangePasswordController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\MediaController;
+
+// Admin Area Controllers
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\SuccessStoryController;
+use App\Http\Controllers\Admin\AdvertisementController;
+use App\Http\Controllers\Admin\ProfileApprovalController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\BulkEmailController;
+use App\Http\Controllers\Admin\BulkWhatsAppController;
+use App\Http\Controllers\Admin\MembershipController;
+use App\Http\Controllers\Admin\RegistrationFieldController;
+use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\Admin\AccountApprovalController;
+
+// Utility & Maintenance Routes
 Route::get('/dbcheck', function() {
     $field = RegistrationField::where('field_key', 'subcast')->first();
     if (!$field) {
@@ -27,9 +61,16 @@ Route::get('/dbcheck', function() {
     return $field;
 });
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/patch-birthtime-column', function() {
+    try {
+        DB::statement("ALTER TABLE `users` MODIFY COLUMN `birth_time` VARCHAR(50) NULL DEFAULT NULL");
+        return "Successfully updated birth_time column to VARCHAR(50) in users table.";
+    } catch (\Throwable $e) {
+        return "Patch execution message: " . $e->getMessage();
+    }
+});
 
-use App\Http\Controllers\Auth\ForgotPasswordController;
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Candidate Auth Routes
 Route::middleware('guest:web')->group(function () {
@@ -41,15 +82,13 @@ Route::middleware('guest:web')->group(function () {
     Route::get('/register/verify-otp', [RegisterController::class, 'showOtpForm'])->name('register.otp');
     Route::post('/register/verify-otp', [RegisterController::class, 'verifyOtp'])->middleware('throttle:5,5');
     Route::post('/register/resend-otp', [RegisterController::class, 'resendOtp'])->name('register.resend-otp')->middleware('throttle:5,5');
-
 });
 
-// Password Reset Routes (Accessible to both guests and logged-in users who need to reset)
+// Password Reset Routes
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
-
 
 // Admin Auth Routes
 Route::middleware('guest:admin')->group(function () {
@@ -59,15 +98,6 @@ Route::middleware('guest:admin')->group(function () {
 
 // Shared Logout Route
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-use App\Http\Controllers\ProfileWizardController;
-use App\Http\Controllers\User\DashboardController as UserDashboardController;
-use App\Http\Controllers\User\ProfileSearchController;
-use App\Http\Controllers\ImageController;
-use App\Http\Controllers\User\PhotoEditorController;
-use App\Http\Controllers\User\ChangePasswordController;
-use App\Http\Controllers\User\ProfileController;
-use App\Http\Controllers\User\MediaController;
 
 Route::get('/image', [ImageController::class, 'serve'])->name('image.serve');
 Route::get('/gallery', [MediaController::class, 'gallery'])->name('gallery');
@@ -103,25 +133,8 @@ Route::middleware(['auth:web', 'profile.completed'])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
 });
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\MemberController;
-use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\NewsController;
-use App\Http\Controllers\Admin\GalleryController;
-use App\Http\Controllers\Admin\SuccessStoryController;
-use App\Http\Controllers\Admin\AdvertisementController;
-use App\Http\Controllers\Admin\ProfileApprovalController;
-use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\BulkEmailController;
-use App\Http\Controllers\Admin\BulkWhatsAppController;
-use App\Http\Controllers\Admin\MembershipController;
-use App\Http\Controllers\Admin\RegistrationFieldController;
-use App\Http\Controllers\Admin\ContactMessageController;
-use App\Http\Controllers\Admin\AccountApprovalController;
-
 Route::middleware('auth:admin')->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
     // Stage 1 Account Approvals
     Route::get('/admin/account-approvals', [AccountApprovalController::class, 'index'])->name('admin.account-approvals.index');
@@ -235,7 +248,3 @@ Route::get('/waiting-approval', function () {
     }
     return view('auth.waiting-approval');
 })->name('waiting.approval');
-
-// Debug routes - remove in production
-// Route::get('/debug-users', ...); // REMOVED - security risk
-// Route::get('/debug-login-rohan', ...); // REMOVED - security risk

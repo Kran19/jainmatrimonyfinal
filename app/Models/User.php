@@ -239,4 +239,36 @@ class User extends Authenticatable
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&background=random';
     }
+
+    /**
+     * Always sanitize and parse birth_time before setting attribute on the model.
+     * Guarantees 24-hour SQL TIME compatibility ('HH:MM:SS' or null) across all controllers.
+     */
+    public function setBirthTimeAttribute($value)
+    {
+        if (empty($value) || trim($value) === '' || strtoupper(trim($value)) === 'N/A') {
+            $this->attributes['birth_time'] = null;
+            return;
+        }
+
+        $timeStr = trim($value);
+
+        // Check if already in 24-hour HH:MM:SS or HH:MM format
+        if (preg_match('/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/', $timeStr)) {
+            $parts = explode(':', $timeStr);
+            $h = str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+            $m = str_pad($parts[1], 2, '0', STR_PAD_LEFT);
+            $s = isset($parts[2]) ? str_pad($parts[2], 2, '0', STR_PAD_LEFT) : '00';
+            $this->attributes['birth_time'] = "{$h}:{$m}:{$s}";
+            return;
+        }
+
+        $timestamp = strtotime($timeStr);
+        if ($timestamp !== false) {
+            $this->attributes['birth_time'] = date('H:i:s', $timestamp);
+            return;
+        }
+
+        $this->attributes['birth_time'] = null;
+    }
 }
