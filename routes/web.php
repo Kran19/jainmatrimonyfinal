@@ -4,8 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\RegistrationField;
-
-// Core & Auth Controllers
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -13,16 +11,12 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CmsController;
 use App\Http\Controllers\ProfileWizardController;
 use App\Http\Controllers\ImageController;
-
-// User Area Controllers
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ProfileSearchController;
 use App\Http\Controllers\User\PhotoEditorController;
 use App\Http\Controllers\User\ChangePasswordController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\MediaController;
-
-// Admin Area Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\PaymentController;
