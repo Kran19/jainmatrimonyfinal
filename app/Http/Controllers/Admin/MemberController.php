@@ -81,6 +81,88 @@ class MemberController extends Controller
     }
 
     /**
+     * Show form to edit member profile (Admin Access).
+     */
+    public function edit(User $member)
+    {
+        $customData = $member->customData()->with('field')->get();
+        return view('admin.members.edit', compact('member', 'customData'));
+    }
+
+    /**
+     * Update member profile details by Admin.
+     */
+    public function update(Request $request, User $member)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $member->id,
+            'mobile' => 'required|string|digits:10|unique:users,mobile,' . $member->id,
+            'gender' => 'nullable|string|in:Male,Female',
+            'status' => 'required|string|in:account_pending,account_approved,pending,approved,rejected,blocked,deleted',
+            'profile_photo_file' => 'nullable|image|max:10240',
+            'horoscope_photo_file' => 'nullable|image|max:10240',
+            'id_proof_photo_file' => 'nullable|image|max:10240',
+        ], [
+            'mobile.digits' => 'Mobile number must be exactly 10 numeric digits.',
+        ]);
+
+        $input = $request->except(['_token', '_method', 'profile_photo_file', 'horoscope_photo_file', 'id_proof_photo_file']);
+
+        // Sanitize mobile number to 10 numeric digits
+        if (isset($input['mobile'])) {
+            $input['mobile'] = preg_replace('/[^0-9]/', '', (string)$input['mobile']);
+        }
+
+        // 1. Sanitize numeric income fields
+        if (isset($input['monthly_income'])) {
+            $incomeVal = preg_replace('/[^0-9.]/', '', (string)$input['monthly_income']);
+            $input['monthly_income'] = ($incomeVal !== '') ? (float)$incomeVal : null;
+        }
+        if (isset($input['father_income'])) {
+            $fIncomeVal = preg_replace('/[^0-9.]/', '', (string)$input['father_income']);
+            $input['father_income'] = ($fIncomeVal !== '') ? (float)$fIncomeVal : null;
+        }
+
+        // 2. Parse 24-hour SQL birth_time if provided
+        if (!empty($input['birth_time'])) {
+            $input['birth_time'] = parse_birth_time_for_db($input['birth_time']);
+        }
+
+        // 3. Status changes & Profile ID generation if approved
+        if ($input['status'] === 'approved') {
+            if (empty($member->profile_id) && empty($input['profile_id'])) {
+                $input['profile_id'] = $this->generateProfileId();
+            }
+            $input['verified'] = true;
+            $input['approved_by'] = Auth::guard('admin')->id();
+            $input['approved_at'] = now();
+            $input['is_public'] = true;
+        } elseif (in_array($input['status'], ['blocked', 'deleted', 'rejected'])) {
+            $input['is_public'] = false;
+        }
+
+        // 4. Handle file uploads
+        if ($request->hasFile('profile_photo_file') && $request->file('profile_photo_file')->isValid()) {
+            $path = $request->file('profile_photo_file')->store('profiles', 'public');
+            $input['profile_photo'] = $path;
+        }
+        if ($request->hasFile('horoscope_photo_file') && $request->file('horoscope_photo_file')->isValid()) {
+            $path = $request->file('horoscope_photo_file')->store('horoscopes', 'public');
+            $input['horoscope_photo'] = $path;
+        }
+        if ($request->hasFile('id_proof_photo_file') && $request->file('id_proof_photo_file')->isValid()) {
+            $path = $request->file('id_proof_photo_file')->store('id_proofs', 'public');
+            $input['id_proof_photo'] = $path;
+        }
+
+        // 5. Update Eloquent model
+        $member->update($input);
+
+        return redirect()->route('admin.members.show', $member->id)->with('success', 'Candidate profile updated successfully by Admin.');
+    }
+
+    /**
      * Update candidate status (approve, reject, block).
      */
     public function updateStatus(Request $request, User $member)

@@ -112,6 +112,10 @@
                             <a href="{{ route('admin.members.show', $member->id) }}" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition" title="Audit Details">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
+
+                            <a href="{{ route('admin.members.edit', $member->id) }}" class="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition" title="Edit Profile">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
                             
                             @if($member->status !== 'approved')
                             <form action="{{ route('admin.members.status', $member->id) }}" method="POST" class="inline">

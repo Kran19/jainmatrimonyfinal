@@ -5,8 +5,11 @@
 
 @section('content')
 <div class="mb-6 flex justify-between items-center">
-    <a href="{{ route('admin.members.index') }}" class="text-slate-600 hover:text-indigo-600 font-semibold transition">
-        <i class="fa-solid fa-arrow-left mr-2"></i>Back to Members
+    <a href="{{ route('admin.members.index') }}" class="text-slate-600 hover:text-indigo-600 font-semibold transition text-sm flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Back to Members
+    </a>
+    <a href="{{ route('admin.members.edit', $member->id) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition duration-150 shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square"></i> Edit Candidate Profile
     </a>
 </div>
 

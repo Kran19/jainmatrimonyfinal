@@ -178,6 +178,8 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/members-requests', [MemberController::class, 'requests'])->name('admin.members.requests');
     Route::post('/admin/members-requests/{id}/process', [MemberController::class, 'processRequest'])->name('admin.members.requests.process');
     Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
+    Route::get('/admin/members/{member}/edit', [MemberController::class, 'edit'])->name('admin.members.edit');
+    Route::put('/admin/members/{member}', [MemberController::class, 'update'])->name('admin.members.update');
     Route::post('/admin/members/{member}/status', [MemberController::class, 'updateStatus'])->name('admin.members.status');
     Route::delete('/admin/members/{member}', [MemberController::class, 'destroy'])->name('admin.members.destroy');
 
