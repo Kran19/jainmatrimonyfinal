@@ -278,7 +278,7 @@ class ProfileController extends Controller
         ]);
 
         if (!empty($userUpdate['birth_time'])) {
-            $userUpdate['birth_time'] = format_birth_time($userUpdate['birth_time']);
+            $userUpdate['birth_time'] = parse_birth_time_for_db($userUpdate['birth_time']);
         }
 
         if ($request->filled('custom_occupation') && ($request->occupation === 'Other' || empty($request->occupation))) {

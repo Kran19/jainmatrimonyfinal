@@ -148,3 +148,35 @@ if (!function_exists('format_birth_time')) {
     }
 }
 
+if (!function_exists('parse_birth_time_for_db')) {
+    /**
+     * Convert any user input time string to standard 24-hour SQL TIME format (HH:MM:SS e.g. 02:01:00 or 14:05:00).
+     *
+     * @param string|null $time
+     * @return string|null
+     */
+    function parse_birth_time_for_db(?string $time): ?string
+    {
+        if (empty($time) || trim($time) === '' || strtoupper(trim($time)) === 'N/A') {
+            return null;
+        }
+        $timeStr = trim($time);
+
+        // Check if already in 24-hour HH:MM:SS or HH:MM format
+        if (preg_match('/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/', $timeStr)) {
+            $parts = explode(':', $timeStr);
+            $h = str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+            $m = str_pad($parts[1], 2, '0', STR_PAD_LEFT);
+            $s = isset($parts[2]) ? str_pad($parts[2], 2, '0', STR_PAD_LEFT) : '00';
+            return "{$h}:{$m}:{$s}";
+        }
+
+        $timestamp = strtotime($timeStr);
+        if ($timestamp !== false) {
+            return date('H:i:s', $timestamp);
+        }
+
+        return null;
+    }
+}
+
