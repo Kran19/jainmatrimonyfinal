@@ -45,7 +45,7 @@
             </div>
         @endif
 
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-8">
+        <form id="edit-profile-form" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" novalidate class="flex flex-col lg:flex-row gap-8">
             @csrf
             
             <!-- Left Side Tabs Navigation -->
@@ -388,16 +388,16 @@
                             <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 1</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
+                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-red-500">*</span></label>
-                                    <input type="tel" name="ref1_mobile" value="{{ old('ref1_mobile', preg_replace('/^\+?91/', '', $user->ref1_mobile)) }}" required pattern="[0-9]{10}" maxlength="10" minlength="10" title="Exactly 10 digit mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
+                                    <input type="tel" name="ref1_mobile" value="{{ old('ref1_mobile', preg_replace('/^\+?91/', '', $user->ref1_mobile)) }}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-red-500">*</span></label>
-                                    <select name="ref1_relation" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
+                                    <select name="ref1_relation" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                         <option value="">Select Relation</option>
                                         @foreach($relationsList as $rel)
                                             <option value="{{ $rel }}" {{ ($currentRef1Rel == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
@@ -415,16 +415,16 @@
                             <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 2</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
+                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-red-500">*</span></label>
-                                    <input type="tel" name="ref2_mobile" value="{{ old('ref2_mobile', preg_replace('/^\+?91/', '', $user->ref2_mobile)) }}" required pattern="[0-9]{10}" maxlength="10" minlength="10" title="Exactly 10 digit mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
+                                    <input type="tel" name="ref2_mobile" value="{{ old('ref2_mobile', preg_replace('/^\+?91/', '', $user->ref2_mobile)) }}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-red-500">*</span></label>
-                                    <select name="ref2_relation" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
+                                    <select name="ref2_relation" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                         <option value="">Select Relation</option>
                                         @foreach($relationsList as $rel)
                                             <option value="{{ $rel }}" {{ ($currentRef2Rel == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
@@ -716,8 +716,65 @@ function switchTab(tabId) {
     }
 }
 
-// Auto-switch to tab containing error field if validation fails
+// Tab-aware form validation & error highlighting
 document.addEventListener('DOMContentLoaded', function() {
+    const editForm = document.getElementById('edit-profile-form');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            document.querySelectorAll('.tab-error-badge').forEach(el => el.remove());
+            editForm.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
+
+            const invalidFields = [];
+            const inputs = editForm.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                if (input.classList.contains('hidden') || (input.type === 'hidden' && !input.name)) {
+                    return;
+                }
+
+                if (!input.checkValidity()) {
+                    invalidFields.push(input);
+                    
+                    const panel = input.closest('.tab-panel');
+                    if (panel) {
+                        const tabId = panel.id.replace('tab-panel-', '');
+                        const tabBtn = document.getElementById('tab-btn-' + tabId);
+                        if (tabBtn && !tabBtn.querySelector('.tab-error-badge')) {
+                            const badge = document.createElement('span');
+                            badge.className = 'tab-error-badge w-2 h-2 rounded-full bg-red-500 ml-auto flex-shrink-0 inline-block';
+                            tabBtn.appendChild(badge);
+                        }
+                    }
+                }
+            });
+
+            if (invalidFields.length > 0) {
+                e.preventDefault();
+                const firstInvalid = invalidFields[0];
+                const panel = firstInvalid.closest('.tab-panel');
+                if (panel) {
+                    const tabId = panel.id.replace('tab-panel-', '');
+                    switchTab(tabId);
+                }
+                
+                firstInvalid.classList.add('border-red-500');
+                firstInvalid.focus();
+
+                const fieldLabel = firstInvalid.closest('div')?.querySelector('label')?.innerText?.replace('*', '')?.trim() || firstInvalid.name;
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required Field Missing',
+                        text: `Please fill out "${fieldLabel}" before saving.`,
+                        confirmButtonColor: '#e11d48'
+                    });
+                }
+                return false;
+            }
+        });
+    }
+
     @if($errors->any())
         const errorFields = {!! json_encode(array_keys($errors->toArray())) !!};
         if (errorFields.length > 0) {
@@ -728,6 +785,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (panel) {
                     const tabId = panel.id.replace('tab-panel-', '');
                     switchTab(tabId);
+                    fieldEl.classList.add('border-red-500');
                     fieldEl.focus();
                 }
             }

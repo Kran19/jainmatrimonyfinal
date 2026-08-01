@@ -539,6 +539,53 @@
     </div>
 </section>
 
+<!-- Bottom Advertisement Banner Section -->
+@if (!empty($bottom_ads))
+<section class="py-6 bg-slate-900 border-t border-b border-gray-800">
+    <div class="container mx-auto px-4">
+        <div class="ad-rotator-container relative w-full h-32 sm:h-44 md:h-52 lg:h-60 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden bg-slate-950">
+            @foreach($bottom_ads as $index => $ad)
+                @php
+                    $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
+                    $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
+                    $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
+                    
+                    $ad_link = trim($ad['link'] ?? '');
+                    $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+
+                    if (str_starts_with($ad_img, 'data:image/')) {
+                        $img_src = $ad_img;
+                    } else {
+                        $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
+                        $img_src = route('image.serve', ['file' => $img_path]);
+                    }
+                @endphp
+                <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                     data-duration="{{ $duration * 1000 }}">
+                    @if($has_valid_link)
+                        <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
+                            @if($is_video)
+                                <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                            @else
+                                <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                            @endif
+                        </a>
+                    @else
+                        <div class="w-full h-full">
+                            @if($is_video)
+                                <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                            @else
+                                <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Find Matches Section -->
 <section class="py-12 sm:py-16 bg-white border-t border-gray-100">
     <div class="container mx-auto px-4">

@@ -150,6 +150,16 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        // Sanitize numeric fields before validation to handle formatting (e.g. 50,000 or 50000/mo)
+        if ($request->has('monthly_income') && !is_null($request->monthly_income)) {
+            $cleaned = preg_replace('/[^0-9.]/', '', (string)$request->monthly_income);
+            $request->merge(['monthly_income' => $cleaned !== '' ? $cleaned : null]);
+        }
+        if ($request->has('father_income') && !is_null($request->father_income)) {
+            $cleaned = preg_replace('/[^0-9.]/', '', (string)$request->father_income);
+            $request->merge(['father_income' => $cleaned !== '' ? $cleaned : null]);
+        }
+
         // 1. Validation
         $request->validate([
             'full_name' => 'required|string|max:255',
@@ -159,35 +169,35 @@ class ProfileController extends Controller
             'are_you_digambar_jain' => 'nullable|string|max:50',
             'filled_by' => 'nullable|string|max:100',
             'birth_date' => 'required|date',
-            'birth_time' => 'required|string|max:50',
+            'birth_time' => 'nullable|string|max:50',
             'birth_place' => 'required|string|max:255',
             'native_place' => 'required|string|max:255',
             'cast' => 'required|string|max:100',
             'custom_cast' => 'nullable|string|max:100',
             'subcast' => 'nullable|string|max:100',
             'custom_subcast' => 'nullable|string|max:100',
-            'gotra' => 'required|string|max:100',
-            'mama_gotra' => 'required|string|max:100',
-            'manglik' => 'required|in:Yes,No',
+            'gotra' => 'nullable|string|max:100',
+            'mama_gotra' => 'nullable|string|max:100',
+            'manglik' => 'nullable|in:Yes,No',
             'height' => 'required|string|max:50',
             'weight' => 'nullable|string|max:50',
             'marital_status' => 'required|in:Never Married,Widow,Widower,Divorce',
-            'handicapped' => 'required|in:Yes,No',
+            'handicapped' => 'nullable|in:Yes,No',
             
             // Professional
             'higher_education' => 'required|string|max:255',
             'occupation' => 'required|string|max:100',
-            'custom_occupation' => 'required_if:occupation,Other|nullable|string|max:255',
+            'custom_occupation' => 'nullable|string|max:255',
             'company_name' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:100',
             'monthly_income' => 'nullable|numeric|min:0',
             
             // Family
-            'father_name' => 'required|string|max:255',
+            'father_name' => 'nullable|string|max:255',
             'father_mobile' => 'nullable|string|max:20',
             'father_occupation' => 'nullable|string|max:100',
             'father_income' => 'nullable|numeric|min:0',
-            'mother_name' => 'required|string|max:255',
+            'mother_name' => 'nullable|string|max:255',
             'mother_mobile' => 'nullable|string|max:20',
             'mother_occupation' => 'nullable|string|max:100',
             'brothers' => 'nullable|integer|min:0',
@@ -203,12 +213,12 @@ class ProfileController extends Controller
             'mandir_pincode' => 'nullable|string|max:20',
 
             // References
-            'ref1_name' => 'required|string|max:255',
-            'ref1_mobile' => 'required|string|max:20',
-            'ref1_relation' => 'required|string|max:100',
-            'ref2_name' => 'required|string|max:255',
-            'ref2_mobile' => 'required|string|max:20',
-            'ref2_relation' => 'required|string|max:100',
+            'ref1_name' => 'nullable|string|max:255',
+            'ref1_mobile' => 'nullable|string|max:20',
+            'ref1_relation' => 'nullable|string|max:100',
+            'ref2_name' => 'nullable|string|max:255',
+            'ref2_mobile' => 'nullable|string|max:20',
+            'ref2_relation' => 'nullable|string|max:100',
 
             // Preferences & Address
             'current_address' => 'nullable|string',
@@ -220,11 +230,11 @@ class ProfileController extends Controller
             
             // Files & ID
             'id_proof_type' => 'nullable|string|max:100',
-            'profile_photo' => 'nullable|image|max:10240',
-            'photo' => 'nullable|image|max:10240',
-            'family_photo' => 'nullable|image|max:10240',
-            'id_proof' => 'nullable|image|max:10240',
-            'id_proof_path' => 'nullable|image|max:10240',
+            'profile_photo' => 'nullable|file|max:10240',
+            'photo' => 'nullable|file|max:10240',
+            'family_photo' => 'nullable|file|max:10240',
+            'id_proof' => 'nullable|file|max:10240',
+            'id_proof_path' => 'nullable|file|max:10240',
         ]);
 
         // 2. Validate custom fields

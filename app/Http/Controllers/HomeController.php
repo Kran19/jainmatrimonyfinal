@@ -164,6 +164,7 @@ class HomeController extends Controller
             'home_bottom_ads',
             'left_sidebar_ads',
             'right_sidebar_ads',
+            'bottom_ads',
             'footer_ads',
             'marquee_ads_text',
             'scrolling_news',
