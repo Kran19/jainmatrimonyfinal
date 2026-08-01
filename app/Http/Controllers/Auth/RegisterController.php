@@ -160,62 +160,65 @@ class RegisterController extends Controller
                 $user->registration_count = intval($user->registration_count ?? 1) + 1;
                 // Preserve deletion_count
 
-                // Option B: Wipe previous profile data for a 100% fresh-slate restart
-                $user->gender = null;
-                $user->birth_date = null;
-                $user->birth_time = null;
-                $user->birth_place = null;
-                $user->marital_status = null;
-                $user->gotra = null;
-                $user->mama_gotra = null;
-                $user->manglik = null;
-                $user->height = null;
-                $user->weight = null;
-                $user->handicapped = null;
-                $user->handicapped_details = null;
-                $user->higher_education = null;
-                $user->education_detail = null;
-                $user->occupation = null;
-                $user->company_name = null;
-                $user->designation = null;
-                $user->monthly_income = null;
-                $user->native_place = null;
-                $user->current_address = null;
-                $user->father_name = null;
-                $user->father_occupation = null;
-                $user->father_income = null;
-                $user->mother_name = null;
-                $user->mother_occupation = null;
-                $user->unmarried_brothers = 0;
-                $user->married_brothers = 0;
-                $user->unmarried_sisters = 0;
-                $user->married_sisters = 0;
-                $user->about_me = null;
-                $user->partner_expectations = null;
-                $user->profile_photo = null;
-                $user->horoscope_photo = null;
-                $user->id_proof_photo = null;
-                $user->other_photos = null;
-                $user->ref1_name = null;
-                $user->ref1_relation = null;
-                $user->ref1_mobile = null;
-                $user->ref1_city = null;
-                $user->ref2_name = null;
-                $user->ref2_relation = null;
-                $user->ref2_mobile = null;
-                $user->ref2_city = null;
-                $user->registration_step = 1;
-                $user->approved_by = null;
-                $user->approved_at = null;
-                $user->payment_status = 'pending';
-                $user->payment_transaction_id = null;
-                $user->payment_screenshot = null;
+                // Option B: Wipe previous profile data dynamically based on existing schema columns
+                $resetFields = [
+                    'gender' => null,
+                    'birth_date' => null,
+                    'birth_time' => null,
+                    'birth_place' => null,
+                    'marital_status' => null,
+                    'gotra' => null,
+                    'mama_gotra' => null,
+                    'manglik' => null,
+                    'height' => null,
+                    'weight' => null,
+                    'handicapped' => null,
+                    'handicapped_details' => null,
+                    'higher_education' => null,
+                    'education_detail' => null,
+                    'occupation' => null,
+                    'company_name' => null,
+                    'designation' => null,
+                    'monthly_income' => null,
+                    'native_place' => null,
+                    'current_address' => null,
+                    'father_name' => null,
+                    'father_occupation' => null,
+                    'father_income' => null,
+                    'mother_name' => null,
+                    'mother_occupation' => null,
+                    'unmarried_brothers' => 0,
+                    'married_brothers' => 0,
+                    'unmarried_sisters' => 0,
+                    'married_sisters' => 0,
+                    'about_me' => null,
+                    'partner_expectations' => null,
+                    'profile_photo' => null,
+                    'horoscope_photo' => null,
+                    'id_proof_photo' => null,
+                    'other_photos' => null,
+                    'ref1_name' => null,
+                    'ref1_relation' => null,
+                    'ref1_mobile' => null,
+                    'ref1_city' => null,
+                    'ref2_name' => null,
+                    'ref2_relation' => null,
+                    'ref2_mobile' => null,
+                    'ref2_city' => null,
+                    'registration_step' => 1,
+                    'approved_by' => null,
+                    'approved_at' => null,
+                    'payment_status' => 'pending',
+                    'payment_transaction_id' => null,
+                    'payment_screenshot' => null,
+                    'deleted_at' => null,
+                    'delete_reason' => null,
+                ];
 
-                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deleted_at')) {
-                    $user->deleted_at = null;
-                }
-                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'delete_reason')) {
-                    $user->delete_reason = null;
+                foreach ($resetFields as $column => $value) {
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('users', $column)) {
+                        $user->{$column} = $value;
+                    }
                 }
             } else {
                 $user = new User();
