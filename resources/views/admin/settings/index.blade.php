@@ -271,12 +271,5 @@
 
     </div>
 
-    <!-- Bottom Save Action -->
-    <div class="flex justify-end pb-8">
-        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl text-sm font-bold transition duration-150 shadow-md flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> Save All Settings
-        </button>
-    </div>
-
 </form>
 @endsection
