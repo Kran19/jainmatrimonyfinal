@@ -22,10 +22,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('users') && !\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
-                \Illuminate\Support\Facades\Schema::table('users', function ($table) {
-                    $table->boolean('has_set_password')->default(true);
-                });
+            if (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
+                    \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                        $table->boolean('has_set_password')->default(true);
+                    });
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'registration_count')) {
+                    \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                        $table->integer('registration_count')->default(1);
+                    });
+                    \Illuminate\Support\Facades\DB::table('users')->whereNull('registration_count')->update(['registration_count' => 1]);
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'deletion_count')) {
+                    \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                        $table->integer('deletion_count')->default(0);
+                    });
+                    \Illuminate\Support\Facades\DB::table('users')->whereNull('deletion_count')->update(['deletion_count' => 0]);
+                    \Illuminate\Support\Facades\DB::table('users')->where('status', 'deleted')->where('deletion_count', 0)->update(['deletion_count' => 1]);
+                }
             }
         } catch (\Throwable $e) {
             // Ignore if DB connection or permissions issue during boot

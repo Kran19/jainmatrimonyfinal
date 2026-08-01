@@ -402,13 +402,33 @@ class ProfileController extends Controller
         }
 
         $now = now();
+
+        // Ensure registration_count and deletion_count columns exist dynamically
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'registration_count')) {
+            \Illuminate\Support\Facades\Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->integer('registration_count')->default(1);
+            });
+            DB::table('users')->whereNull('registration_count')->update(['registration_count' => 1]);
+        }
+
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'deletion_count')) {
+            \Illuminate\Support\Facades\Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->integer('deletion_count')->default(0);
+            });
+            DB::table('users')->whereNull('deletion_count')->update(['deletion_count' => 0]);
+        }
+
+        $newDeletionCount = intval($user->deletion_count ?? 0) + 1;
         
         // 3. Mark user account as DELETED and inactive
         $updateData = [
             'delete_reason' => $reason,
             'status' => 'deleted',
-            'is_public' => false
+            'is_public' => false,
         ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deletion_count')) {
+            $updateData['deletion_count'] = $newDeletionCount;
+        }
         if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deleted_at')) {
             $updateData['deleted_at'] = $now;
         }

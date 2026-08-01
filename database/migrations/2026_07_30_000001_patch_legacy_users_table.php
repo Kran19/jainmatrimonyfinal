@@ -134,7 +134,19 @@ return new class extends Migration
                 ");
                 if ($colType && strtolower($colType->DATA_TYPE) === 'enum') {
                     DB::statement("ALTER TABLE `users` MODIFY COLUMN `status` VARCHAR(50) NULL DEFAULT 'account_approved'");
-                }
+            }
+            if (!Schema::hasColumn('users', 'registration_count')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->integer('registration_count')->default(1)->after('status');
+                });
+                DB::table('users')->whereNull('registration_count')->update(['registration_count' => 1]);
+            }
+            if (!Schema::hasColumn('users', 'deletion_count')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->integer('deletion_count')->default(0)->after('registration_count');
+                });
+                DB::table('users')->whereNull('deletion_count')->update(['deletion_count' => 0]);
+                DB::table('users')->where('status', 'deleted')->where('deletion_count', 0)->update(['deletion_count' => 1]);
             }
         }
 

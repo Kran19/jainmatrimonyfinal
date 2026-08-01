@@ -128,9 +128,22 @@
                         @if($member->status === 'approved') bg-green-100 text-green-800
                         @elseif($member->status === 'pending') bg-orange-100 text-orange-800
                         @elseif($member->status === 'blocked') bg-red-100 text-red-800
+                        @elseif($member->status === 'deleted') bg-rose-100 text-rose-800 border border-rose-200
                         @else bg-slate-100 text-slate-800 @endif">
-                        {{ ucfirst($member->status) }}
+                        @if($member->status === 'deleted') Account Deleted @else {{ ucfirst($member->status) }} @endif
                     </span>
+                </div>
+            </div>
+
+            <!-- Account Lifecycle Metrics -->
+            <div class="grid grid-cols-2 gap-3 mb-6 pt-3 border-t border-gray-100">
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
+                    <span class="block text-[11px] font-bold text-blue-600 uppercase">Registrations</span>
+                    <span class="text-xl font-extrabold text-blue-900">{{ $member->registration_count ?? 1 }}</span>
+                </div>
+                <div class="bg-rose-50 p-3 rounded-xl border border-rose-100 text-center">
+                    <span class="block text-[11px] font-bold text-rose-600 uppercase">Deletions</span>
+                    <span class="text-xl font-extrabold text-rose-900">{{ $member->deletion_count ?? 0 }}</span>
                 </div>
             </div>
 

@@ -51,9 +51,9 @@
             <thead>
                 <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
                     <th class="py-3 px-6">Profile</th>
-                    <th class="py-3 px-6">Gender</th>
-                    <th class="py-3 px-6">Gotra / Native</th>
                     <th class="py-3 px-6">Contact Info</th>
+                    <th class="py-3 px-6 text-center">Reg. Count</th>
+                    <th class="py-3 px-6 text-center">Delete Count</th>
                     <th class="py-3 px-6">Status</th>
                     <th class="py-3 px-6 text-center">Actions</th>
                 </tr>
@@ -78,20 +78,23 @@
                                 </a>
                             </div>
                             <div class="text-xs text-slate-400 mt-1 font-mono">
-                                {{ $member->profile_id ?? 'No Profile ID' }}
+                                {{ $member->profile_id ?? 'No Profile ID' }} ({{ $member->gender ?? 'N/A' }})
                             </div>
                         </div>
                     </td>
                     <td class="py-4 px-6">
-                        <span class="font-medium text-gray-600">{{ $member->gender ?? 'N/A' }}</span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="text-gray-900 font-semibold">{{ $member->gotra ?? 'N/A' }}</div>
-                        <div class="text-xs text-slate-400 mt-0.5">{{ $member->native_place ?? 'N/A' }}</div>
-                    </td>
-                    <td class="py-4 px-6">
                         <div class="text-gray-900 font-semibold">{{ $member->mobile }}</div>
                         <div class="text-xs text-slate-400 mt-0.5">{{ $member->email }}</div>
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
+                            {{ $member->registration_count ?? 1 }}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold @if(($member->deletion_count ?? 0) > 0) bg-rose-50 text-rose-700 border border-rose-100 @else bg-slate-50 text-slate-600 @endif">
+                            {{ $member->deletion_count ?? 0 }}
+                        </span>
                     </td>
                     <td class="py-4 px-6">
                         <span class="px-2.5 py-1 rounded-full text-xs font-bold

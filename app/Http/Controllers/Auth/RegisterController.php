@@ -8,6 +8,7 @@ use App\Services\OTPService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
@@ -33,8 +34,18 @@ class RegisterController extends Controller
     {
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'mobile' => 'required|string|regex:/^[0-9]{10}$/|unique:users,mobile',
+            'email' => [
+                'required', 'string', 'email', 'max:255',
+                Rule::unique('users', 'email')->where(function ($query) {
+                    return $query->where('status', '!=', 'deleted')->whereNull('deleted_at');
+                })
+            ],
+            'mobile' => [
+                'required', 'string', 'regex:/^[0-9]{10}$/',
+                Rule::unique('users', 'mobile')->where(function ($query) {
+                    return $query->where('status', '!=', 'deleted')->whereNull('deleted_at');
+                })
+            ],
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -114,13 +125,109 @@ class RegisterController extends Controller
             // Both receive the same hashed value.
             $hashedPassword = $regData['password'];
 
-            $user = new User();
-            $user->full_name    = $regData['full_name'];
-            $user->email        = $regData['email'];
-            $user->mobile       = $regData['mobile'];
-            $user->password_hash = $hashedPassword;  // Used by Laravel Auth
-            $user->status       = 'account_approved';
-            $user->is_public    = true;
+            // Check if an account with this email or mobile exists (including soft-deleted records)
+            $existingDeletedUser = User::withTrashed()
+                ->where(function ($q) use ($regData) {
+                    $q->where('email', $regData['email'])
+                      ->orWhere('mobile', $regData['mobile']);
+                })
+                ->orderBy('id', 'desc')
+                ->first();
+
+            // Ensure registration_count and deletion_count columns exist dynamically
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'registration_count')) {
+                \Illuminate\Support\Facades\Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->integer('registration_count')->default(1);
+                });
+                \Illuminate\Support\Facades\DB::table('users')->whereNull('registration_count')->update(['registration_count' => 1]);
+            }
+
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'deletion_count')) {
+                \Illuminate\Support\Facades\Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->integer('deletion_count')->default(0);
+                });
+                \Illuminate\Support\Facades\DB::table('users')->whereNull('deletion_count')->update(['deletion_count' => 0]);
+            }
+
+            if ($existingDeletedUser) {
+                $user = $existingDeletedUser;
+                $user->full_name = $regData['full_name'];
+                $user->email = $regData['email'];
+                $user->mobile = $regData['mobile'];
+                $user->password_hash = $hashedPassword;
+                $user->status = 'account_approved';
+                $user->is_public = false; // Requires completing wizard and admin approval to go live
+                $user->registration_count = intval($user->registration_count ?? 1) + 1;
+                // Preserve deletion_count
+
+                // Option B: Wipe previous profile data for a 100% fresh-slate restart
+                $user->gender = null;
+                $user->birth_date = null;
+                $user->birth_time = null;
+                $user->birth_place = null;
+                $user->marital_status = null;
+                $user->gotra = null;
+                $user->mama_gotra = null;
+                $user->manglik = null;
+                $user->height = null;
+                $user->weight = null;
+                $user->handicapped = null;
+                $user->handicapped_details = null;
+                $user->higher_education = null;
+                $user->education_detail = null;
+                $user->occupation = null;
+                $user->company_name = null;
+                $user->designation = null;
+                $user->monthly_income = null;
+                $user->native_place = null;
+                $user->current_address = null;
+                $user->father_name = null;
+                $user->father_occupation = null;
+                $user->father_income = null;
+                $user->mother_name = null;
+                $user->mother_occupation = null;
+                $user->unmarried_brothers = 0;
+                $user->married_brothers = 0;
+                $user->unmarried_sisters = 0;
+                $user->married_sisters = 0;
+                $user->about_me = null;
+                $user->partner_expectations = null;
+                $user->profile_photo = null;
+                $user->horoscope_photo = null;
+                $user->id_proof_photo = null;
+                $user->other_photos = null;
+                $user->ref1_name = null;
+                $user->ref1_relation = null;
+                $user->ref1_mobile = null;
+                $user->ref1_city = null;
+                $user->ref2_name = null;
+                $user->ref2_relation = null;
+                $user->ref2_mobile = null;
+                $user->ref2_city = null;
+                $user->registration_step = 1;
+                $user->approved_by = null;
+                $user->approved_at = null;
+                $user->payment_status = 'pending';
+                $user->payment_transaction_id = null;
+                $user->payment_screenshot = null;
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deleted_at')) {
+                    $user->deleted_at = null;
+                }
+                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'delete_reason')) {
+                    $user->delete_reason = null;
+                }
+            } else {
+                $user = new User();
+                $user->full_name = $regData['full_name'];
+                $user->email = $regData['email'];
+                $user->mobile = $regData['mobile'];
+                $user->password_hash = $hashedPassword;
+                $user->status = 'account_approved';
+                $user->is_public = false; // Requires completing wizard and admin approval to go live
+                $user->registration_count = 1;
+                $user->deletion_count = 0;
+            }
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'has_set_password')) {
                 $user->has_set_password = true;
@@ -129,9 +236,7 @@ class RegisterController extends Controller
                 $user->registration_source = 'website';
             }
 
-            // Bypass Eloquent to also write the legacy 'password' column (NOT NULL in DB)
             $user->forceFill(['password' => $hashedPassword]);
-
             $user->save();
 
             // Clear session data

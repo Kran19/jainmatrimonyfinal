@@ -117,6 +117,8 @@ class User extends Authenticatable
         'registration_source',
         'is_public',
         'registration_step',
+        'registration_count',
+        'deletion_count',
     ];
 
     /**
@@ -165,6 +167,8 @@ class User extends Authenticatable
             'has_set_password' => 'boolean',
             'monthly_income' => 'decimal:2',
             'weight' => 'string',
+            'registration_count' => 'integer',
+            'deletion_count' => 'integer',
         ];
     }
 
