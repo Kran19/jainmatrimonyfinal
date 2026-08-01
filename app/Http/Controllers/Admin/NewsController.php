@@ -28,25 +28,36 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048', // 2MB max
+            'image' => 'nullable|image|max:10240', // 10MB max
         ]);
 
-        $base64Image = null;
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->getRealPath();
-            $type = $request->file('image')->getClientMimeType();
-            $data = file_get_contents($path);
-            $base64Image = 'data:' . $type . ';base64,' . base64_encode($data);
+        try {
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                try {
+                    $file = $request->file('image');
+                    $filename = time() . '_news_' . \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads'), $filename);
+                    $imagePath = 'uploads/' . $filename;
+                } catch (\Exception $uploadErr) {
+                    $path = $request->file('image')->getRealPath();
+                    $type = $request->file('image')->getClientMimeType();
+                    $data = file_get_contents($path);
+                    $imagePath = 'data:' . $type . ';base64,' . base64_encode($data);
+                }
+            }
+
+            News::create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'image' => $imagePath,
+                'status' => true,
+            ]);
+
+            return back()->with('success', 'Announcement posted successfully.');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Failed to publish announcement: ' . $e->getMessage());
         }
-
-        News::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'image' => $base64Image,
-            'status' => true,
-        ]);
-
-        return back()->with('success', 'Announcement posted successfully.');
     }
 
     /**
@@ -119,26 +130,37 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:10240',
             'status' => 'nullable|boolean',
         ]);
 
-        $updateData = [
-            'title' => $request->title,
-            'content' => $request->content,
-            'status' => $request->has('status'),
-        ];
+        try {
+            $updateData = [
+                'title' => $request->title,
+                'content' => $request->content,
+                'status' => $request->has('status'),
+            ];
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->getRealPath();
-            $type = $request->file('image')->getClientMimeType();
-            $data = file_get_contents($path);
-            $updateData['image'] = 'data:' . $type . ';base64,' . base64_encode($data);
+            if ($request->hasFile('image')) {
+                try {
+                    $file = $request->file('image');
+                    $filename = time() . '_news_' . \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads'), $filename);
+                    $updateData['image'] = 'uploads/' . $filename;
+                } catch (\Exception $uploadErr) {
+                    $path = $request->file('image')->getRealPath();
+                    $type = $request->file('image')->getClientMimeType();
+                    $data = file_get_contents($path);
+                    $updateData['image'] = 'data:' . $type . ';base64,' . base64_encode($data);
+                }
+            }
+
+            $news->update($updateData);
+
+            return back()->with('success', 'Announcement updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Failed to update announcement: ' . $e->getMessage());
         }
-
-        $news->update($updateData);
-
-        return back()->with('success', 'Announcement updated successfully.');
     }
 
     /**

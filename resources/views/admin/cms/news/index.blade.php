@@ -19,7 +19,10 @@
                 @forelse($newsItems as $news)
                 <div class="p-6 flex items-start gap-4 hover:bg-slate-50 transition duration-150">
                     @if($news->image)
-                        <img src="{{ $news->image }}" alt="Cover" class="w-16 h-16 object-cover rounded-lg border flex-shrink-0">
+                        @php
+                            $imgSrc = (str_starts_with($news->image, 'data:') || str_starts_with($news->image, 'http')) ? $news->image : route('image.serve', ['file' => $news->image]);
+                        @endphp
+                        <img src="{{ $imgSrc }}" alt="Cover" class="w-16 h-16 object-cover rounded-lg border flex-shrink-0">
                     @else
                         <div class="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 flex-shrink-0">
                             <i class="fa-solid fa-bullhorn text-xl"></i>

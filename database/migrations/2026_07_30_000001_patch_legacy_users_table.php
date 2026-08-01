@@ -216,6 +216,35 @@ return new class extends Migration
                 ->where('link', 'like', '%printmines%')
                 ->update(['link' => null]);
         }
+
+        // 11. Ensure news table exists, has updated_at and LONGTEXT image column
+        if (!Schema::hasTable('news')) {
+            Schema::create('news', function (Blueprint $table) {
+                $table->id();
+                $table->string('title', 255);
+                $table->text('content')->nullable();
+                $table->longText('image')->nullable();
+                $table->boolean('status')->default(true);
+                $table->timestamps();
+            });
+        } else {
+            if (!Schema::hasColumn('news', 'updated_at')) {
+                Schema::table('news', function (Blueprint $table) {
+                    $table->timestamp('updated_at')->nullable();
+                });
+            }
+            if (Schema::hasColumn('news', 'image')) {
+                $colType = DB::selectOne("
+                    SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'news' 
+                    AND COLUMN_NAME = 'image'
+                ");
+                if ($colType && strtolower($colType->DATA_TYPE) !== 'longtext') {
+                    DB::statement("ALTER TABLE `news` MODIFY COLUMN `image` LONGTEXT NULL");
+                }
+            }
+        }
     }
 
     public function down(): void
