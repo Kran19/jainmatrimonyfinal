@@ -205,7 +205,7 @@
               <strong style="color:#000; width:80px; display:inline-block;">DOB</strong> : &nbsp;{{ $profile->birth_date ? (is_string($profile->birth_date) ? date('d-m-Y', strtotime($profile->birth_date)) : $profile->birth_date->format('d-m-Y')) : 'N/A' }}
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">B. Time</strong> : &nbsp;{{ $profile->birth_time ?? 'N/A' }}
+              <strong style="color:#000; width:80px; display:inline-block;">B. Time</strong> : &nbsp;{{ format_birth_time($profile->birth_time) }}
             </div>
             <div style="margin-bottom:3px;">
               <strong style="color:#000; width:80px; display:inline-block;">B. Place</strong> : &nbsp;{{ $profile->birth_place ?? 'N/A' }}

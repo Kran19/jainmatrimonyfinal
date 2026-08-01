@@ -249,7 +249,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Time of Birth</p>
-                                <p class="font-medium text-dark">{{ !empty($user->birth_time) ? $user->birth_time : 'N/A' }}</p>
+                                <p class="font-medium text-dark">{{ format_birth_time($user->birth_time) }}</p>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Place of Birth</p>

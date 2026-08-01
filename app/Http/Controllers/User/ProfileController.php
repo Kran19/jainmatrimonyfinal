@@ -267,6 +267,10 @@ class ProfileController extends Controller
             'languages', 'hobbies', 'partner_preference', 'id_proof_type'
         ]);
 
+        if (!empty($userUpdate['birth_time'])) {
+            $userUpdate['birth_time'] = format_birth_time($userUpdate['birth_time']);
+        }
+
         if ($request->filled('custom_occupation') && ($request->occupation === 'Other' || empty($request->occupation))) {
             $userUpdate['occupation'] = $request->custom_occupation;
         }

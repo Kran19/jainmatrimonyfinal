@@ -131,7 +131,7 @@
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Time of Birth <span class="text-red-500">*</span></label>
-                            <input type="text" name="birth_time" placeholder="e.g. 10:15 AM" required value="{{ old('birth_time', $user->birth_time) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <input type="text" name="birth_time" placeholder="e.g. 10:15 AM" required value="{{ old('birth_time', format_birth_time($user->birth_time)) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Place of Birth <span class="text-red-500">*</span></label>

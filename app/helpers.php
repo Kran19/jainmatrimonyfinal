@@ -126,3 +126,25 @@ if (!function_exists('format_weight')) {
         return !empty($clean) ? $clean . ' kg' : 'N/A';
     }
 }
+
+if (!function_exists('format_birth_time')) {
+    /**
+     * Clean and format birth time to 12-hour AM/PM format (e.g. 02:01 AM or 02:05 PM).
+     *
+     * @param string|null $time
+     * @return string
+     */
+    function format_birth_time(?string $time): string
+    {
+        if (empty($time) || trim($time) === '' || strtoupper(trim($time)) === 'N/A') {
+            return 'N/A';
+        }
+        $timeStr = trim($time);
+        $timestamp = strtotime($timeStr);
+        if ($timestamp !== false) {
+            return date('h:i A', $timestamp);
+        }
+        return $timeStr;
+    }
+}
+

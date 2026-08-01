@@ -23,7 +23,7 @@
                 <div><span class="font-semibold text-gray-400">Full Name:</span> <span class="font-bold text-gray-900">{{ $member->full_name }}</span></div>
                 <div><span class="font-semibold text-gray-400">Gender:</span> <span class="font-bold text-gray-900">{{ $member->gender ?? 'N/A' }}</span></div>
                 <div><span class="font-semibold text-gray-400">Date of Birth:</span> <span class="font-bold text-gray-900">{{ $member->birth_date ? $member->birth_date->format('M d, Y') : 'N/A' }}</span></div>
-                <div><span class="font-semibold text-gray-400">Time of Birth:</span> <span class="font-bold text-gray-900">{{ $member->birth_time ?? 'N/A' }}</span></div>
+                <div><span class="font-semibold text-gray-400">Time of Birth:</span> <span class="font-bold text-gray-900">{{ format_birth_time($member->birth_time) }}</span></div>
                 <div><span class="font-semibold text-gray-400">Birth Place:</span> <span class="font-bold text-gray-900">{{ $member->birth_place ?? 'N/A' }}</span></div>
                 <div><span class="font-semibold text-gray-400">Marital Status:</span> <span class="font-bold text-gray-900">{{ $member->marital_status ?? 'Never Married' }}</span></div>
                 <div><span class="font-semibold text-gray-400">Gotra:</span> <span class="font-bold text-gray-900">{{ $member->gotra ?? 'N/A' }}</span></div>
