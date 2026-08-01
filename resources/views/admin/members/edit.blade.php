@@ -206,6 +206,12 @@
                     </div>
 
                     <div>
+                        <label class="block font-semibold text-gray-700 text-xs mb-1">Father's Mobile</label>
+                        <input type="text" name="father_mobile" value="{{ old('father_mobile', $member->father_mobile) }}"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
                         <label class="block font-semibold text-gray-700 text-xs mb-1">Father's Occupation</label>
                         <input type="text" name="father_occupation" value="{{ old('father_occupation', $member->father_occupation) }}"
                                class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -224,33 +230,63 @@
                     </div>
 
                     <div>
+                        <label class="block font-semibold text-gray-700 text-xs mb-1">Mother's Mobile</label>
+                        <input type="text" name="mother_mobile" value="{{ old('mother_mobile', $member->mother_mobile) }}"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="sm:col-span-2">
                         <label class="block font-semibold text-gray-700 text-xs mb-1">Mother's Occupation</label>
                         <input type="text" name="mother_occupation" value="{{ old('mother_occupation', $member->mother_occupation) }}"
                                class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block font-semibold text-gray-700 text-xs mb-1">Unmarried Brothers</label>
-                        <input type="number" name="unmarried_brothers" value="{{ old('unmarried_brothers', $member->unmarried_brothers ?? 0) }}" min="0"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <!-- Brothers Details -->
+                <div class="mt-5 pt-4 border-t border-gray-100">
+                    <h4 class="font-bold text-gray-800 text-xs uppercase mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-person text-indigo-500"></i> Brothers Details
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1 text-center">Total Brothers</label>
+                            <input type="number" name="brothers" value="{{ old('brothers', $member->brothers ?? 0) }}" min="0"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1 text-center">Married Brothers</label>
+                            <input type="number" name="brothers_married" value="{{ old('brothers_married', $member->brothers_married ?? 0) }}" min="0"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1 text-center">Unmarried Brothers</label>
+                            <input type="number" name="brothers_unmarried" value="{{ old('brothers_unmarried', $member->brothers_unmarried ?? 0) }}" min="0"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block font-semibold text-gray-700 text-xs mb-1">Married Brothers</label>
-                        <input type="number" name="married_brothers" value="{{ old('married_brothers', $member->married_brothers ?? 0) }}" min="0"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-
-                    <div>
-                        <label class="block font-semibold text-gray-700 text-xs mb-1">Unmarried Sisters</label>
-                        <input type="number" name="unmarried_sisters" value="{{ old('unmarried_sisters', $member->unmarried_sisters ?? 0) }}" min="0"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-
-                    <div>
-                        <label class="block font-semibold text-gray-700 text-xs mb-1">Married Sisters</label>
-                        <input type="number" name="married_sisters" value="{{ old('married_sisters', $member->married_sisters ?? 0) }}" min="0"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <!-- Sisters Details -->
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <h4 class="font-bold text-gray-800 text-xs uppercase mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-person-dress text-pink-500"></i> Sisters Details
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1 text-center">Total Sisters</label>
+                            <input type="number" name="sisters" value="{{ old('sisters', $member->sisters ?? 0) }}" min="0"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1 text-center">Married Sisters</label>
+                            <input type="number" name="sisters_married" value="{{ old('sisters_married', $member->sisters_married ?? 0) }}" min="0"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1 text-center">Unmarried Sisters</label>
+                            <input type="number" name="sisters_unmarried" value="{{ old('sisters_unmarried', $member->sisters_unmarried ?? 0) }}" min="0"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -267,18 +303,23 @@
                     </div>
 
                     <div>
+                        <label class="block font-semibold text-gray-700 text-xs mb-1">Permanent Residential Address</label>
+                        <textarea name="permanent_address" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('permanent_address', $member->permanent_address) }}</textarea>
+                    </div>
+
+                    <div>
                         <label class="block font-semibold text-gray-700 text-xs mb-1">About Myself (Bio)</label>
                         <textarea name="about_me" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('about_me', $member->about_me) }}</textarea>
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-gray-700 text-xs mb-1">Partner Expectations</label>
-                        <textarea name="partner_expectations" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('partner_expectations', $member->partner_expectations) }}</textarea>
+                        <label class="block font-semibold text-gray-700 text-xs mb-1">Partner Expectations & Preferences</label>
+                        <textarea name="partner_preference" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('partner_preference', $member->partner_preference) }}</textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- 5. References -->
+            <!-- 5. Relative References -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 class="font-bold text-gray-800 text-base border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-address-book text-indigo-500"></i> Relative References
@@ -287,26 +328,60 @@
                     <!-- Ref 1 -->
                     <div>
                         <h4 class="font-bold text-gray-800 text-xs uppercase mb-2">Reference 1</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input type="text" name="ref1_name" value="{{ old('ref1_name', $member->ref1_name) }}" placeholder="Name" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
-                            <input type="text" name="ref1_relation" value="{{ old('ref1_relation', $member->ref1_relation) }}" placeholder="Relation" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
-                            <input type="text" name="ref1_mobile" value="{{ old('ref1_mobile', $member->ref1_mobile) }}" placeholder="Mobile Number" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
-                            <input type="text" name="ref1_city" value="{{ old('ref1_city', $member->ref1_city) }}" placeholder="City" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">Name</label>
+                                <input type="text" name="ref1_name" value="{{ old('ref1_name', $member->ref1_name) }}" placeholder="Name" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">Relation</label>
+                                <input type="text" name="ref1_relation" value="{{ old('ref1_relation', $member->ref1_relation) }}" placeholder="Relation" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">Mobile Number</label>
+                                <input type="text" name="ref1_mobile" value="{{ old('ref1_mobile', $member->ref1_mobile) }}" placeholder="Mobile Number" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Ref 2 -->
                     <div>
                         <h4 class="font-bold text-gray-800 text-xs uppercase mb-2">Reference 2</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input type="text" name="ref2_name" value="{{ old('ref2_name', $member->ref2_name) }}" placeholder="Name" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
-                            <input type="text" name="ref2_relation" value="{{ old('ref2_relation', $member->ref2_relation) }}" placeholder="Relation" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
-                            <input type="text" name="ref2_mobile" value="{{ old('ref2_mobile', $member->ref2_mobile) }}" placeholder="Mobile Number" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
-                            <input type="text" name="ref2_city" value="{{ old('ref2_city', $member->ref2_city) }}" placeholder="City" class="px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">Name</label>
+                                <input type="text" name="ref2_name" value="{{ old('ref2_name', $member->ref2_name) }}" placeholder="Name" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">Relation</label>
+                                <input type="text" name="ref2_relation" value="{{ old('ref2_relation', $member->ref2_relation) }}" placeholder="Relation" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">Mobile Number</label>
+                                <input type="text" name="ref2_mobile" value="{{ old('ref2_mobile', $member->ref2_mobile) }}" placeholder="Mobile Number" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- 6. Additional Dynamic Custom Registration Fields -->
+            @if(isset($customData) && $customData->count() > 0)
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-800 text-base border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-500"></i> Additional Registration Custom Details
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    @foreach($customData as $data)
+                        <div class="sm:col-span-2">
+                            <label class="block font-semibold text-gray-700 text-xs mb-1">{{ $data->field->field_label ?? 'Custom Field' }}</label>
+                            <input type="text" name="custom_data[{{ $data->field_id }}]" value="{{ old('custom_data.' . $data->field_id, $data->field_value) }}"
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
         </div>
 
@@ -372,23 +447,6 @@
                 </div>
             </div>
 
-            <!-- Horoscope Photo Upload -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-gray-800 text-base border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-scroll text-indigo-500"></i> Horoscope (कुंडली) Photo
-                </h3>
-                <div class="space-y-3">
-                    @if($member->horoscope_photo)
-                        <div class="w-full h-32 rounded-xl overflow-hidden border border-gray-200 bg-slate-100">
-                            <img src="/image?file={{ urlencode($member->horoscope_photo) }}" alt="Horoscope" class="w-full h-full object-cover">
-                        </div>
-                    @endif
-                    <div>
-                        <input type="file" name="horoscope_photo_file" accept="image/*" class="text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                    </div>
-                </div>
-            </div>
-
             <!-- ID Proof Upload -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 class="font-bold text-gray-800 text-base border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
@@ -408,13 +466,6 @@
 
         </div>
 
-    </div>
-
-    <!-- Bottom Save Action Bar -->
-    <div class="mt-8 flex justify-end pb-8">
-        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl text-sm font-bold transition duration-150 shadow-md flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
-        </button>
     </div>
 
 </form>

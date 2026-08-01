@@ -156,7 +156,17 @@ class MemberController extends Controller
             $input['id_proof_photo'] = $path;
         }
 
-        // 5. Update Eloquent model
+        // 5. Save Custom EAV Data if submitted
+        if ($request->has('custom_data') && is_array($request->custom_data)) {
+            foreach ($request->custom_data as $fieldId => $val) {
+                \App\Models\UserCustomData::updateOrCreate(
+                    ['user_id' => $member->id, 'field_id' => $fieldId],
+                    ['field_value' => is_array($val) ? implode(', ', $val) : (string)$val]
+                );
+            }
+        }
+
+        // 6. Update Eloquent model
         $member->update($input);
 
         return redirect()->route('admin.members.show', $member->id)->with('success', 'Candidate profile updated successfully by Admin.');
