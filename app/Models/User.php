@@ -109,6 +109,7 @@ class User extends Authenticatable
         
         // Admin approval statuses
         'status',
+        'is_approved',
         'verified',
         'approved_by',
         'approved_at',
@@ -164,6 +165,7 @@ class User extends Authenticatable
             'featured_until' => 'date',
             'verified' => 'boolean',
             'is_public' => 'boolean',
+            'is_approved' => 'boolean',
             'has_set_password' => 'boolean',
             'monthly_income' => 'decimal:2',
             'weight' => 'string',
@@ -175,7 +177,13 @@ class User extends Authenticatable
     /* Scopes */
     public function scopeApproved($query)
     {
-        return $query->where('status', 'approved');
+        $query->where('status', 'approved');
+        // Only filter by is_approved if the column exists in the DB
+        // (guards against running before the migration has been applied)
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+            $query->where('is_approved', 1);
+        }
+        return $query;
     }
 
     public function scopePending($query)

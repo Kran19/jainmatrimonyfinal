@@ -134,7 +134,8 @@ return new class extends Migration
                 ");
                 if ($colType && strtolower($colType->DATA_TYPE) === 'enum') {
                     DB::statement("ALTER TABLE `users` MODIFY COLUMN `status` VARCHAR(50) NULL DEFAULT 'account_approved'");
-            }
+                }
+            } // end if hasColumn status
             if (!Schema::hasColumn('users', 'registration_count')) {
                 Schema::table('users', function (Blueprint $table) {
                     $table->integer('registration_count')->default(1)->after('status');
@@ -256,6 +257,16 @@ return new class extends Migration
                     DB::statement("ALTER TABLE `news` MODIFY COLUMN `image` LONGTEXT NULL");
                 }
             }
+        }
+
+        // 12. Ensure is_approved column exists for admin profile visibility control.
+        // is_approved = 0 means hidden from public; is_approved = 1 means publicly visible.
+        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_approved')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->tinyInteger('is_approved')->default(0)->after('is_public');
+            });
+            // Backfill: all currently 'approved' profiles should be visible immediately
+            DB::table('users')->where('status', 'approved')->update(['is_approved' => 1]);
         }
     }
 

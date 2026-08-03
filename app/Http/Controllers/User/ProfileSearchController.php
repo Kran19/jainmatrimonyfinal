@@ -217,8 +217,12 @@ class ProfileSearchController extends Controller
 
     public function showDetail(Request $request, User $profile)
     {
-        // Safety check
-        if ($profile->status !== 'approved' || !$profile->is_public) {
+        // Admins can view any profile; regular users only see admin-approved profiles.
+        // is_approved may be null if the DB migration hasn't run yet — treat null same as 1
+        // when status is already 'approved' (backward-compatible fallback).
+        $isAdmin = Auth::guard('admin')->check();
+        $isApproved = ($profile->is_approved === null) ? ($profile->status === 'approved') : (bool)$profile->is_approved;
+        if (!$isAdmin && ($profile->status !== 'approved' || !$isApproved)) {
             return abort(403, 'Profile is not active.');
         }
 
@@ -235,7 +239,9 @@ class ProfileSearchController extends Controller
 
     public function downloadPdf(Request $request, User $profile)
     {
-        if ($profile->status !== 'approved' || !$profile->is_public) {
+        $isAdmin = Auth::guard('admin')->check();
+        $isApproved = ($profile->is_approved === null) ? ($profile->status === 'approved') : (bool)$profile->is_approved;
+        if (!$isAdmin && ($profile->status !== 'approved' || !$isApproved)) {
             return abort(403, 'Profile is not active.');
         }
 
