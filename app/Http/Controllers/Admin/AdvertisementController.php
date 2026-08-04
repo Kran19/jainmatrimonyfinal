@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Advertisement;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class AdvertisementController extends Controller
 {
@@ -58,16 +60,47 @@ class AdvertisementController extends Controller
     /**
      * Display listing of advertisements.
      */
+    /**
+     * Display listing of advertisements.
+     */
     public function index()
     {
         $this->ensureSchema();
 
-        $ads = Advertisement::orderBy('position', 'asc')
+        // Migrate legacy single setting if present
+        $legacyImage = Setting::where('setting_key', 'latest_profiles_bottom_image')->value('setting_value');
+        if (!empty($legacyImage)) {
+            $legacyLink = Setting::where('setting_key', 'latest_profiles_bottom_link')->value('setting_value') ?? '';
+            $legacyMediaType = Setting::where('setting_key', 'latest_profiles_bottom_media_type')->value('setting_value') ?? 'image';
+            
+            $insertData = [
+                'title' => 'Latest Profiles Bottom Banner',
+                'link' => $legacyLink,
+                'position' => 'latest_profiles_bottom',
+                'image' => $legacyImage,
+                'media_type' => $legacyMediaType,
+                'sort_order' => 0,
+                'duration_seconds' => 3,
+                'status' => true,
+            ];
+            if (Schema::hasColumn('advertisements', 'created_at')) $insertData['created_at'] = now();
+            if (Schema::hasColumn('advertisements', 'updated_at')) $insertData['updated_at'] = now();
+            DB::table('advertisements')->insert($insertData);
+
+            Setting::where('setting_key', 'latest_profiles_bottom_image')->update(['setting_value' => '']);
+        }
+
+        $allAds = Advertisement::orderBy('position', 'asc')
             ->orderBy('sort_order', 'asc')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.cms.ads.index', compact('ads'));
+        $ads = $allAds->where('position', '!=', 'latest_profiles_bottom');
+        $latestProfilesBottomAds = $allAds->where('position', 'latest_profiles_bottom');
+
+        $latestProfilesBottomEnabled = Setting::where('setting_key', 'latest_profiles_bottom_enabled')->value('setting_value') ?? '1';
+
+        return view('admin.cms.ads.index', compact('ads', 'latestProfilesBottomAds', 'latestProfilesBottomEnabled'));
     }
 
     /**
@@ -80,7 +113,7 @@ class AdvertisementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
-            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar',
+            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar,latest_profiles_bottom',
             'image' => 'required|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm,mov,avi|max:20480',
             'sort_order' => 'nullable|integer|min:0',
             'duration_seconds' => 'nullable|integer|min:1|max:60',
@@ -118,8 +151,9 @@ class AdvertisementController extends Controller
         }
 
         DB::table('advertisements')->insert($insertData);
+        Cache::forget('active_advertisements');
 
-        return back()->with('success', 'Advertisement campaign published successfully.');
+        return back()->with('success', 'Advertisement published successfully.');
     }
 
     /**
@@ -134,7 +168,7 @@ class AdvertisementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
-            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar',
+            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar,latest_profiles_bottom',
             'image' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm,mov,avi|max:20480',
             'sort_order' => 'nullable|integer|min:0',
             'duration_seconds' => 'nullable|integer|min:1|max:60',
@@ -178,8 +212,9 @@ class AdvertisementController extends Controller
         }
 
         DB::table('advertisements')->where('id', $ad->id)->update($updateData);
+        Cache::forget('active_advertisements');
 
-        return back()->with('success', 'Advertisement campaign updated successfully.');
+        return back()->with('success', 'Advertisement updated successfully.');
     }
 
     /**
@@ -195,6 +230,7 @@ class AdvertisementController extends Controller
             $updateData['updated_at'] = now();
         }
         DB::table('advertisements')->where('id', $ad->id)->update($updateData);
+        Cache::forget('active_advertisements');
 
         return back()->with('success', 'Advertisement status toggled successfully.');
     }
@@ -211,6 +247,25 @@ class AdvertisementController extends Controller
             @unlink(public_path($ad->image));
         }
         $ad->delete();
+        Cache::forget('active_advertisements');
         return back()->with('success', 'Advertisement deleted successfully.');
+    }
+
+    /**
+     * Toggle Latest Profiles Bottom Advertisement section enablement.
+     */
+    public function toggleLatestProfilesBottomSection()
+    {
+        $enabled = Setting::where('setting_key', 'latest_profiles_bottom_enabled')->value('setting_value') ?? '1';
+        $newVal = ($enabled == '1') ? '0' : '1';
+
+        Setting::updateOrCreate(
+            ['setting_key' => 'latest_profiles_bottom_enabled'],
+            ['setting_value' => $newVal]
+        );
+
+        Cache::forget('site_settings');
+
+        return back()->with('success', 'Latest Profiles Bottom Advertisement section status toggled successfully.');
     }
 }

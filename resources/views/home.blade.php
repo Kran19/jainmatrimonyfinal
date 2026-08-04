@@ -539,51 +539,223 @@
     </div>
 </section>
 
-<!-- Bottom Advertisement Banner Section -->
-@if (!empty($bottom_ads))
-<section class="py-6 bg-slate-900 border-t border-b border-gray-800">
+@php
+    // Orientation-aware ad layout – JS will detect and regroup by portrait/landscape
+    $lp_bottom_section_enabled = isset($settings['latest_profiles_bottom_enabled']) && $settings['latest_profiles_bottom_enabled'] == '1';
+    $active_lp_bottom_ads = collect($latest_profiles_bottom_ads ?? [])
+        ->filter(fn($ad) => !empty($ad['image']) && (isset($ad['status']) ? (bool)$ad['status'] : true))
+        ->sortBy('sort_order')
+        ->values();
+    $show_lp_bottom_section = $lp_bottom_section_enabled && $active_lp_bottom_ads->isNotEmpty();
+@endphp
+
+@if ($show_lp_bottom_section)
+<!-- Latest Profiles Bottom Advertisements — Orientation-aware layout -->
+<section class="py-6">
     <div class="container mx-auto px-4">
-        <div class="ad-rotator-container relative w-full h-32 sm:h-44 md:h-52 lg:h-60 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden bg-slate-950">
-            @foreach($bottom_ads as $index => $ad)
+
+        {{-- Container: JS reorganises items into portrait-rows / landscape-rows --}}
+        <div id="lp-ads-container" class="flex flex-col gap-0">
+            @foreach ($active_lp_bottom_ads as $ad)
                 @php
-                    $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
-                    $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
-                    $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
-                    
-                    $ad_link = trim($ad['link'] ?? '');
-                    $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+                    $ad_img   = $ad['image'] ?? '';
+                    $ad_link  = trim($ad['link'] ?? '');
+                    $ad_type  = $ad['media_type'] ?? 'image';
+                    $is_video = $ad_type === 'video';
+                    $has_link = !empty($ad_link) && $ad_link !== '#';
 
                     if (str_starts_with($ad_img, 'data:image/')) {
-                        $img_src = $ad_img;
+                        $ad_img_src = $ad_img;
                     } else {
-                        $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
-                        $img_src = route('image.serve', ['file' => $img_path]);
+                        $ad_img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
+                        $ad_img_src  = route('image.serve', ['file' => $ad_img_path]);
                     }
                 @endphp
-                <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
-                     data-duration="{{ $duration * 1000 }}">
-                    @if($has_valid_link)
-                        <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
-                            @if($is_video)
-                                <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
-                            @else
-                                <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
-                            @endif
-                        </a>
-                    @else
-                        <div class="w-full h-full">
-                            @if($is_video)
-                                <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
-                            @else
-                                <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
-                            @endif
-                        </div>
-                    @endif
+                {{-- Each .lp-ad-item starts full-width; JS will flex-shrink portrait ones --}}
+                <div class="lp-ad-item w-full" style="padding: 4px 0;">
+                    <div class="lp-ad-media-box rounded-xl overflow-hidden w-full relative">
+                        {{-- Clean absolute 'Ad' tag on the image --}}
+                        <span class="absolute top-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20 select-none pointer-events-none z-10">
+                            Ad
+                        </span>
+
+                        @if ($has_link)
+                            <a href="{{ $ad_link }}" target="_blank" rel="noopener" class="block leading-none">
+                        @endif
+                                @if ($is_video)
+                                    <video src="{{ $ad_img_src }}"
+                                           autoplay loop muted playsinline
+                                           class="lp-ad-media w-full h-auto block"
+                                           style="display:block; max-height:90vh;">
+                                    </video>
+                                @else
+                                    <img src="{{ $ad_img_src }}"
+                                         alt="Advertisement"
+                                         loading="lazy"
+                                         decoding="async"
+                                         class="lp-ad-media w-full h-auto block"
+                                         style="display:block; max-height:90vh; object-fit:contain;">
+                                @endif
+                        @if ($has_link)
+                            </a>
+                        @endif
+                    </div>
                 </div>
             @endforeach
         </div>
+
     </div>
 </section>
+
+{{-- Orientation-aware grouping engine --}}
+<script>
+(function() {
+    function groupAdsByOrientation() {
+        var container = document.getElementById('lp-ads-container');
+        if (!container) return;
+
+        var items = Array.prototype.slice.call(container.querySelectorAll('.lp-ad-item'));
+        if (items.length === 0) return;
+
+        // Collect orientation for each item
+        var orientations = items.map(function(item) {
+            var media = item.querySelector('.lp-ad-media');
+            if (!media) return 'landscape';
+            if (media.tagName === 'IMG') {
+                var w = media.naturalWidth;
+                var h = media.naturalHeight;
+                if (w === 0 || h === 0) return 'landscape'; // fallback
+                return h > w ? 'portrait' : 'landscape';
+            }
+            if (media.tagName === 'VIDEO') {
+                var vw = media.videoWidth;
+                var vh = media.videoHeight;
+                if (vw === 0 || vh === 0) return 'landscape';
+                return vh > vw ? 'portrait' : 'landscape';
+            }
+            return 'landscape';
+        });
+
+        // Detach all items from container (preserves DOM nodes)
+        items.forEach(function(item) {
+            if (item.parentNode) item.parentNode.removeChild(item);
+        });
+
+        // Remove any previously injected group wrappers
+        var oldGroups = container.querySelectorAll('.lp-portrait-group');
+        oldGroups.forEach(function(g) { if (g.parentNode) g.parentNode.removeChild(g); });
+
+        // Rebuild: group consecutive portraits side-by-side, landscapes full-width
+        var i = 0;
+        while (i < items.length) {
+            if (orientations[i] === 'portrait') {
+                // Collect run of consecutive portrait items
+                var group = document.createElement('div');
+                group.className = 'lp-portrait-group';
+                // Center the row contents (handles centering 1 ad, aligns multiple nicely)
+                group.style.cssText = 'display:flex; flex-wrap:wrap; justify-content:center; width:100%; gap:16px; padding:8px 0;';
+
+                while (i < items.length && orientations[i] === 'portrait') {
+                    var pItem = items[i];
+                    pItem.style.padding = '0';
+                    // Force the fixed container size: 300px width x 524px height
+                    pItem.style.flex = '0 0 300px';
+                    pItem.style.width = '300px';
+                    pItem.style.height = '524px';
+                    pItem.style.maxWidth = '100%';
+                    
+                    var mbox = pItem.querySelector('.lp-ad-media-box');
+                    if (mbox) {
+                        mbox.style.height = '100%';
+                        mbox.style.width = '100%';
+                        mbox.style.display = 'flex';
+                        mbox.style.alignItems = 'center';
+                        mbox.style.justifyContent = 'center';
+                    }
+
+                    var mediaImg = pItem.querySelector('.lp-ad-media');
+                    if (mediaImg) {
+                        mediaImg.style.width = '100%';
+                        mediaImg.style.height = '100%';
+                        mediaImg.style.objectFit = 'cover';
+                    }
+
+                    group.appendChild(pItem);
+                    i++;
+                }
+                container.appendChild(group);
+            } else {
+                // Landscape → full width
+                var lItem = items[i];
+                lItem.style.flex = '';
+                lItem.style.width = '100%';
+                lItem.style.height = 'auto';
+                
+                var lMbox = lItem.querySelector('.lp-ad-media-box');
+                if (lMbox) {
+                    lMbox.style.height = 'auto';
+                    lMbox.style.width = '100%';
+                }
+
+                var lMedia = lItem.querySelector('.lp-ad-media');
+                if (lMedia) {
+                    lMedia.style.width = '100%';
+                    lMedia.style.height = 'auto';
+                    lMedia.style.objectFit = 'contain';
+                }
+
+                container.appendChild(lItem);
+                i++;
+            }
+        }
+    }
+
+    // Wait for all images to load, then group
+    function waitAndGroup() {
+        var container = document.getElementById('lp-ads-container');
+        if (!container) return;
+
+        var imgs  = Array.prototype.slice.call(container.querySelectorAll('img.lp-ad-media'));
+        var vids  = Array.prototype.slice.call(container.querySelectorAll('video.lp-ad-media'));
+        var total = imgs.length + vids.length;
+
+        if (total === 0) { groupAdsByOrientation(); return; }
+
+        var ready = 0;
+        function check() {
+            ready++;
+            if (ready >= total) groupAdsByOrientation();
+        }
+
+        imgs.forEach(function(img) {
+            if (img.complete && img.naturalWidth > 0) {
+                check();
+            } else {
+                img.addEventListener('load',  check);
+                img.addEventListener('error', check);
+            }
+        });
+
+        vids.forEach(function(video) {
+            if (video.readyState >= 1 && video.videoWidth > 0) {
+                check();
+            } else {
+                video.addEventListener('loadedmetadata', check);
+                video.addEventListener('error',          check);
+            }
+        });
+
+        // Fallback: run after 3 seconds regardless
+        setTimeout(groupAdsByOrientation, 3000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', waitAndGroup);
+    } else {
+        waitAndGroup();
+    }
+})();
+</script>
 @endif
 
 <!-- Find Matches Section -->

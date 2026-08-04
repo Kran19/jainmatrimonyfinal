@@ -156,6 +156,7 @@
                         <option value="left_sidebar">Left Sidebar</option>
                         <option value="right_sidebar">Right Sidebar</option>
                         <option value="bottom_banner">Bottom Section</option>
+                        <option value="latest_profiles_bottom">Latest Profiles Bottom</option>
                     </select>
                 </div>
 
@@ -200,6 +201,210 @@
 
 </div>
 
+<!-- Separate Advertisement Section: Latest Profiles Bottom Advertisement -->
+<div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-6 border-b border-gray-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="p-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-bold">
+                    <i class="fa-solid fa-rectangle-ad text-base"></i>
+                </span>
+                <h3 class="font-bold text-gray-800 text-lg">Latest Profiles Bottom Advertisements</h3>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Manage advertisement banners displayed below the "Latest Profiles" section on the homepage. Each active banner displays as a separate image.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <form action="{{ route('admin.cms.ads.latest-profiles-bottom.toggle-section') }}" method="POST" class="m-0 p-0 inline-flex items-center gap-2">
+                @csrf
+                <span class="text-xs font-bold text-gray-700">Section Status:</span>
+                <button type="submit" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer {{ ($latestProfilesBottomEnabled ?? '1') == '1' ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                    <span class="w-2.5 h-2.5 rounded-full {{ ($latestProfilesBottomEnabled ?? '1') == '1' ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                    {{ ($latestProfilesBottomEnabled ?? '1') == '1' ? 'Section Enabled' : 'Section Disabled' }}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- List of Latest Profiles Bottom Ads -->
+        <div class="lg:col-span-2 space-y-4">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-images text-indigo-600"></i> Banners ({{ count($latestProfilesBottomAds ?? []) }})
+            </h4>
+
+            <div class="overflow-x-auto custom-scrollbar border border-gray-100 rounded-xl">
+                <table class="w-full text-left border-collapse min-w-[500px]">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold tracking-wider">
+                            <th class="py-3 px-4">Preview</th>
+                            <th class="py-3 px-4">Title / Link</th>
+                            <th class="py-3 px-4 text-center whitespace-nowrap">Status</th>
+                            <th class="py-3 px-4 text-center whitespace-nowrap">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-gray-100">
+                        @forelse($latestProfilesBottomAds ?? [] as $ad)
+                        <tr class="hover:bg-slate-50/80 transition duration-150">
+                            <td class="py-3 px-4 w-28">
+                                @if($ad->image)
+                                    <div class="w-24 h-14 bg-slate-900 rounded-lg border border-gray-200 overflow-hidden relative shadow-xs cursor-pointer group" onclick='previewMedia("{{ route("image.serve", ["file" => $ad->image]) }}", "{{ $ad->media_type ?? "image" }}", "{{ e($ad->title) }}")'>
+                                        @if(isset($ad->media_type) && $ad->media_type === 'video')
+                                            <video src="{{ route('image.serve', ['file' => $ad->image]) }}" muted class="w-full h-full object-contain"></video>
+                                            <span class="absolute bottom-1 right-1 bg-indigo-600 text-white text-[9px] font-extrabold px-1 py-0.5 rounded flex items-center gap-0.5 shadow">
+                                                <i class="fa-solid fa-video"></i>
+                                            </span>
+                                        @else
+                                            <img src="{{ route('image.serve', ['file' => $ad->image]) }}" alt="Ad Banner" class="w-full h-full object-contain">
+                                            <span class="absolute bottom-1 right-1 bg-slate-900/80 text-white text-[9px] font-extrabold px-1 py-0.5 rounded flex items-center gap-0.5">
+                                                <i class="fa-solid fa-image"></i>
+                                            </span>
+                                        @endif
+                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                                            <i class="fa-solid fa-eye text-white text-xs"></i>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="w-24 h-14 bg-slate-100 rounded-lg border flex items-center justify-center text-slate-400 text-xs font-bold">No Media</div>
+                                @endif
+                            </td>
+                            <td class="py-3 px-4 max-w-[200px]">
+                                <div class="font-bold text-slate-800 leading-snug truncate" title="{{ $ad->title }}">{{ $ad->title }}</div>
+                                @if($ad->link)
+                                    <a href="{{ $ad->link }}" target="_blank" class="text-xs text-indigo-600 hover:underline block mt-0.5 truncate font-medium" title="{{ $ad->link }}">
+                                        <i class="fa-solid fa-link text-[10px]"></i> {{ $ad->link }}
+                                    </a>
+                                @else
+                                    <span class="text-xs text-slate-400 block mt-0.5">No link</span>
+                                @endif
+                            </td>
+                            <td class="py-3 px-4 text-center whitespace-nowrap">
+                                <form action="{{ route('admin.cms.ads.toggle', $ad->id) }}" method="POST" class="m-0 p-0 inline-block">
+                                    @csrf
+                                    <button type="submit" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition inline-flex items-center gap-1 whitespace-nowrap cursor-pointer
+                                        @if($ad->status) bg-emerald-100 text-emerald-800 hover:bg-emerald-200
+                                        @else bg-slate-100 text-slate-600 hover:bg-slate-200 @endif">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $ad->status ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                                        {{ $ad->status ? 'Active' : 'Inactive' }}
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="py-3 px-4 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button onclick='openLpEditModal({!! json_encode($ad) !!})' class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                    </button>
+                                    <form action="{{ route('admin.cms.ads.destroy', $ad->id) }}" method="POST" class="m-0 p-0 inline-block" onsubmit="return confirm('Delete this advertisement?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition cursor-pointer" title="Delete">
+                                            <i class="fa-solid fa-trash-can text-xs"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="py-8 px-4 text-center text-gray-400 font-medium">
+                                <div class="flex flex-col items-center justify-center gap-1">
+                                    <i class="fa-solid fa-image text-2xl text-slate-300"></i>
+                                    <span class="text-gray-600 text-sm">No banners added yet!</span>
+                                    <span class="text-xs text-gray-400">Add images using the form on the right.</span>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Form for Latest Profiles Bottom -->
+        <div class="bg-slate-50/50 p-5 rounded-xl border border-gray-100">
+            <h4 class="font-bold text-gray-800 text-sm border-b border-gray-200 pb-2 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-indigo-600"></i> Add New Banner
+            </h4>
+
+            <form action="{{ route('admin.cms.ads.store') }}" method="POST" enctype="multipart/form-data" class="space-y-3 text-sm">
+                @csrf
+                <input type="hidden" name="position" value="latest_profiles_bottom">
+                <input type="hidden" name="duration_seconds" value="5">
+                <input type="hidden" name="sort_order" value="0">
+
+                <div>
+                    <label for="lp_title" class="block font-semibold text-gray-700 text-xs mb-1">Banner Title *</label>
+                    <input type="text" name="title" id="lp_title" required placeholder="e.g. Bottom Banner 1"
+                           class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                </div>
+
+                <div>
+                    <label for="lp_link" class="block font-semibold text-gray-700 text-xs mb-1">Click Link URL (Optional)</label>
+                    <input type="url" name="link" id="lp_link" placeholder="https://..."
+                           class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                </div>
+
+                <div>
+                    <label for="lp_image" class="block font-semibold text-gray-700 text-xs mb-1">Image / Video File *</label>
+                    <input type="file" name="image" id="lp_image" required accept="image/*,video/*"
+                           class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 bg-white border border-gray-200 rounded-lg">
+                    <p class="text-[10px] text-gray-400 mt-1">JPG, PNG, WEBP, GIF, MP4 — up to 20MB.</p>
+                </div>
+
+                <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition duration-150 shadow flex items-center justify-center gap-1.5 cursor-pointer mt-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Add Banner
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- LP Bottom Edit Modal -->
+<div id="lpEditModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-slate-50/50">
+            <h3 class="text-base font-bold text-gray-800">Edit Bottom Banner</h3>
+            <button class="text-gray-400 hover:text-gray-600 transition" onclick="closeLpEditModal()">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div class="p-5">
+            <form id="lpEditForm" method="POST" action="" enctype="multipart/form-data" class="space-y-4 text-sm">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="position" value="latest_profiles_bottom">
+                <input type="hidden" name="duration_seconds" value="5">
+                <input type="hidden" name="sort_order" value="0">
+
+                <div>
+                    <label for="lp_edit_title" class="block font-semibold text-gray-700 mb-1">Banner Title *</label>
+                    <input type="text" name="title" id="lp_edit_title" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label for="lp_edit_link" class="block font-semibold text-gray-700 mb-1">Click Link URL (Optional)</label>
+                    <input type="url" name="link" id="lp_edit_link" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label for="lp_edit_image" class="block font-semibold text-gray-700 mb-1">Replace Image / Video (Optional)</label>
+                    <input type="file" name="image" id="lp_edit_image" accept="image/*,video/*"
+                           class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="status" id="lp_edit_status" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 mr-2">
+                    <label for="lp_edit_status" class="font-semibold text-gray-700 select-none cursor-pointer">Banner is Active</label>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3 border-t border-gray-100 mt-4">
+                    <button type="button" class="px-5 py-2 text-sm font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-slate-50 transition" onclick="closeLpEditModal()">Cancel</button>
+                    <button type="submit" class="px-5 py-2 text-sm font-bold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Media Preview Modal -->
 <div id="mediaPreviewModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col">
@@ -240,6 +445,7 @@
                         <option value="left_sidebar">Left Sidebar</option>
                         <option value="right_sidebar">Right Sidebar</option>
                         <option value="bottom_banner">Bottom Section</option>
+                        <option value="latest_profiles_bottom">Latest Profiles Bottom</option>
                     </select>
                 </div>
 
@@ -323,6 +529,22 @@ function previewMedia(src, type, title) {
 function closePreviewModal() {
     previewModal.classList.add('hidden');
     previewContainer.innerHTML = '';
+}
+
+// LP Bottom Edit Modal
+const lpEditModal = document.getElementById('lpEditModal');
+const lpEditForm = document.getElementById('lpEditForm');
+
+function openLpEditModal(ad) {
+    lpEditForm.action = `/admin/cms/ads/${ad.id}`;
+    document.getElementById('lp_edit_title').value = ad.title || '';
+    document.getElementById('lp_edit_link').value = ad.link || '';
+    document.getElementById('lp_edit_status').checked = !!ad.status;
+    lpEditModal.classList.remove('hidden');
+}
+
+function closeLpEditModal() {
+    lpEditModal.classList.add('hidden');
 }
 </script>
 @endsection

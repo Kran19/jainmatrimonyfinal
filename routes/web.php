@@ -222,6 +222,11 @@ Route::middleware('auth:admin')->group(function () {
     Route::put('/admin/cms/ads/{ad}', [AdvertisementController::class, 'update'])->name('admin.cms.ads.update');
     Route::post('/admin/cms/ads/{ad}/toggle', [AdvertisementController::class, 'toggle'])->name('admin.cms.ads.toggle');
     Route::delete('/admin/cms/ads/{ad}', [AdvertisementController::class, 'destroy'])->name('admin.cms.ads.destroy');
+
+    // Latest Profiles Bottom Advertisement
+    Route::post('/admin/cms/ads/latest-profiles-bottom/toggle', [AdvertisementController::class, 'toggleLatestProfilesBottomSection'])->name('admin.cms.ads.latest-profiles-bottom.toggle-section');
+    Route::post('/admin/cms/ads/latest-profiles-bottom', [AdvertisementController::class, 'updateLatestProfilesBottomAd'])->name('admin.cms.ads.latest-profiles-bottom.update');
+    Route::delete('/admin/cms/ads/latest-profiles-bottom/image', [AdvertisementController::class, 'removeLatestProfilesBottomImage'])->name('admin.cms.ads.latest-profiles-bottom.remove-image');
 });
 
 // CMS Pages
