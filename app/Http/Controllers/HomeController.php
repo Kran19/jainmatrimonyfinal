@@ -39,10 +39,12 @@ class HomeController extends Controller
             // Silence DB exception if read-only or table missing
         }
 
-        // 3. Fetch active advertisements with caching
-        $advertisements = \Illuminate\Support\Facades\Cache::remember('active_advertisements', 300, function() {
+        // 3. Fetch active advertisements with a short cache duration (10s) to reflect production updates instantly
+        $advertisements = \Illuminate\Support\Facades\Cache::remember('active_advertisements', 10, function() {
             try {
-                $query = Advertisement::where('status', true);
+                $query = Advertisement::where(function($q) {
+                    $q->where('status', true)->orWhere('status', 1)->orWhere('status', '1');
+                });
                 if (\Illuminate\Support\Facades\Schema::hasColumn('advertisements', 'sort_order')) {
                     $query->orderBy('sort_order', 'asc');
                 }
