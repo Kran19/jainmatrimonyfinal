@@ -213,16 +213,6 @@
             </div>
             <p class="text-xs text-gray-500 mt-1">Manage advertisement banners displayed below the "Latest Profiles" section on the homepage. Each active banner displays as a separate image.</p>
         </div>
-        <div class="flex items-center gap-3">
-            <form action="{{ route('admin.cms.ads.latest-profiles-bottom.toggle-section') }}" method="POST" class="m-0 p-0 inline-flex items-center gap-2">
-                @csrf
-                <span class="text-xs font-bold text-gray-700">Section Status:</span>
-                <button type="submit" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer {{ ($latestProfilesBottomEnabled ?? '1') == '1' ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
-                    <span class="w-2.5 h-2.5 rounded-full {{ ($latestProfilesBottomEnabled ?? '1') == '1' ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
-                    {{ ($latestProfilesBottomEnabled ?? '1') == '1' ? 'Section Enabled' : 'Section Disabled' }}
-                </button>
-            </form>
-        </div>
     </div>
 
     <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
