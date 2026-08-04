@@ -53,34 +53,38 @@
                     </div>
                 </div>
 
-                {{-- Search & Date Filters form --}}
-                <form action="{{ route('admin.payments.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                {{-- Search & Date Filters --}}
+                <form action="{{ route('admin.payments.index') }}" method="GET"
+                      class="flex flex-wrap items-center gap-2">
                     @if(request('status'))
                         <input type="hidden" name="status" value="{{ request('status') }}">
                     @endif
-                    <div class="sm:col-span-2">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, ID, phone, email or TXN ID..."
-                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <input type="date" name="from_date" value="{{ request('from_date') }}" placeholder="From date" title="From Date"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="date" name="to_date" value="{{ request('to_date') }}" placeholder="To date" title="To Date"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 flex-grow">
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 rounded-lg text-xs transition duration-150 shrink-0">
-                            Apply
-                        </button>
-                        @if(request()->anyFilled(['search', 'from_date', 'to_date']))
-                            <a href="{{ route('admin.payments.index', request('status') ? ['status' => request('status')] : []) }}" 
-                               class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2 rounded-lg text-xs flex items-center justify-center shrink-0" title="Reset Search">
-                                Clear
-                            </a>
-                        @endif
-                    </div>
+                    {{-- Search bar (wider) --}}
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Search name, ID, phone, TXN..."
+                           class="flex-[2] min-w-[140px] px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    {{-- From date --}}
+                    <input type="date" name="from_date" value="{{ request('from_date') }}" title="From Date"
+                           class="flex-1 min-w-[120px] px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    {{-- To date --}}
+                    <input type="date" name="to_date" value="{{ request('to_date') }}" title="To Date"
+                           class="flex-1 min-w-[120px] px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    {{-- Apply --}}
+                    <button type="submit"
+                            class="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                        Apply
+                    </button>
+                    {{-- Clear — always visible --}}
+                    <a href="{{ route('admin.payments.index', request('status') ? ['status' => request('status')] : []) }}"
+                       class="shrink-0 inline-flex items-center gap-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 hover:text-red-700 font-bold px-3 py-1.5 rounded-lg text-xs transition"
+                       title="Clear all filters">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Clear
+                    </a>
                 </form>
-            </div>
+            </div>{{-- end p-5 header --}}
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
