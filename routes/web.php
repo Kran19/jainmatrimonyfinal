@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\AccountApprovalController;
 
 // Utility & Maintenance Routes
+
 Route::get('/dbcheck', function() {
     $field = RegistrationField::where('field_key', 'subcast')->first();
     if (!$field) {

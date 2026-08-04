@@ -31,7 +31,7 @@ class Payment extends Model
     ];
 
     /**
-     * Disable updated_at as it is not defined in the database.sql schema for payments.
+     * Disable updated_at as it is not defined in the payments table.
      */
     const UPDATED_AT = null;
 

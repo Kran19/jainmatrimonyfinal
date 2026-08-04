@@ -50,63 +50,139 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
-                    <th class="py-3 px-6">Profile</th>
-                    <th class="py-3 px-6">Contact Info</th>
-                    <th class="py-3 px-6 text-center">Reg. Count</th>
-                    <th class="py-3 px-6 text-center">Delete Count</th>
-                    <th class="py-3 px-6">Status</th>
-                    <th class="py-3 px-6 text-center">Actions</th>
+                    @if(request('status') === 'paid')
+                        <th class="py-3 px-6">Member</th>
+                        <th class="py-3 px-6">Plan / Amount</th>
+                        <th class="py-3 px-6">Transaction Details</th>
+                        <th class="py-3 px-6">Screenshot</th>
+                        <th class="py-3 px-6">Status</th>
+                        <th class="py-3 px-6 text-center">Actions</th>
+                    @else
+                        <th class="py-3 px-6">Profile</th>
+                        <th class="py-3 px-6">Contact Info</th>
+                        <th class="py-3 px-6 text-center">Reg. Count</th>
+                        <th class="py-3 px-6 text-center">Delete Count</th>
+                        <th class="py-3 px-6">Status</th>
+                        <th class="py-3 px-6 text-center">Actions</th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="text-sm divide-y divide-gray-100">
                 @forelse($members as $member)
                 <tr class="hover:bg-slate-50 transition duration-150">
-                    <td class="py-4 px-6 flex items-center gap-3">
-                        <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
-                            @if($member->profile_photo)
-                                <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold">
-                                    {{ substr($member->full_name, 0, 1) }}
+                    @if(request('status') === 'paid')
+                        {{-- Paid Member Layout matches payments ledger --}}
+                        <td class="py-4 px-6 flex items-center gap-3">
+                            <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
+                                @if($member->profile_photo)
+                                    <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold">
+                                        {{ substr($member->full_name, 0, 1) }}
+                                    </div>
+                                @endif
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 leading-tight">
+                                    <a href="{{ route('admin.members.show', $member->id) }}" class="hover:text-indigo-600 transition">
+                                        {{ $member->full_name }}
+                                    </a>
                                 </div>
+                                <div class="text-xs text-slate-400 mt-1 font-mono">
+                                    {{ $member->profile_id ?? 'No Profile ID' }} ({{ $member->gender ?? 'N/A' }})
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            @php
+                                $lastPayment = $member->payments()->latest()->first();
+                            @endphp
+                            @if($lastPayment && $lastPayment->membership)
+                                <div class="font-bold text-slate-900">{{ $lastPayment->membership->plan_name }}</div>
+                                <div class="font-bold text-green-700 mt-0.5">₹{{ number_format($lastPayment->amount, 2) }}</div>
+                            @else
+                                <div class="font-semibold text-indigo-700">Screenshot Upload</div>
+                                <div class="text-xs text-slate-400 mt-0.5 italic">No plan linked</div>
                             @endif
-                        </div>
-                        <div>
-                            <div class="font-bold text-gray-900 leading-tight">
-                                <a href="{{ route('admin.members.show', $member->id) }}" class="hover:text-indigo-600 transition">
-                                    {{ $member->full_name }}
+                        </td>
+                        <td class="py-4 px-6">
+                            @if($lastPayment)
+                                <div class="text-xs text-gray-700 font-medium">{{ $lastPayment->payment_method ?? 'N/A' }}</div>
+                                @if($lastPayment->transaction_id && !str_starts_with($lastPayment->transaction_id, 'SCR-'))
+                                    <div class="font-mono text-xs text-slate-400 mt-0.5">{{ $lastPayment->transaction_id }}</div>
+                                @endif
+                            @else
+                                <span class="text-xs text-slate-400">Direct Activation</span>
+                            @endif
+                        </td>
+                        <td class="py-4 px-6">
+                            @php
+                                $screenshotPath = $lastPayment->payment_screenshot ?? $member->payment_screenshot;
+                            @endphp
+                            @if($screenshotPath)
+                                <a href="/image?file={{ urlencode($screenshotPath) }}" target="_blank">
+                                    <img src="/image?file={{ urlencode($screenshotPath) }}" alt="Receipt" class="w-10 h-10 object-cover rounded border shadow-sm hover:opacity-85 transition">
                                 </a>
+                            @else
+                                <span class="text-xs text-slate-400">None</span>
+                            @endif
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                                Approved
+                            </span>
+                        </td>
+                    @else
+                        {{-- Standard Member Layout --}}
+                        <td class="py-4 px-6 flex items-center gap-3">
+                            <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
+                                @if($member->profile_photo)
+                                    <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold">
+                                        {{ substr($member->full_name, 0, 1) }}
+                                    </div>
+                                @endif
                             </div>
-                            <div class="text-xs text-slate-400 mt-1 font-mono">
-                                {{ $member->profile_id ?? 'No Profile ID' }} ({{ $member->gender ?? 'N/A' }})
+                            <div>
+                                <div class="font-bold text-gray-900 leading-tight">
+                                    <a href="{{ route('admin.members.show', $member->id) }}" class="hover:text-indigo-600 transition">
+                                        {{ $member->full_name }}
+                                    </a>
+                                </div>
+                                <div class="text-xs text-slate-400 mt-1 font-mono">
+                                    {{ $member->profile_id ?? 'No Profile ID' }} ({{ $member->gender ?? 'N/A' }})
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="text-gray-900 font-semibold">{{ $member->mobile }}</div>
-                        <div class="text-xs text-slate-400 mt-0.5">{{ $member->email }}</div>
-                    </td>
-                    <td class="py-4 px-6 text-center">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
-                            {{ $member->registration_count ?? 1 }}
-                        </span>
-                    </td>
-                    <td class="py-4 px-6 text-center">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold @if(($member->deletion_count ?? 0) > 0) bg-rose-50 text-rose-700 border border-rose-100 @else bg-slate-50 text-slate-600 @endif">
-                            {{ $member->deletion_count ?? 0 }}
-                        </span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold
-                            @if($member->status === 'approved') bg-green-100 text-green-800
-                            @elseif($member->status === 'pending') bg-orange-100 text-orange-800
-                            @elseif($member->status === 'blocked') bg-red-100 text-red-800
-                            @elseif($member->status === 'deleted') bg-rose-100 text-rose-800 border border-rose-200
-                            @else bg-slate-100 text-slate-800 @endif">
-                            @if($member->status === 'deleted') Account Deleted
-                            @else {{ ucfirst($member->status) }} @endif
-                        </span>
-                    </td>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="text-gray-900 font-semibold">{{ $member->mobile }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">{{ $member->email }}</div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
+                                {{ $member->registration_count ?? 1 }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-extrabold @if(($member->deletion_count ?? 0) > 0) bg-rose-50 text-rose-700 border border-rose-100 @else bg-slate-50 text-slate-600 @endif">
+                                {{ $member->deletion_count ?? 0 }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold
+                                @if($member->status === 'approved') bg-green-100 text-green-800
+                                @elseif($member->status === 'pending') bg-orange-100 text-orange-800
+                                @elseif($member->status === 'blocked') bg-red-100 text-red-800
+                                @elseif($member->status === 'deleted') bg-rose-100 text-rose-800 border border-rose-200
+                                @else bg-slate-100 text-slate-800 @endif">
+                                @if($member->status === 'deleted') Account Deleted
+                                @else {{ ucfirst($member->status) }} @endif
+                            </span>
+                        </td>
+                    @endif
+
+                    {{-- Actions cell is shared --}}
                     <td class="py-4 px-6 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <a href="{{ route('admin.members.show', $member->id) }}" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition" title="Audit Details">

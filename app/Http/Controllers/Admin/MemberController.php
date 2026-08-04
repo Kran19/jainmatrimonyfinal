@@ -31,7 +31,8 @@ class MemberController extends Controller
         // 2. Filter by status
         if ($request->filled('status')) {
             if ($request->status === 'paid') {
-                $query->where('payment_status', 'verified');
+                // users.payment_status values: 'pending', 'approved', 'rejected'
+                $query->where('payment_status', 'approved');
             } else {
                 $query->where('status', $request->status);
             }
