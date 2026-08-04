@@ -541,7 +541,8 @@
 
 @php
     // Orientation-aware ad layout – JS will detect and regroup by portrait/landscape
-    $lp_bottom_section_enabled = isset($settings['latest_profiles_bottom_enabled']) && $settings['latest_profiles_bottom_enabled'] == '1';
+    // Fallback to '1' (enabled) if setting is not explicitly saved in settings table
+    $lp_bottom_section_enabled = !isset($settings['latest_profiles_bottom_enabled']) || $settings['latest_profiles_bottom_enabled'] == '1';
     $active_lp_bottom_ads = collect($latest_profiles_bottom_ads ?? [])
         ->filter(fn($ad) => !empty($ad['image']) && (isset($ad['status']) ? (bool)$ad['status'] : true))
         ->sortBy('sort_order')
