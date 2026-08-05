@@ -35,8 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
             return back()->withInput()->with('error', 'Too many verification attempts. Please wait 5 minutes before trying again.');
         });
         $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
-            return redirect()->back()
+            return redirect($request->url())
                 ->withInput($request->except('_token', 'password', 'password_confirmation'))
-                ->with('error', 'Your session expired due to inactivity. Please submit the form again.');
+                ->with('error', 'Your session expired. Please try again.');
         });
     })->create();

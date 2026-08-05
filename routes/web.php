@@ -236,7 +236,8 @@ Route::get('/contact', [CmsController::class, 'contact'])->name('contact.show');
 Route::post('/contact', [CmsController::class, 'submitContact'])->name('contact.submit');
 Route::get('/privacy', [CmsController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [CmsController::class, 'terms'])->name('terms');
-Route::get('/community', [CmsController::class, 'community'])->name('community');
+Route::get('/committee', [CmsController::class, 'community'])->name('community');
+Route::redirect('/community', '/committee', 301);
 Route::get('/news', [CmsController::class, 'news'])->name('news');
 
 Route::get('/waiting-approval', function () {
