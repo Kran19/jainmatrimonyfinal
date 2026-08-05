@@ -22,19 +22,34 @@ class HomeController extends Controller
             return Setting::pluck('setting_value', 'setting_key')->toArray();
         });
 
-        // 2. Throttled visitor count update (avoid write locks on every GET request)
+        // 2. Session-based unique visitor counter (increments by 1 per new session only).
+        //    Excludes admin visits. Does NOT use a shared time-lock that skips real users.
         try {
-            $visitorCount = isset($settings['visitor_count']) ? (int)$settings['visitor_count'] + 1 : 1;
-            if (!\Illuminate\Support\Facades\Cache::has('visitor_count_lock')) {
-                \Illuminate\Support\Facades\Cache::put('visitor_count_lock', true, 30);
-                Setting::updateOrCreate(
+            if (!Auth::guard('admin')->check() && !$request->session()->has('visitor_counted')) {
+                // Mark this session so subsequent requests don't re-count
+                $request->session()->put('visitor_counted', true);
+
+                // Atomically increment in DB (read current → write current+1)
+                $currentCount = (int) DB::table('site_settings')
+                    ->where('setting_key', 'visitor_count')
+                    ->value('setting_value');
+
+                $newCount = $currentCount + 1;
+
+                DB::table('site_settings')->updateOrInsert(
                     ['setting_key' => 'visitor_count'],
-                    ['setting_value' => (string)$visitorCount]
+                    ['setting_value' => (string)$newCount, 'updated_at' => now()]
                 );
-                // Invalidate cached settings so new count is stored
+
+                // Bust the settings cache so the admin panel shows the fresh count
                 \Illuminate\Support\Facades\Cache::forget('site_settings');
+                $settings['visitor_count'] = $newCount;
+            } else {
+                // Already counted this session — just read the stored value
+                $settings['visitor_count'] = isset($settings['visitor_count'])
+                    ? (int)$settings['visitor_count']
+                    : (int) DB::table('site_settings')->where('setting_key', 'visitor_count')->value('setting_value');
             }
-            $settings['visitor_count'] = $visitorCount;
         } catch (\Exception $e) {
             // Silence DB exception if read-only or table missing
         }

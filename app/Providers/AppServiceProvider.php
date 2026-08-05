@@ -60,22 +60,8 @@ class AppServiceProvider extends ServiceProvider
             try {
                 $settings = \App\Models\Setting::pluck('setting_value', 'setting_key')->toArray();
 
-                // Visitor Counter Logic (Exclude Admin visits)
-                if (!Auth::guard('admin')->check()) {
-                    $vCount = \DB::table('site_settings')->where('setting_key', 'visitor_count')->first();
-                    if ($vCount) {
-                        \DB::table('site_settings')
-                            ->where('setting_key', 'visitor_count')
-                            ->update(['setting_value' => intval($vCount->setting_value) + 1]);
-                    } else {
-                        \DB::table('site_settings')->insert([
-                            'setting_key' => 'visitor_count',
-                            'setting_value' => '1',
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
+                // Visitor counter is tracked in HomeController (session-based, once per unique session).
+                // Do NOT increment here — this view composer fires multiple times per page load.
 
                 $ads = \App\Models\Advertisement::where('status', true)->orderBy('id', 'desc')->get()->toArray();
                 foreach ($ads as $ad) {
