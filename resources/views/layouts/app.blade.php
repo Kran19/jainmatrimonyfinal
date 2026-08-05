@@ -261,11 +261,24 @@
 
     @stack('scripts')
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.body.classList.add('loaded');
+        function showPage() {
+            if (!document.body.classList.contains('loaded')) {
+                document.body.classList.add('loaded');
+            }
+        }
+        // Only reveal body once all styles and external assets have loaded
+        window.addEventListener('load', showPage);
+        
+        // Fallback trigger after 150ms (giving Tailwind CDN compiler enough time to style the page)
+        setTimeout(showPage, 150);
+
+        window.addEventListener('beforeunload', function() {
+            document.body.style.transition = 'none';
+            document.body.style.opacity = '0';
         });
-        window.addEventListener('load', function() {
-            document.body.classList.add('loaded');
+        window.addEventListener('pagehide', function() {
+            document.body.style.transition = 'none';
+            document.body.style.opacity = '0';
         });
     </script>
 </body>
