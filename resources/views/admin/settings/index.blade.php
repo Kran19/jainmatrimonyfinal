@@ -246,6 +246,11 @@
             </div>
             <div class="p-6 space-y-4">
                 <div>
+                    <label class="block font-semibold text-gray-700 text-xs mb-1">Community Page Content (HTML Supported)</label>
+                    <textarea name="community_content" rows="5" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ $settings['community_content'] ?? '' }}</textarea>
+                </div>
+
+                <div>
                     <label class="block font-semibold text-gray-700 text-xs mb-1">About Us YouTube Video URL</label>
                     <input type="text" name="about_youtube" value="{{ $settings['about_youtube'] ?? '' }}" placeholder="https://www.youtube.com/embed/..."
                            class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">

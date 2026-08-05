@@ -87,7 +87,8 @@ class CmsController extends Controller
      */
     public function community()
     {
-        return view('cms.community');
+        $community_content = Setting::where('setting_key', 'community_content')->value('setting_value') ?? '';
+        return view('cms.community', compact('community_content'));
     }
 
     /**
