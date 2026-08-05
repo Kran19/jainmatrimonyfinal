@@ -91,6 +91,11 @@
     
     <!-- Custom CSS -->
     <style>
+        /* Prevent Flash of Unstyled Content (FOUC) and hide Tailwind-hidden elements early */
+        .hidden {
+            display: none !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -100,6 +105,12 @@
         body {
             font-family: 'Outfit', system-ui, -apple-system, sans-serif;
             overflow-x: hidden;
+            opacity: 0;
+            transition: opacity 0.15s ease-in-out;
+        }
+
+        body.loaded {
+            opacity: 1;
         }
         
         /* Hamburger Menu Animation */
@@ -249,5 +260,13 @@
     @include('layouts.footer')
 
     @stack('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.classList.add('loaded');
+        });
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded');
+        });
+    </script>
 </body>
 </html>

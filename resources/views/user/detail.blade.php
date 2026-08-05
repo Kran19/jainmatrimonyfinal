@@ -58,9 +58,9 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8" data-aos="fade-up">
             <div class="flex flex-col md:flex-row">
                 {{-- Profile Image --}}
-                <div class="w-full md:w-1/3 relative h-96 md:h-auto bg-slate-50 flex items-center justify-center overflow-hidden border-r">
+                <div class="w-full md:w-1/3 profile-image-container border-r border-gray-100">
                     @if($profile->profile_photo)
-                        <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo of {{ $profile->full_name }}" class="w-full h-full object-cover">
+                        <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo of {{ $profile->full_name }}" class="profile-image">
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-slate-100 font-bold text-6xl text-slate-300">
                             {{ substr($profile->full_name, 0, 1) }}
@@ -90,21 +90,33 @@
                         <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{ $profile->hobbies ?? 'Not specified' }}</p>
                         <p class="text-gray-600 text-sm sm:text-base leading-relaxed"><strong class="text-gray-700">Physical Challenges:</strong> {{ $profile->handicapped ?? 'None' }}</p>
                     </div>
-
-                    @if($profile->approval_date && $profile->expiry_date && $me && $me->id === $profile->id)
-                    <div class="mt-6 p-4 rounded-xl bg-blue-50/50 border border-blue-200 text-sm sm:text-base">
-                        <div class="grid grid-cols-2 gap-y-2">
-                            <div class="text-gray-500 font-semibold">Created Date</div>
-                            <div class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->approval_date)->format('d M Y') }}</div>
-                            <div class="text-gray-500 font-semibold">End Date</div>
-                            <div class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->expiry_date)->format('d M Y') }}</div>
-                        </div>
-                        <p class="text-xs text-primary font-bold mt-2">Your profile approval is valid for 12 months.</p>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>
+
+        @if($profile->approval_date && $profile->expiry_date && $me && $me->id === $profile->id)
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-8 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" data-aos="fade-up">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg flex-shrink-0">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 text-sm md:text-base">Profile Approval Validity</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">Your profile approval is valid for 12 months.</p>
+                </div>
+            </div>
+            <div class="text-sm bg-white p-3 rounded-xl border border-blue-100/50 flex gap-6 self-start sm:self-auto">
+                <div>
+                    <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Approved On</span>
+                    <span class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->approval_date)->format('d M Y') }}</span>
+                </div>
+                <div class="border-l border-gray-100 pl-6">
+                    <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Expires On</span>
+                    <span class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->expiry_date)->format('d M Y') }}</span>
+                </div>
+            </div>
+        </div>
+        @endif
 
         {{-- Detail Sections Grid --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm sm:text-base" data-aos="fade-up">
@@ -537,5 +549,34 @@ if (likeBtn) {
     });
 }
 </script>
+@push('styles')
+<style>
+.profile-image-container {
+    position: relative;
+    background-color: #f8fafc;
+    overflow: hidden;
+    height: 384px; /* Fixed height on mobile/tablet */
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .profile-image-container {
+        height: auto; /* Let flex row stretch it to match details card height */
+        align-self: stretch; /* Stretch to fill parent flex container height */
+    }
+}
+
+.profile-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background-color: #f8fafc;
+}
+</style>
 @endpush
+
 @endsection
