@@ -72,11 +72,11 @@
                 <div class="w-full md:w-2/3 p-6 md:p-8 flex flex-col justify-start">
                     <h2 class="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
                         {{ $profile->full_name }}
-                        <span class="text-xs md:text-sm font-bold text-primary block mt-1 font-mono uppercase tracking-wider">ID: {{ $profile->profile_id }}</span>
+                        <span class="text-sm md:text-base font-bold text-primary block mt-1 font-mono uppercase tracking-wider">ID: {{ $profile->profile_id }}</span>
                     </h2>
-                    <p class="text-xs text-gray-500 font-semibold mt-1"><i class="fas fa-map-marker-alt text-primary mr-1"></i> Native: {{ $profile->native_place ?? 'N/A' }}</p>
+                    <p class="text-sm text-gray-500 font-semibold mt-1"><i class="fas fa-map-marker-alt text-primary mr-1"></i> Native: {{ $profile->native_place ?? 'N/A' }}</p>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-600 mt-6 bg-slate-50 p-4 rounded-xl border border-gray-100">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base font-semibold text-gray-700 mt-6 bg-slate-50 p-4 rounded-xl border border-gray-100">
                         <div class="flex items-center gap-2"><i class="far fa-calendar-alt text-primary w-5 text-center"></i> {{ $age }}, {{ $profile->height ?? 'N/A' }}</div>
                         <div class="flex items-center gap-2"><i class="fas fa-graduation-cap text-primary w-5 text-center"></i> {{ $profile->higher_education ?? 'N/A' }}</div>
                         <div class="flex items-center gap-2"><i class="fas fa-briefcase text-primary w-5 text-center"></i> {{ $profile->occupation ?? 'N/A' }}</div>
@@ -86,94 +86,106 @@
                     </div>
 
                     <div class="mt-8 space-y-3">
-                        <h4 class="font-extrabold text-xs text-dark uppercase tracking-wider border-l-2 border-primary pl-2">Hobbies & Interests</h4>
-                        <p class="text-gray-600 text-xs leading-relaxed">{{ $profile->hobbies ?? 'Not specified' }}</p>
-                        <p class="text-gray-600 text-xs leading-relaxed"><strong class="text-gray-700">Physical Challenges:</strong> {{ $profile->handicapped ?? 'None' }}</p>
+                        <h4 class="font-extrabold text-sm sm:text-base text-dark uppercase tracking-wider border-l-2 border-primary pl-2">Hobbies & Interests</h4>
+                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{ $profile->hobbies ?? 'Not specified' }}</p>
+                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed"><strong class="text-gray-700">Physical Challenges:</strong> {{ $profile->handicapped ?? 'None' }}</p>
                     </div>
+
+                    @if($profile->approval_date && $profile->expiry_date && $me && $me->id === $profile->id)
+                    <div class="mt-6 p-4 rounded-xl bg-blue-50/50 border border-blue-200 text-sm sm:text-base">
+                        <div class="grid grid-cols-2 gap-y-2">
+                            <div class="text-gray-500 font-semibold">Created Date</div>
+                            <div class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->approval_date)->format('d M Y') }}</div>
+                            <div class="text-gray-500 font-semibold">End Date</div>
+                            <div class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->expiry_date)->format('d M Y') }}</div>
+                        </div>
+                        <p class="text-xs text-primary font-bold mt-2">Your profile approval is valid for 12 months.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
 
         {{-- Detail Sections Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm" data-aos="fade-up">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm sm:text-base" data-aos="fade-up">
 
             {{-- Personal Info --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">Personal Information</h3>
-                <div class="grid grid-cols-2 gap-y-3 text-xs">
-                    <div class="text-gray-400 font-semibold">Date of Birth</div>
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Personal Information</h3>
+                <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
+                    <div class="text-gray-500 font-semibold">Date of Birth</div>
                     <div class="font-bold text-gray-800">{{ $profile->birth_date ? $profile->birth_date->format('d M Y') : 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Time of Birth</div>
+                    <div class="text-gray-500 font-semibold">Time of Birth</div>
                     <div class="font-bold text-gray-800">{{ format_birth_time($profile->birth_time) }}</div>
-                    <div class="text-gray-400 font-semibold">Birth Place</div>
+                    <div class="text-gray-500 font-semibold">Birth Place</div>
                     <div class="font-bold text-gray-800">{{ $profile->birth_place ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Gender</div>
+                    <div class="text-gray-500 font-semibold">Gender</div>
                     <div class="font-bold text-gray-800">{{ $profile->gender ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Weight</div>
+                    <div class="text-gray-500 font-semibold">Weight</div>
                     <div class="font-bold text-gray-800">{{ format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null)) }}</div>
-                    <div class="text-gray-400 font-semibold">Marital Status</div>
+                    <div class="text-gray-500 font-semibold">Marital Status</div>
                     <div class="font-bold text-gray-800">{{ $profile->marital_status ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Disability</div>
+                    <div class="text-gray-500 font-semibold">Disability</div>
                     <div class="font-bold text-gray-800">{{ $profile->handicapped ?? 'None' }}</div>
-                    <div class="text-gray-400 font-semibold">Native Place</div>
+                    <div class="text-gray-500 font-semibold">Native Place</div>
                     <div class="font-bold text-gray-800">{{ $profile->native_place ?? 'N/A' }}</div>
                 </div>
             </div>
 
             {{-- Religious & Astro --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">Religious & Astro Background</h3>
-                <div class="grid grid-cols-2 gap-y-3 text-xs">
-                    <div class="text-gray-400 font-semibold">Subcaste</div>
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Religious & Astro Background</h3>
+                <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
+                    <div class="text-gray-500 font-semibold">Subcaste</div>
                     <div class="font-bold text-gray-800">{{ $profile->subcast ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Self Gotra</div>
+                    <div class="text-gray-500 font-semibold">Self Gotra</div>
                     <div class="font-bold text-gray-800">{{ $profile->gotra ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Maternal Gotra (Mama)</div>
+                    <div class="text-gray-500 font-semibold">Maternal Gotra (Mama)</div>
                     <div class="font-bold text-gray-800">{{ $profile->mama_gotra ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Manglik Status</div>
+                    <div class="text-gray-500 font-semibold">Manglik Status</div>
                     <div class="font-bold {{ strtolower($profile->manglik ?? '') === 'no' ? 'text-green-600' : 'text-red-600' }}">
                         {{ ucfirst($profile->manglik ?? 'N/A') }}
                     </div>
-                    <div class="text-gray-400 font-semibold">Languages Known</div>
+                    <div class="text-gray-500 font-semibold">Languages Known</div>
                     <div class="font-bold text-gray-800">{{ $profile->languages ?? 'N/A' }}</div>
                 </div>
             </div>
 
             {{-- Education & Career --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">Education & Career</h3>
-                <div class="grid grid-cols-2 gap-y-3 text-xs">
-                    <div class="text-gray-400 font-semibold">Highest Education</div>
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Education & Career</h3>
+                <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
+                    <div class="text-gray-500 font-semibold">Highest Education</div>
                     <div class="font-bold text-gray-800">{{ $profile->higher_education ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Occupation</div>
+                    <div class="text-gray-500 font-semibold">Occupation</div>
                     <div class="font-bold text-gray-800">{{ $profile->occupation ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Company / Firm</div>
+                    <div class="text-gray-500 font-semibold">Company / Firm</div>
                     <div class="font-bold text-gray-800">{{ $profile->company_name ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Designation</div>
+                    <div class="text-gray-500 font-semibold">Designation</div>
                     <div class="font-bold text-gray-800">{{ $profile->designation ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Monthly Income</div>
-                    <div class="font-bold text-gray-800">{{ $profile->monthly_income ? '₹ ' . number_format($profile->monthly_income) : 'N/A' }}</div>
+                    <div class="text-gray-500 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</div>
+                    <div class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</div>
                 </div>
             </div>
 
             {{-- Family Details --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">Family Details</h3>
-                <div class="grid grid-cols-2 gap-y-3 text-xs">
-                    <div class="text-gray-400 font-semibold">Father's Name</div>
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Family Details</h3>
+                <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
+                    <div class="text-gray-500 font-semibold">Father's Name</div>
                     <div class="font-bold text-gray-800">{{ $profile->father_name ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Father's Occupation</div>
+                    <div class="text-gray-500 font-semibold">Father's Occupation</div>
                     <div class="font-bold text-gray-800">{{ $profile->father_occupation ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Mother's Name</div>
+                    <div class="text-gray-500 font-semibold">Mother's Name</div>
                     <div class="font-bold text-gray-800">{{ $profile->mother_name ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Mother's Occupation</div>
+                    <div class="text-gray-500 font-semibold">Mother's Occupation</div>
                     <div class="font-bold text-gray-800">{{ $profile->mother_occupation ?? 'N/A' }}</div>
-                    <div class="text-gray-400 font-semibold">Brothers</div>
+                    <div class="text-gray-500 font-semibold">Brothers</div>
                     <div class="font-bold text-gray-800">
                         {{ $profile->brothers ?? 0 }}
                         (Married: {{ $profile->brothers_married ?? 0 }}, Unmarried: {{ $profile->brothers_unmarried ?? 0 }})
                     </div>
-                    <div class="text-gray-400 font-semibold">Sisters</div>
+                    <div class="text-gray-500 font-semibold">Sisters</div>
                     <div class="font-bold text-gray-800">
                         {{ $profile->sisters ?? 0 }}
                         (Married: {{ $profile->sisters_married ?? 0 }}, Unmarried: {{ $profile->sisters_unmarried ?? 0 }})
@@ -183,36 +195,36 @@
 
             {{-- References & Community --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">References & Community</h3>
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">References & Community</h3>
 
                 <div class="mb-3">
-                    <span class="text-gray-400 font-semibold text-xs">Mandir / Community</span>
-                    <p class="font-bold text-gray-800 text-xs mt-1">{{ $profile->mandir_name ?? ($profile->mandir ?? 'N/A') }}</p>
+                    <span class="text-gray-500 font-bold text-sm sm:text-base">Mandir / Community</span>
+                    <p class="font-bold text-gray-800 text-sm sm:text-base mt-1">{{ $profile->mandir_name ?? ($profile->mandir ?? 'N/A') }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {{-- Reference 1 --}}
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                        <h4 class="font-bold text-gray-700 text-xs mb-3 border-b border-gray-200 pb-2">Reference 1</h4>
-                        <div class="grid grid-cols-2 gap-y-2 text-xs">
-                            <div class="text-gray-400 font-semibold">Name</div>
+                        <h4 class="font-bold text-gray-700 text-sm sm:text-base mb-3 border-b border-gray-200 pb-2">Reference 1</h4>
+                        <div class="grid grid-cols-2 gap-y-2 text-sm sm:text-base">
+                            <div class="text-gray-500 font-semibold">Name</div>
                             <div class="font-bold text-gray-800">{{ $profile->ref1_name ?? 'N/A' }}</div>
-                            <div class="text-gray-400 font-semibold">Mobile</div>
+                            <div class="text-gray-500 font-semibold">Mobile</div>
                             <div class="font-bold text-gray-800">{{ $profile->ref1_mobile ?? 'N/A' }}</div>
-                            <div class="text-gray-400 font-semibold">Relation</div>
+                            <div class="text-gray-500 font-semibold">Relation</div>
                             <div class="font-bold text-gray-800">{{ $profile->ref1_relation ?? 'N/A' }}</div>
                         </div>
                     </div>
 
                     {{-- Reference 2 --}}
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                        <h4 class="font-bold text-gray-700 text-xs mb-3 border-b border-gray-200 pb-2">Reference 2</h4>
-                        <div class="grid grid-cols-2 gap-y-2 text-xs">
-                            <div class="text-gray-400 font-semibold">Name</div>
+                        <h4 class="font-bold text-gray-700 text-sm sm:text-base mb-3 border-b border-gray-200 pb-2">Reference 2</h4>
+                        <div class="grid grid-cols-2 gap-y-2 text-sm sm:text-base">
+                            <div class="text-gray-500 font-semibold">Name</div>
                             <div class="font-bold text-gray-800">{{ $profile->ref2_name ?? 'N/A' }}</div>
-                            <div class="text-gray-400 font-semibold">Mobile</div>
+                            <div class="text-gray-500 font-semibold">Mobile</div>
                             <div class="font-bold text-gray-800">{{ $profile->ref2_mobile ?? 'N/A' }}</div>
-                            <div class="text-gray-400 font-semibold">Relation</div>
+                            <div class="text-gray-500 font-semibold">Relation</div>
                             <div class="font-bold text-gray-800">{{ $profile->ref2_relation ?? 'N/A' }}</div>
                         </div>
                     </div>
@@ -222,11 +234,11 @@
             {{-- Additional Custom Fields (EAV) --}}
             @if($customData->count() > 0)
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">Additional Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Additional Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base">
                     @foreach($customData as $data)
                         <div class="grid grid-cols-2">
-                            <div class="text-gray-400 font-semibold">{{ $data->field->field_label }}</div>
+                            <div class="text-gray-500 font-semibold">{{ $data->field->field_label }}</div>
                             <div class="font-bold text-gray-800">{{ $data->field_value ?? 'N/A' }}</div>
                         </div>
                     @endforeach
@@ -236,8 +248,8 @@
 
             {{-- Contact Information --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
-                <h3 class="font-extrabold text-dark text-xs uppercase tracking-wider border-l-2 border-primary pl-2">Contact Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-200 text-xs">
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Contact Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-200 text-sm sm:text-base">
                         <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-phone mr-1"></i> Mobile:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->mobile }}</span></div>
                         <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-envelope mr-1"></i> Email:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->email }}</span></div>
                         <div class="md:col-span-2 mt-1"><span class="text-emerald-800 font-bold"><i class="fa-solid fa-map-location mr-1"></i> Current Address:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->current_address ?? 'N/A' }}</span></div>
@@ -247,8 +259,8 @@
 
             {{-- Partner Preferences --}}
             <div class="bg-slate-50 rounded-xl border p-6 space-y-3 md:col-span-2">
-                <h3 class="font-extrabold text-primary text-xs uppercase tracking-wider"><i class="fas fa-heart mr-1"></i> Partner Preferences</h3>
-                <p class="text-gray-600 text-xs leading-relaxed italic">
+                <h3 class="font-extrabold text-primary text-sm sm:text-base uppercase tracking-wider"><i class="fas fa-heart mr-1"></i> Partner Preferences</h3>
+                <p class="text-gray-600 text-sm sm:text-base leading-relaxed italic">
                     "{{ $profile->partner_preference ?? 'Not specified by the candidate.' }}"
                 </p>
             </div>
@@ -319,7 +331,7 @@
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Monthly Income</strong> : &nbsp;{{ $profile->monthly_income ? number_format($profile->monthly_income) : 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
           </div>
 
           <div style="margin-bottom:3px;">

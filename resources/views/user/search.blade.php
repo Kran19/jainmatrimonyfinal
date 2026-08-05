@@ -91,9 +91,9 @@
                     <!-- 7. Gender -->
                     <div>
                         <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-700">
-                            <option value="">All</option>
-                            <option value="Girl" {{ request('gender') === 'Girl' ? 'selected' : '' }}>Girl</option>
-                            <option value="Boy" {{ request('gender') === 'Boy' ? 'selected' : '' }}>Boy</option>
+                            <option value="" {{ ($gender ?? '') === '' ? 'selected' : '' }}>All</option>
+                            <option value="Girl" {{ ($gender ?? '') === 'Girl' ? 'selected' : '' }}>Girl</option>
+                            <option value="Boy" {{ ($gender ?? '') === 'Boy' ? 'selected' : '' }}>Boy</option>
                         </select>
                     </div>
 

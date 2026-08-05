@@ -41,6 +41,35 @@ class AppServiceProvider extends ServiceProvider
                     \Illuminate\Support\Facades\DB::table('users')->whereNull('deletion_count')->update(['deletion_count' => 0]);
                     \Illuminate\Support\Facades\DB::table('users')->where('status', 'deleted')->where('deletion_count', 0)->update(['deletion_count' => 1]);
                 }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'approval_date')) {
+                    \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                        $table->date('approval_date')->nullable();
+                    });
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'expiry_date')) {
+                    \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                        $table->date('expiry_date')->nullable();
+                    });
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'income_type')) {
+                    \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                        $table->string('income_type', 50)->default('Yearly');
+                    });
+                }
+                // One-time update for existing users
+                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'approval_date')) {
+                    $hasUnmigrated = \Illuminate\Support\Facades\DB::table('users')
+                        ->whereNull('approval_date')
+                        ->exists();
+                    if ($hasUnmigrated) {
+                        \Illuminate\Support\Facades\DB::table('users')
+                            ->whereNull('approval_date')
+                            ->update([
+                                'approval_date' => '2026-07-31',
+                                'expiry_date' => '2027-07-31',
+                            ]);
+                    }
+                }
             }
         } catch (\Throwable $e) {
             // Ignore if DB connection or permissions issue during boot

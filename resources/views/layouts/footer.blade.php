@@ -38,8 +38,8 @@
     <div class="container mx-auto px-4 md:px-8 py-12">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-                <h3 class="text-2xl font-bold text-accent mb-4">Digambar Jain Parichay Sammelan Samiti, Ahmedabad</h3>
-                <p class="text-gray-300 mb-6">Exclusive matrimony platform for the Digambar Jain Samaj. Find your perfect life partner within the community.</p>
+                <h3 class="text-2xl font-bold text-accent mb-4">दिगम्बर जैन परिचय मेट्रीमोनीयल</h3>
+                <p class="text-gray-300 mb-6">दिगम्बर जैन समाज के विवाह योग्य युवक-युवतियों के जीवनसाथी चयन में सहायक एकमात्र वेबसाईट</p>
                 <div class="flex space-x-4">
                     <a href="https://www.facebook.com/profile.php?id=61591451942555" target="_blank" aria-label="Facebook Page" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition text-white">
                         <i class="fab fa-facebook-f"></i>
@@ -70,7 +70,7 @@
             <div>
                 <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
                 <ul class="space-y-2 text-gray-300">
-                    <li><strong>Digambar Jain Parichay Sammelan Samiti, Ahmedabad</strong></li>
+                    <li><strong>दिगम्बर जैन परिचय मेट्रीमोनीयल</strong></li>
                     <li><i class="fab fa-whatsapp mr-2"></i> WhatsApp: {{ $contact_phone }}</li>
                     <li><i class="fas fa-envelope mr-2"></i> {{ $contact_email }}</li>
                     <li><i class="fas fa-map-marker-alt mr-2"></i> {{ $contact_address }}</li>

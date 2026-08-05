@@ -20,16 +20,20 @@ class ProfileSearchController extends Controller
         
         // Default target gender is opposite of logged-in candidate
         $defaultGender = $me->gender === 'Male' ? 'Female' : 'Male';
-        $gender = $request->input('gender');
-
-        // Normalize gender input from Girl/Boy to Female/Male
+        
         $genderVal = null;
-        if ($gender === 'Girl') {
-            $genderVal = 'Female';
-        } elseif ($gender === 'Boy') {
-            $genderVal = 'Male';
-        } elseif (in_array($gender, ['Female', 'Male'])) {
-            $genderVal = $gender;
+        if ($request->has('gender')) {
+            $gender = $request->input('gender');
+            if ($gender === 'Girl') {
+                $genderVal = 'Female';
+            } elseif ($gender === 'Boy') {
+                $genderVal = 'Male';
+            } elseif (in_array($gender, ['Female', 'Male'])) {
+                $genderVal = $gender;
+            }
+        } else {
+            $genderVal = $defaultGender;
+            $gender = $defaultGender === 'Female' ? 'Girl' : 'Boy';
         }
 
         // Build list of liked IDs for this user
@@ -48,12 +52,24 @@ class ProfileSearchController extends Controller
 
         // 1. Filter by Match ID
         if ($request->filled('match_id')) {
-            $query->where('profile_id', trim($request->match_id));
+            $matchIdVal = trim($request->match_id);
+            $cleanMatchId = preg_replace('/^[MF]-?/i', '', $matchIdVal);
+            $query->where(function($q) use ($matchIdVal, $cleanMatchId) {
+                $q->where('profile_id', 'like', "%{$matchIdVal}%")
+                  ->orWhere('profile_id', 'like', "%{$cleanMatchId}%")
+                  ->orWhere('users.id', '=', $cleanMatchId);
+            });
         }
 
         // 2. Filter by City / Native Place
         if ($request->filled('city')) {
-            $query->where('native_place', 'like', "%{$request->city}%");
+            $cityVal = trim($request->city);
+            $query->where(function ($q) use ($cityVal) {
+                $q->where('native_place', 'like', "%{$cityVal}%")
+                  ->orWhere('current_address', 'like', "%{$cityVal}%")
+                  ->orWhere('permanent_address', 'like', "%{$cityVal}%")
+                  ->orWhere('birth_place', 'like', "%{$cityVal}%");
+            });
         }
 
         // 3. Filter by State
@@ -140,6 +156,40 @@ class ProfileSearchController extends Controller
                       ->orWhere('higher_education', '=', 'CS')
                       ->orWhere('higher_education', 'like', '%Company Secretary%');
                 });
+            } elseif ($edu === 'Graduate') {
+                $query->where(function ($q) {
+                    $q->where('higher_education', 'like', '%B.Com%')
+                      ->orWhere('higher_education', 'like', '%BCom%')
+                      ->orWhere('higher_education', 'like', '%B.Sc%')
+                      ->orWhere('higher_education', 'like', '%BSc%')
+                      ->orWhere('higher_education', 'like', '%B.A%')
+                      ->orWhere('higher_education', 'like', '%B.Tech%')
+                      ->orWhere('higher_education', 'like', '%B Tech%')
+                      ->orWhere('higher_education', 'like', '%B.E%')
+                      ->orWhere('higher_education', 'like', '%BE%')
+                      ->orWhere('higher_education', 'like', '%BBA%')
+                      ->orWhere('higher_education', 'like', '%BCA%')
+                      ->orWhere('higher_education', 'like', '%Bachelor%')
+                      ->orWhere('higher_education', 'like', '%Graduat%');
+                });
+            } elseif ($edu === 'Post Graduate') {
+                $query->where(function ($q) {
+                    $q->where('higher_education', 'like', '%M.Com%')
+                      ->orWhere('higher_education', 'like', '%MCom%')
+                      ->orWhere('higher_education', 'like', '%M.Sc%')
+                      ->orWhere('higher_education', 'like', '%MSc%')
+                      ->orWhere('higher_education', 'like', '%M.A%')
+                      ->orWhere('higher_education', 'like', '%M.Tech%')
+                      ->orWhere('higher_education', 'like', '%M Tech%')
+                      ->orWhere('higher_education', 'like', '%M.E%')
+                      ->orWhere('higher_education', 'like', '%ME%')
+                      ->orWhere('higher_education', 'like', '%MBA%')
+                      ->orWhere('higher_education', 'like', '%MCA%')
+                      ->orWhere('higher_education', 'like', '%CS%')
+                      ->orWhere('higher_education', 'like', '%CA%')
+                      ->orWhere('higher_education', 'like', '%Master%')
+                      ->orWhere('higher_education', 'like', '%Post Graduat%');
+                });
             } else {
                 $query->where('higher_education', 'like', "%{$edu}%");
             }
@@ -157,12 +207,47 @@ class ProfileSearchController extends Controller
 
         // 6. Filter by Marital Status
         if ($request->filled('marital') && $request->marital !== 'All') {
-            $query->where('marital_status', $request->marital);
+            $maritalVal = trim($request->marital);
+            if ($maritalVal === 'Unmarried') {
+                $maritalVal = 'Never Married';
+            } elseif ($maritalVal === 'Divorcee') {
+                $maritalVal = 'Divorce';
+            }
+            $query->where('marital_status', $maritalVal);
         }
 
         // 7. Filter by Occupation
         if ($request->filled('occupation') && $request->occupation !== 'Occupation All') {
-            $query->where('occupation', 'like', "%{$request->occupation}%");
+            $occVal = trim($request->occupation);
+            if ($occVal === 'Business') {
+                $query->where(function ($q) {
+                    $q->where('occupation', 'like', '%Business%')
+                      ->orWhere('occupation', 'like', '%Self Employed%')
+                      ->orWhere('occupation', 'like', '%Owner%')
+                      ->orWhere('occupation', 'like', '%Entrepreneur%');
+                });
+            } elseif ($occVal === 'Service') {
+                $query->where(function ($q) {
+                    $q->where('occupation', 'like', '%Job%')
+                      ->orWhere('occupation', 'like', '%Service%')
+                      ->orWhere('occupation', 'like', '%Private%')
+                      ->orWhere('occupation', 'like', '%Govt%')
+                      ->orWhere('occupation', 'like', '%Government%')
+                      ->orWhere('occupation', 'like', '%Employee%');
+                });
+            } elseif ($occVal === 'Not Working') {
+                $query->where(function ($q) {
+                    $q->where('occupation', 'like', '%Housewife%')
+                      ->orWhere('occupation', 'like', '%Retired%')
+                      ->orWhere('occupation', 'like', '%Unemployed%')
+                      ->orWhere('occupation', 'like', '%Student%')
+                      ->orWhere('occupation', 'like', '%Not Working%')
+                      ->orWhere('occupation', '=', '')
+                      ->orWhereNull('occupation');
+                });
+            } else {
+                $query->where('occupation', 'like', "%{$occVal}%");
+            }
         }
 
         // 8. Filter by Age range

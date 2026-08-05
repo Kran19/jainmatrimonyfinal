@@ -120,6 +120,9 @@ class User extends Authenticatable
         'registration_step',
         'registration_count',
         'deletion_count',
+        'approval_date',
+        'expiry_date',
+        'income_type',
     ];
 
     /**

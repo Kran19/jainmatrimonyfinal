@@ -101,6 +101,7 @@ class MemberController extends Controller
             'mobile' => 'required|string|digits:10|unique:users,mobile,' . $member->id,
             'gender' => 'nullable|string|in:Male,Female',
             'status' => 'required|string|in:account_pending,account_approved,pending,approved,rejected,blocked,deleted',
+            'income_type' => 'nullable|string|in:Monthly,Yearly',
             'profile_photo_file' => 'nullable|image|max:10240',
             'horoscope_photo_file' => 'nullable|image|max:10240',
             'id_proof_photo_file' => 'nullable|image|max:10240',
@@ -138,6 +139,10 @@ class MemberController extends Controller
             $input['verified'] = true;
             $input['approved_by'] = Auth::guard('admin')->id();
             $input['approved_at'] = now();
+            if ($member->status !== 'approved' || empty($member->approval_date)) {
+                $input['approval_date'] = now()->toDateString();
+                $input['expiry_date'] = now()->addMonths(12)->toDateString();
+            }
             $input['is_public'] = true;
         } elseif (in_array($input['status'], ['blocked', 'deleted', 'rejected'])) {
             $input['is_public'] = false;
@@ -193,6 +198,10 @@ class MemberController extends Controller
             $updateData['verified'] = true;
             $updateData['approved_by'] = Auth::guard('admin')->id();
             $updateData['approved_at'] = now();
+            if ($member->status !== 'approved' || empty($member->approval_date)) {
+                $updateData['approval_date'] = now()->toDateString();
+                $updateData['expiry_date'] = now()->addMonths(12)->toDateString();
+            }
         }
 
         $member->update($updateData);

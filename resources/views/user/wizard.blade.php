@@ -448,9 +448,18 @@ if (!function_exists('renderCustomFieldHTML')) {
                             </div>
                             <input type="text" name="occupation_details" id="occupation_details" value="{{ ($curr_occ && $curr_occ != 'Job' && $curr_occ != 'Business') ? $curr_occ : '' }}" placeholder="Please specify occupation" class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-2 bg-white text-sm focus:border-primary {{ ($curr_occ && $curr_occ != 'Job' && $curr_occ != 'Business') ? '' : 'hidden' }}">
                         </div>
-                        <div>
-                            <label class="block text-gray-700 font-semibold mb-2">Candidate Annual Income (वार्षिक आय) *</label>
-                            <input type="number" name="annual_income" value="{{ $user->monthly_income }}" min="0" step="1" required placeholder="Yearly income amount (e.g., 500000)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Candidate Income Amount (आय राशि) *</label>
+                                <input type="number" name="annual_income" value="{{ $user->monthly_income }}" min="0" step="1" required placeholder="Income amount (e.g., 50000)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Income Type (आय का प्रकार) *</label>
+                                <select name="income_type" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                                    <option value="Monthly" {{ ($user->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                                    <option value="Yearly" {{ ($user->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Company/Firm Name (Optional)</label>

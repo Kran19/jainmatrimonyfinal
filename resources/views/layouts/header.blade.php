@@ -40,9 +40,9 @@
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <!-- Scrolling News (Home Page Only) -->
     @if(request()->routeIs('home') && !empty($scrolling_news))
-    <div class="bg-primary text-white text-sm py-2 overflow-hidden">
+    <div class="bg-primary text-white text-base sm:text-lg font-semibold py-2.5 overflow-hidden">
         <div class="container mx-auto px-4 flex items-center">
-            <span class="font-bold whitespace-nowrap bg-secondary px-3 py-1 rounded mr-3 shadow text-xs uppercase tracking-wider">News Updates</span>
+            <span class="font-bold whitespace-nowrap bg-secondary px-3 py-1 rounded mr-3 shadow text-xs sm:text-sm uppercase tracking-wider">News Updates</span>
             <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();" class="flex-grow">
                 @foreach ($scrolling_news as $s_news)
                     <span class="mx-4">

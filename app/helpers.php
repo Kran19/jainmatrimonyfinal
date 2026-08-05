@@ -180,3 +180,35 @@ if (!function_exists('parse_birth_time_for_db')) {
     }
 }
 
+if (!function_exists('format_indian_currency')) {
+    /**
+     * Format a numeric amount to Indian currency style (e.g. 50,000 or 6,00,000) with a rupee symbol.
+     *
+     * @param mixed $number
+     * @return string
+     */
+    function format_indian_currency($number): string
+    {
+        if (is_null($number) || $number === '' || $number === 'N/A') {
+            return 'N/A';
+        }
+        $numStr = preg_replace('/[^0-9]/', '', (string)$number);
+        if ($numStr === '') {
+            return 'N/A';
+        }
+        $number = (int)$numStr;
+        if ($number === 0) {
+            return '₹0';
+        }
+        $numStr = (string)$number;
+        $len = strlen($numStr);
+        if ($len <= 3) {
+            return '₹' . $numStr;
+        }
+        $lastThree = substr($numStr, -3);
+        $remaining = substr($numStr, 0, -3);
+        $remaining = preg_replace("/\B(?=(\d{2})+(?!\d))/", ",", $remaining);
+        return '₹' . $remaining . ',' . $lastThree;
+    }
+}
+

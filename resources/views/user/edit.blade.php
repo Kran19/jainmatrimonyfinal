@@ -233,9 +233,18 @@
                             <label class="block font-semibold text-gray-700 mb-1.5">Designation / Position</label>
                             <input type="text" name="designation" value="{{ old('designation', $user->designation) }}" placeholder="e.g. Senior Software Engineer / Manager / Owner" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Annual / Monthly Income (INR)</label>
-                            <input type="number" name="monthly_income" value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 500000">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1.5">Income Amount (INR)</label>
+                                <input type="number" name="monthly_income" value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 50000">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1.5">Income Type</label>
+                                <select name="income_type" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium bg-white">
+                                    <option value="Monthly" {{ old('income_type', $user->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                                    <option value="Yearly" {{ old('income_type', $user->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>

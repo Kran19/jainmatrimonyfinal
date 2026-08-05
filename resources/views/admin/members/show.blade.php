@@ -79,6 +79,23 @@
                         </span>
                         <span class="font-medium text-gray-900">{{ $member->profile_id ?? 'Not Assigned' }}</span>
                     </div>
+                    @if($member->approval_date && $member->expiry_date)
+                    <div class="flex justify-between items-center text-sm border-t pt-2 mt-2">
+                        <span class="text-gray-500 flex items-center gap-2">
+                            <i class="far fa-calendar-check w-4 text-center text-gray-400"></i> Approved Date
+                        </span>
+                        <span class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($member->approval_date)->format('d M Y') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-500 flex items-center gap-2">
+                            <i class="far fa-calendar-times w-4 text-center text-gray-400"></i> End Date
+                        </span>
+                        <span class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($member->expiry_date)->format('d M Y') }}</span>
+                    </div>
+                    <div class="mt-2 text-xs text-indigo-600 font-bold text-center bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                        Profile approval is valid for 12 months.
+                    </div>
+                    @endif
                     <div class="flex justify-between items-center text-sm">
                         <span class="text-gray-500 flex items-center gap-2">
                             <i class="fas fa-ring w-4 text-center text-gray-400"></i> Marital Status
@@ -319,9 +336,9 @@
                     </p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Monthly Income</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($member->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</p>
                     <p class="font-medium text-green-700">
-                        {{ $member->monthly_income ? '₹' . number_format($member->monthly_income, 2) : 'N/A' }}
+                        {{ format_indian_currency($member->monthly_income) }}
                     </p>
                 </div>
             </div>

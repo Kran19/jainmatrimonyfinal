@@ -191,6 +191,7 @@ class ProfileController extends Controller
             'company_name' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:100',
             'monthly_income' => 'nullable|numeric|min:0',
+            'income_type' => 'nullable|in:Monthly,Yearly',
             
             // Family
             'father_name' => 'nullable|string|max:255',
@@ -265,7 +266,7 @@ class ProfileController extends Controller
             'full_name', 'email', 'mobile', 'gender', 'are_you_digambar_jain', 'filled_by',
             'birth_date', 'birth_time', 'birth_place', 'native_place', 'cast', 'subcast', 'custom_subcast',
             'gotra', 'mama_gotra', 'manglik', 'height', 'weight', 'marital_status', 'handicapped',
-            'higher_education', 'occupation', 'company_name', 'designation', 'monthly_income',
+            'higher_education', 'occupation', 'company_name', 'designation', 'monthly_income', 'income_type',
             'father_name', 'father_mobile', 'father_occupation', 'father_income',
             'mother_name', 'mother_mobile', 'mother_occupation',
             'brothers', 'brothers_married', 'brothers_unmarried',

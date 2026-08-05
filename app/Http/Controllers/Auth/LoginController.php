@@ -129,7 +129,9 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        if (Auth::guard('admin')->check()) {
+        $isAdmin = Auth::guard('admin')->check();
+
+        if ($isAdmin) {
             Auth::guard('admin')->logout();
         } else {
             Auth::guard('web')->logout();
@@ -137,6 +139,10 @@ class LoginController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($isAdmin) {
+            return redirect()->route('admin.login-form');
+        }
 
         return redirect('/');
     }

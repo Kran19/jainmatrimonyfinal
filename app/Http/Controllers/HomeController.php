@@ -17,6 +17,25 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        // Daily check fallback: Deactivate expired member profiles
+        \Illuminate\Support\Facades\Cache::remember('daily_expired_profiles_check', 86400, function() {
+            try {
+                DB::table('users')
+                    ->where('status', 'approved')
+                    ->whereNotNull('expiry_date')
+                    ->where('expiry_date', '<', now()->toDateString())
+                    ->update([
+                        'status' => 'deactivated',
+                        'is_approved' => false,
+                        'verified' => false,
+                        'is_public' => false
+                    ]);
+            } catch (\Exception $e) {
+                // Ignore DB exceptions
+            }
+            return true;
+        });
+
         // 1. Fetch site settings with caching
         $settings = \Illuminate\Support\Facades\Cache::remember('site_settings', 300, function() {
             return Setting::pluck('setting_value', 'setting_key')->toArray();

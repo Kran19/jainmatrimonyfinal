@@ -34,3 +34,35 @@ Artisan::command('storage:link-safe', function () {
     }
     return 0;
 })->purpose('Create storage symlink safely without requiring exec() on shared hosting');
+
+Illuminate\Support\Facades\Schedule::call(function () {
+    $expiredUsersCount = Illuminate\Support\Facades\DB::table('users')
+        ->where('status', 'approved')
+        ->whereNotNull('expiry_date')
+        ->where('expiry_date', '<', now()->toDateString())
+        ->update([
+            'status' => 'deactivated',
+            'is_approved' => false,
+            'verified' => false,
+            'is_public' => false
+        ]);
+    
+    if ($expiredUsersCount > 0) {
+        Illuminate\Support\Facades\Log::info("Auto-deactivated {$expiredUsersCount} expired member profiles.");
+    }
+})->daily();
+
+Artisan::command('members:deactivate-expired', function () {
+    $expiredUsersCount = Illuminate\Support\Facades\DB::table('users')
+        ->where('status', 'approved')
+        ->whereNotNull('expiry_date')
+        ->where('expiry_date', '<', now()->toDateString())
+        ->update([
+            'status' => 'deactivated',
+            'is_approved' => false,
+            'verified' => false,
+            'is_public' => false
+        ]);
+    
+    $this->info("Successfully deactivated {$expiredUsersCount} expired member profiles.");
+})->purpose('Deactivate member profiles whose validity has expired');

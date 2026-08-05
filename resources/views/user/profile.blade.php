@@ -101,6 +101,19 @@
                                     <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-id-card w-4 text-center text-gray-400"></i> Profile ID</span>
                                     <span class="font-medium text-dark">{{ $user->profile_id ?? 'Not Assigned' }}</span>
                                 </div>
+                                @if($user->approval_date && $user->expiry_date)
+                                <div class="flex justify-between items-center text-sm border-t pt-2 mt-2">
+                                    <span class="text-gray-500 flex items-center gap-2"><i class="far fa-calendar-check w-4 text-center text-gray-400"></i> Created Date</span>
+                                    <span class="font-medium text-dark">{{ \Carbon\Carbon::parse($user->approval_date)->format('d M Y') }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-500 flex items-center gap-2"><i class="far fa-calendar-times w-4 text-center text-gray-400"></i> End Date</span>
+                                    <span class="font-medium text-dark">{{ \Carbon\Carbon::parse($user->expiry_date)->format('d M Y') }}</span>
+                                </div>
+                                <div class="mt-3 text-xs text-primary font-bold text-center bg-primary/5 p-2 rounded-lg border border-primary/10">
+                                    Your profile approval is valid for 12 months.
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -306,8 +319,8 @@
                                 </p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Monthly Income</p>
-                                <p class="font-medium text-dark">{{ $user->monthly_income ?? 'N/A' }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($user->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</p>
+                                <p class="font-medium text-dark">{{ format_indian_currency($user->monthly_income) }}</p>
                             </div>
                             <div class="sm:col-span-2">
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Partner Preferences</p>

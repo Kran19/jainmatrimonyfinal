@@ -30,6 +30,8 @@ class ProfileApprovalController extends Controller
             'verified' => true,
             'approved_by' => Auth::guard('admin')->id(),
             'approved_at' => now(),
+            'approval_date' => now()->toDateString(),
+            'expiry_date' => now()->addMonths(12)->toDateString(),
         ];
 
         // Generate profile_id if not already set

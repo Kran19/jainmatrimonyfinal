@@ -118,7 +118,7 @@
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Monthly Income</strong> : &nbsp;{{ $profile->monthly_income ? number_format($profile->monthly_income) : 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
           </div>
 
           <div style="margin-bottom:3px;">
