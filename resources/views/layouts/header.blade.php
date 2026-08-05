@@ -14,7 +14,7 @@
             </a>
             <div class="pl-4 mt-2 space-y-2">
                 <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} transition block">About Us</a>
-                <a href="{{ route('community') }}" class="{{ request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} transition block">Commity</a>
+                <a href="{{ route('community') }}" class="{{ request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} transition block">Committee </a>
             </div>
         </div>
         <a href="{{ route('stories') }}" class="{{ request()->routeIs('stories') ? 'text-primary font-bold' : 'text-dark hover:text-primary font-medium' }} transition text-lg">Success Story</a>
