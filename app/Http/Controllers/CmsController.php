@@ -83,13 +83,19 @@ class CmsController extends Controller
     }
 
     /**
-     * Display the Community Initiatives page.
+     * Display the Community Initiatives / Committee page.
      */
     public function community()
     {
         $community_content = Setting::where('setting_key', 'community_content')->value('setting_value') ?? '';
-        return view('cms.community', compact('community_content'));
+        $committeeMembers = \App\Models\CommitteeMember::where('status', true)
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+            
+        return view('cms.community', compact('community_content', 'committeeMembers'));
     }
+
 
     /**
      * Display the News & Updates listing page.

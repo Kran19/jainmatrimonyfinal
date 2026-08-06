@@ -303,6 +303,9 @@
             <a href="{{ route('admin.cms.stories.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/cms/stories*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-quote-left mr-3 w-5 text-center"></i>Success Stories
             </a>
+            <a href="{{ route('admin.cms.committee.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/cms/committee*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
+                <i class="fa-solid fa-users-gear mr-3 w-5 text-center"></i>Committee Members
+            </a>
             <a href="{{ route('admin.cms.ads.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/cms/ads*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-rectangle-ad mr-3 w-5 text-center"></i>Advertisements
             </a>

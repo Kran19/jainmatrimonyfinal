@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\RegistrationFieldController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\AccountApprovalController;
+use App\Http\Controllers\Admin\CommitteeController;
 
 // Utility & Maintenance Routes
 
@@ -233,6 +234,13 @@ Route::middleware('auth:admin')->group(function () {
     Route::match(['get', 'post'], '/admin/cms/ads/latest-profiles-bottom/toggle', [AdvertisementController::class, 'toggleLatestProfilesBottomSection'])->name('admin.cms.ads.latest-profiles-bottom.toggle-section');
     Route::post('/admin/cms/ads/latest-profiles-bottom', [AdvertisementController::class, 'updateLatestProfilesBottomAd'])->name('admin.cms.ads.latest-profiles-bottom.update');
     Route::delete('/admin/cms/ads/latest-profiles-bottom/image', [AdvertisementController::class, 'removeLatestProfilesBottomImage'])->name('admin.cms.ads.latest-profiles-bottom.remove-image');
+
+    // CMS Committee Members
+    Route::get('/admin/cms/committee', [CommitteeController::class, 'index'])->name('admin.cms.committee.index');
+    Route::post('/admin/cms/committee', [CommitteeController::class, 'store'])->name('admin.cms.committee.store');
+    Route::put('/admin/cms/committee/{member}', [CommitteeController::class, 'update'])->name('admin.cms.committee.update');
+    Route::post('/admin/cms/committee/{member}/toggle', [CommitteeController::class, 'toggle'])->name('admin.cms.committee.toggle');
+    Route::delete('/admin/cms/committee/{member}', [CommitteeController::class, 'destroy'])->name('admin.cms.committee.destroy');
 });
 
 // CMS Pages
