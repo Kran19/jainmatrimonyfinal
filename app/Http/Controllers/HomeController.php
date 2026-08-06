@@ -160,11 +160,12 @@ class HomeController extends Controller
         $index_profiles = \Illuminate\Support\Facades\Cache::remember('index_profiles_' . $gender_db, 180, function() use ($gender_db) {
             $index_profiles = [];
             try {
-                $profiles = User::whereIn('status', ['approved', 'pending'])
+                $profiles = User::approved()
                     ->where('gender', $gender_db)
                     ->orderBy('id', 'desc')
                     ->limit(4)
                     ->get();
+
 
                 $delay = 0;
                 foreach ($profiles as $p) {

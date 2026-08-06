@@ -7,8 +7,41 @@
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
             
-            <!-- Waiting for Approval Banner -->
-            @if($user->status !== 'approved')
+            <!-- Waiting for Approval / Rejected Banner -->
+            @if($user->status === 'rejected')
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 mb-8 rounded-r-lg shadow-sm" data-aos="fade-down">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-times-circle text-red-500 text-2xl mt-0.5"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-base font-bold text-red-800">
+                            Profile Rejected – Action Required
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p class="font-bold mb-1">Your profile has been rejected due to:</p>
+                            <div class="bg-red-100/50 p-3 rounded-lg border border-red-200/50 text-red-955 font-bold mb-4">
+                                {{ $user->rejection_reason }}
+                            </div>
+                            <p>
+                                Please complete the required details and resubmit your profile for approval. Until your profile is approved, your profile will remain hidden from other users.
+                            </p>
+                        </div>
+                        <div class="mt-4 flex gap-4">
+                            <a href="{{ route('profile.edit') }}" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fas fa-edit"></i> Edit Details
+                            </a>
+                            <form action="{{ route('profile.resubmit') }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fas fa-paper-plane"></i> Submit for Approval
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @elseif($user->status !== 'approved')
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg shadow-sm" data-aos="fade-down">
                 <div class="flex">
                     <div class="flex-shrink-0">
@@ -32,11 +65,12 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-8" data-aos="fade-up">
                 <h1 class="text-3xl md:text-4xl font-bold text-dark">My Profile</h1>
                 <div class="mt-4 md:mt-0 flex gap-4 flex-wrap">
-                    @if($user->status === 'approved')
+                    @if($user->status === 'approved' || $user->status === 'rejected')
                     <a href="{{ route('profile.edit') }}" class="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-opacity-90 shadow-md transition font-medium flex items-center gap-2">
                         <i class="fas fa-edit"></i> Edit Profile
                     </a>
                     @endif
+
 
                     <form action="{{ route('profile.delete') }}" method="POST" class="inline-block">
                         @csrf
@@ -99,8 +133,13 @@
                                 </div>
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-id-card w-4 text-center text-gray-400"></i> Profile ID</span>
-                                    <span class="font-medium text-dark">{{ $user->profile_id ?? 'Not Assigned' }}</span>
+                                    @if($user->status === 'rejected')
+                                        <span class="font-bold text-red-650 flex items-center gap-1"><i class="fas fa-lock"></i> Locked</span>
+                                    @else
+                                        <span class="font-medium text-dark">{{ $user->profile_id ?? 'Not Assigned' }}</span>
+                                    @endif
                                 </div>
+
                                 @if($user->approval_date && $user->expiry_date)
                                 <div class="flex justify-between items-center text-sm border-t pt-2 mt-2">
                                     <span class="text-gray-500 flex items-center gap-2"><i class="far fa-calendar-check w-4 text-center text-gray-400"></i> Created Date</span>

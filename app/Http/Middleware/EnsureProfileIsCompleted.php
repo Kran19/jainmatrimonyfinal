@@ -22,8 +22,13 @@ class EnsureProfileIsCompleted
                 if (!$request->is('registration-wizard*') && !$request->routeIs('logout')) {
                     return redirect()->route('registration.wizard');
                 }
+            } elseif ($user->status === 'rejected') {
+                // Allow rejected users to view, edit, and resubmit their profile
+                if (!$request->is('profile*') && !$request->routeIs('logout')) {
+                    return redirect()->route('profile.my');
+                }
             } elseif ($user->status !== 'approved') {
-                // Any status other than approved (pending, rejected, blocked, etc.)
+                // Any status other than approved or rejected (pending, blocked, account_pending, etc.)
                 // Restrict them to the waiting-approval page, but allow viewing their profile
                 if (!$request->is('waiting-approval*') && !$request->routeIs('logout') && !$request->routeIs('profile.my')) {
                     return redirect()->route('waiting.approval');
@@ -34,6 +39,7 @@ class EnsureProfileIsCompleted
                     return redirect()->route('user.dashboard');
                 }
             }
+
         }
 
         return $next($request);

@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\RegistrationField;
+use App\Models\UserStatusLog;
+use App\Notifications\ProfileApprovedNotification;
+use App\Notifications\ProfileRejectedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 
 class MemberController extends Controller
 {
@@ -185,6 +189,7 @@ class MemberController extends Controller
     {
         $request->validate([
             'status' => 'required|in:account_pending,account_approved,pending,approved,rejected,blocked',
+            'rejection_reason' => 'required_if:status,rejected|nullable|string|max:1000',
         ]);
 
         $status = $request->status;
@@ -202,12 +207,59 @@ class MemberController extends Controller
                 $updateData['approval_date'] = now()->toDateString();
                 $updateData['expiry_date'] = now()->addMonths(12)->toDateString();
             }
+            // Clear rejection details
+            $updateData['rejection_reason'] = null;
+            $updateData['rejected_at'] = null;
+            $updateData['rejected_by'] = null;
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+                $updateData['is_approved'] = true;
+            }
+        } elseif ($status === 'rejected') {
+            $updateData['rejected_at'] = now();
+            $updateData['rejected_by'] = Auth::guard('admin')->id();
+            $updateData['rejection_reason'] = $request->rejection_reason;
+            $updateData['approved_at'] = null;
+            $updateData['approved_by'] = null;
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+                $updateData['is_approved'] = false;
+            }
+        } else {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+                $updateData['is_approved'] = false;
+            }
         }
 
         $member->update($updateData);
 
+        // Log status change
+        try {
+            UserStatusLog::create([
+                'user_id' => $member->id,
+                'status' => $status,
+                'reason' => $status === 'rejected' ? $request->rejection_reason : ($status === 'approved' ? 'Profile approved by admin.' : 'Status modified by admin.'),
+                'performed_by' => Auth::guard('admin')->id(),
+                'performed_by_type' => 'admin',
+            ]);
+        } catch (\Exception $e) {
+            logger()->error("Failed to log status change: " . $e->getMessage());
+        }
+
+        // Notify user
+        try {
+            if ($status === 'approved') {
+                $member->notify(new ProfileApprovedNotification());
+            } elseif ($status === 'rejected') {
+                $member->notify(new ProfileRejectedNotification($request->rejection_reason));
+            }
+        } catch (\Exception $e) {
+            logger()->error("Failed to notify user of status update: " . $e->getMessage());
+        }
+
         return back()->with('success', "Member status updated to " . ucfirst($status) . " successfully.");
     }
+
 
     /**
      * Remove the member from system (SoftDelete).

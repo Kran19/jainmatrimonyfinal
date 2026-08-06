@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserStatusLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Notifications\ProfileApprovedNotification;
+use App\Notifications\ProfileRejectedNotification;
 
 class ProfileApprovalController extends Controller
 {
@@ -32,7 +34,14 @@ class ProfileApprovalController extends Controller
             'approved_at' => now(),
             'approval_date' => now()->toDateString(),
             'expiry_date' => now()->addMonths(12)->toDateString(),
+            'rejection_reason' => null,
+            'rejected_at' => null,
+            'rejected_by' => null,
         ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+            $updateData['is_approved'] = true;
+        }
 
         // Generate profile_id if not already set
         if (empty($member->profile_id)) {
@@ -40,6 +49,19 @@ class ProfileApprovalController extends Controller
         }
 
         $member->update($updateData);
+
+        // Log status change
+        try {
+            UserStatusLog::create([
+                'user_id' => $member->id,
+                'status' => 'approved',
+                'reason' => 'Profile approved by admin.',
+                'performed_by' => Auth::guard('admin')->id(),
+                'performed_by_type' => 'admin',
+            ]);
+        } catch (\Exception $e) {
+            logger()->error("Failed to log status change: " . $e->getMessage());
+        }
 
         // Notify user
         try {
@@ -57,9 +79,44 @@ class ProfileApprovalController extends Controller
      */
     public function reject(Request $request, User $member)
     {
-        $member->update([
-            'status' => 'rejected',
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000',
         ]);
+
+        $updateData = [
+            'status' => 'rejected',
+            'rejected_at' => now(),
+            'rejected_by' => Auth::guard('admin')->id(),
+            'rejection_reason' => $request->rejection_reason,
+            'approved_at' => null,
+            'approved_by' => null,
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+            $updateData['is_approved'] = false;
+        }
+
+        $member->update($updateData);
+
+        // Log status change
+        try {
+            UserStatusLog::create([
+                'user_id' => $member->id,
+                'status' => 'rejected',
+                'reason' => $request->rejection_reason,
+                'performed_by' => Auth::guard('admin')->id(),
+                'performed_by_type' => 'admin',
+            ]);
+        } catch (\Exception $e) {
+            logger()->error("Failed to log status change: " . $e->getMessage());
+        }
+
+        // Notify user
+        try {
+            $member->notify(new ProfileRejectedNotification($request->rejection_reason));
+        } catch (\Exception $e) {
+            logger()->error("Failed to notify user of rejection: " . $e->getMessage());
+        }
 
         return redirect()->route('admin.approvals.index')
             ->with('success', "Profile for {$member->full_name} has been rejected.");
@@ -79,3 +136,4 @@ class ProfileApprovalController extends Controller
         return $profileId;
     }
 }
+

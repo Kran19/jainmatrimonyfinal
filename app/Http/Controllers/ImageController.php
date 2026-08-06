@@ -68,6 +68,25 @@ class ImageController extends Controller
             }
         }
 
+        // Gating profile/family photos of non-approved users from public view
+        if (Str::contains($filePath, ['_photo_', '_family_', 'profile_photos', 'family_photos'])) {
+            $filename = basename($filePath);
+            $owner = \App\Models\User::where(function($q) use ($filename) {
+                $q->where('profile_photo', 'like', '%' . $filename . '%')
+                  ->orWhere('family_photo', 'like', '%' . $filename . '%');
+            })->first();
+
+            if ($owner && $owner->status !== 'approved') {
+                $isAdmin = Auth::guard('admin')->check();
+                $isOwner = Auth::guard('web')->check() && Auth::guard('web')->id() === $owner->id;
+                
+                if (!$isAdmin && !$isOwner) {
+                    return $this->servePlaceholder("Profile Under Review");
+                }
+            }
+        }
+
+
         // 2. Normalize relative file path
         $safePath = str_replace(['..', '\\'], ['', '/'], $filePath);
         $safePath = ltrim($safePath, '/');
@@ -211,4 +230,22 @@ class ImageController extends Controller
             ->header('Content-Type', 'image/svg+xml')
             ->header('Cache-Control', 'no-cache');
     }
+
+    /**
+     * Serve dynamic SVG placeholder for hidden profiles under review.
+     */
+    private function servePlaceholder($text)
+    {
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300" fill="none">
+            <rect width="300" height="300" fill="#f1f5f9"/>
+            <circle cx="150" cy="110" r="50" fill="#cbd5e1"/>
+            <path d="M150 170 C90 170 70 210 70 230 C70 250 230 250 230 230 C230 210 210 170 150 170 Z" fill="#cbd5e1"/>
+            <text x="150" y="270" fill="#64748b" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">' . htmlspecialchars($text) . '</text>
+        </svg>';
+        
+        return response($svg)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Cache-Control', 'public, max-age=86400');
+    }
 }
+

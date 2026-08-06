@@ -105,12 +105,9 @@
                                 </button>
                             </form>
                             
-                            <form action="{{ route('admin.approvals.reject', $member->id) }}" method="POST" class="inline" onsubmit="return confirm('Reject this profile?');">
-                                @csrf
-                                <button type="submit" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition">
-                                    Reject
-                                </button>
-                            </form>
+                            <button type="button" onclick="rejectProfile({{ $member->id }}, '{{ addslashes($member->full_name) }}')" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition">
+                                Reject
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -131,4 +128,107 @@
     </div>
     @endif
 </div>
+
+<script>
+function rejectProfile(memberId, memberName) {
+    Swal.fire({
+        title: 'Reject Profile',
+        html: `
+            <div class="text-left space-y-4">
+                <p class="text-sm text-gray-600 mb-3" style="text-align: left; font-size: 14px; color: #4b5563;">Please select or enter the rejection reason for <strong>${memberName}</strong>:</p>
+                <select id="swal-rejection-select" class="swal2-select" style="display: block; width: 100%; margin: 10px 0; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+                    <option value="">Select a reason</option>
+                    <option value="Missing education details">Missing education details</option>
+                    <option value="Missing occupation details">Missing occupation details</option>
+                    <option value="Invalid ID proof">Invalid ID proof</option>
+                    <option value="Low-quality profile photo">Low-quality profile photo</option>
+                    <option value="custom">Custom Reason...</option>
+                </select>
+                <div id="swal-custom-reason-container" style="display: none;">
+                    <textarea id="swal-custom-reason" class="swal2-textarea" placeholder="Type custom reason here..." style="display: block; width: 100%; height: 80px; margin: 10px 0; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; resize: none;"></textarea>
+                </div>
+            </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Reject Profile',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        didOpen: () => {
+            const selectEl = document.getElementById('swal-rejection-select');
+            const customContainer = document.getElementById('swal-custom-reason-container');
+            const customInput = document.getElementById('swal-custom-reason');
+            
+            selectEl.addEventListener('change', () => {
+                if (selectEl.value === 'custom') {
+                    customContainer.style.display = 'block';
+                    setTimeout(() => customInput.focus(), 100);
+                } else {
+                    customContainer.style.display = 'none';
+                }
+            });
+        },
+        preConfirm: () => {
+            const selectValue = document.getElementById('swal-rejection-select').value;
+            const customValue = document.getElementById('swal-custom-reason').value;
+            
+            if (!selectValue) {
+                Swal.showValidationMessage('You must select a reason.');
+                return false;
+            }
+            
+            if (selectValue === 'custom' && (!customValue || customValue.trim() === '')) {
+                Swal.showValidationMessage('Custom reason cannot be empty.');
+                return false;
+            }
+            
+            return selectValue === 'custom' ? customValue.trim() : selectValue;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitRejection(memberId, result.value);
+        }
+    });
+}
+
+
+function submitRejection(memberId, reason) {
+    try {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/approvals/' + memberId + '/reject';
+
+        // Get CSRF token from meta tag (preferred) or from any existing CSRF input on the page
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        const existingCsrf = document.querySelector('input[name="_token"]');
+        const csrfValue = metaTag
+            ? metaTag.getAttribute('content')
+            : (existingCsrf ? existingCsrf.value : '');
+
+        if (!csrfValue) {
+            Swal.fire('Error', 'CSRF token missing. Please refresh the page and try again.', 'error');
+            return;
+        }
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfValue;
+        form.appendChild(csrfInput);
+
+        const reasonInput = document.createElement('input');
+        reasonInput.type = 'hidden';
+        reasonInput.name = 'rejection_reason';
+        reasonInput.value = reason;
+        form.appendChild(reasonInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    } catch (err) {
+        Swal.fire('Error', 'Could not submit rejection: ' + err.message, 'error');
+    }
+
+}
+</script>
 @endsection
+

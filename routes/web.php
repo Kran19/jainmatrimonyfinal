@@ -102,8 +102,10 @@ Route::middleware(['auth:web', 'profile.completed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'myProfile'])->name('profile.my');
     Route::get('/profile/edit', [ProfileController::class, 'showEditForm'])->name('profile.edit');
     Route::post('/profile/edit', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/resubmit', [ProfileController::class, 'resubmit'])->name('profile.resubmit');
     Route::post('/profile/payment', [ProfileController::class, 'uploadPayment'])->name('profile.payment.upload');
     Route::delete('/profile', [ProfileController::class, 'deleteProfile'])->name('profile.delete');
+
     
     Route::get('/success-stories/add', [MediaController::class, 'addSuccessStory'])->name('success-stories.add');
     Route::post('/success-stories/add', [MediaController::class, 'storeSuccessStory'])->name('success-stories.store');
@@ -251,3 +253,5 @@ Route::get('/waiting-approval', function () {
     }
     return view('auth.waiting-approval');
 })->name('waiting.approval');
+
+

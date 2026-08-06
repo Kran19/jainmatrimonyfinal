@@ -91,12 +91,8 @@
     
     <!-- Custom CSS -->
     <style>
-        /* Prevent Flash of Unstyled Content (FOUC) and hide Tailwind-hidden elements early */
-        .hidden {
-            display: none !important;
-        }
-
         * {
+
             margin: 0;
             padding: 0;
             box-sizing: border-box;

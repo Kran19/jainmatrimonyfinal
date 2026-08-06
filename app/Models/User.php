@@ -123,6 +123,10 @@ class User extends Authenticatable
         'approval_date',
         'expiry_date',
         'income_type',
+        'rejection_reason',
+        'rejected_at',
+        'rejected_by',
+        'submitted_for_review_at',
     ];
 
     /**
@@ -165,6 +169,8 @@ class User extends Authenticatable
         return [
             'birth_date' => 'date',
             'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
+            'submitted_for_review_at' => 'datetime',
             'featured_until' => 'date',
             'verified' => 'boolean',
             'is_public' => 'boolean',
@@ -200,6 +206,11 @@ class User extends Authenticatable
     }
 
     /* Relationships */
+    public function statusLogs()
+    {
+        return $this->hasMany(UserStatusLog::class, 'user_id');
+    }
+
     public function customData()
     {
         return $this->hasMany(UserCustomData::class, 'user_id');
@@ -229,6 +240,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Admin::class, 'approved_by');
     }
+
 
     /**
      * Determine if candidate has a valid profile photo on disk or as data URI.

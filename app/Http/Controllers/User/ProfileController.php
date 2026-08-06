@@ -461,4 +461,37 @@ class ProfileController extends Controller
         // 6. Display exact required message
         return redirect()->route('login')->with('success', 'Your account has been deleted successfully.');
     }
+
+    /**
+     * Resubmit candidate profile for review after rejection.
+     */
+    public function resubmit(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->status !== 'rejected') {
+            return back()->with('error', 'Only rejected profiles can be resubmitted.');
+        }
+
+        $user->update([
+            'status' => 'pending',
+            'submitted_for_review_at' => now(),
+        ]);
+
+        // Log status change
+        try {
+            \App\Models\UserStatusLog::create([
+                'user_id' => $user->id,
+                'status' => 'pending',
+                'reason' => 'User resubmitted profile for approval.',
+                'performed_by' => $user->id,
+                'performed_by_type' => 'user',
+            ]);
+        } catch (\Exception $e) {
+            logger()->error("Failed to log status change on resubmit: " . $e->getMessage());
+        }
+
+        return redirect()->route('profile.my')->with('success', 'Your profile has been submitted for approval again.');
+    }
 }
+
