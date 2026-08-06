@@ -125,25 +125,41 @@ class LoginController extends Controller
     }
 
     /**
-     * Handle logout.
+     * Logout a regular user (web guard).
+     * Always redirects to the user login page.
      */
-    public function logout(Request $request)
+    public function logoutUser(Request $request)
     {
-        $isAdmin = Auth::guard('admin')->check();
-
-        if ($isAdmin) {
-            Auth::guard('admin')->logout();
-        } else {
-            Auth::guard('web')->logout();
-        }
+        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout(); // Clear admin session too, just in case
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        if ($isAdmin) {
-            return redirect()->route('admin.login-form');
-        }
+        return redirect()->route('login');
+    }
 
-        return redirect('/');
+    /**
+     * Logout an admin (admin guard).
+     * Always redirects to the admin login page.
+     */
+    public function logoutAdmin(Request $request)
+    {
+        Auth::guard('admin')->logout();
+        Auth::guard('web')->logout(); // Clear user session too, just in case
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login-form');
+    }
+
+    /**
+     * Shared logout (backward-compatible alias → user logout).
+     * @deprecated Use logoutUser() or logoutAdmin() via dedicated routes.
+     */
+    public function logout(Request $request)
+    {
+        return $this->logoutUser($request);
     }
 }

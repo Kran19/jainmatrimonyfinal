@@ -41,6 +41,30 @@
                     </div>
                 </div>
             </div>
+            @elseif($user->status === 'pending')
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-r-lg shadow-sm" data-aos="fade-down">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock text-yellow-500 text-2xl mt-0.5"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-base font-bold text-yellow-800">
+                            Profile Under Review
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>
+                                Your profile is currently under review by our administration team. Approvals usually take 24–48 hours.
+                                <strong>You can still update your profile details</strong> while you wait — the admin will always see your latest version.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-1.5 bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+                                <i class="fas fa-edit"></i> Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
             @elseif($user->status !== 'approved')
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg shadow-sm" data-aos="fade-down">
                 <div class="flex">
@@ -65,7 +89,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-8" data-aos="fade-up">
                 <h1 class="text-3xl md:text-4xl font-bold text-dark">My Profile</h1>
                 <div class="mt-4 md:mt-0 flex gap-4 flex-wrap">
-                    @if($user->status === 'approved' || $user->status === 'rejected')
+                    @if(in_array($user->status, ['approved', 'rejected', 'pending']))
                     <a href="{{ route('profile.edit') }}" class="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-opacity-90 shadow-md transition font-medium flex items-center gap-2">
                         <i class="fas fa-edit"></i> Edit Profile
                     </a>

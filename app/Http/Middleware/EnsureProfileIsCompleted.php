@@ -27,9 +27,14 @@ class EnsureProfileIsCompleted
                 if (!$request->is('profile*') && !$request->routeIs('logout')) {
                     return redirect()->route('profile.my');
                 }
+            } elseif ($user->status === 'pending') {
+                // Pending users can view and edit their profile while awaiting admin review.
+                // They should NOT be able to browse other candidates or access approved-only pages.
+                if (!$request->is('waiting-approval*') && !$request->is('profile*') && !$request->routeIs('logout')) {
+                    return redirect()->route('waiting.approval');
+                }
             } elseif ($user->status !== 'approved') {
-                // Any status other than approved or rejected (pending, blocked, account_pending, etc.)
-                // Restrict them to the waiting-approval page, but allow viewing their profile
+                // Any other status (blocked, account_pending, etc.) — restrict to waiting page only
                 if (!$request->is('waiting-approval*') && !$request->routeIs('logout') && !$request->routeIs('profile.my')) {
                     return redirect()->route('waiting.approval');
                 }

@@ -91,8 +91,11 @@ Route::middleware('guest:admin')->group(function () {
     Route::post('/admin/login', [LoginController::class, 'adminLogin'])->name('admin.login');
 });
 
-// Shared Logout Route
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Logout Routes
+Route::post('/logout', [LoginController::class, 'logoutUser'])->name('logout');            // User logout → /login
+Route::post('/user/logout', [LoginController::class, 'logoutUser'])->name('user.logout');  // Explicit user logout
+Route::post('/admin/logout', [LoginController::class, 'logoutAdmin'])->name('admin.logout'); // Admin logout → /admin/login
+
 
 Route::get('/image', [ImageController::class, 'serve'])->name('image.serve');
 Route::get('/gallery', [MediaController::class, 'gallery'])->name('gallery');

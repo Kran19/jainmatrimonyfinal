@@ -54,11 +54,15 @@
                     <div class="text-indigo-600 text-3xl flex-shrink-0">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <h4 class="font-bold text-indigo-950 text-base">Verification in Progress</h4>
                         <p class="text-sm text-indigo-700 mt-1 leading-relaxed">
-                            Thank you! Your profile has been submitted and is currently undergoing admin review. We will verify your mandir and references. You will be notified once activated.
+                            Thank you! Your profile has been submitted and is currently undergoing admin review.
+                            <strong>You can still edit your profile</strong> while you wait — the admin will always see your most up-to-date information.
                         </p>
+                        <a href="{{ route('profile.edit') }}" class="mt-4 inline-flex items-center gap-1.5 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition shadow-sm">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i> Edit My Profile
+                        </a>
                     </div>
                 </div>
             @elseif($user->status === 'approved')

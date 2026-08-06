@@ -314,7 +314,7 @@
                 <i class="fa-solid fa-circle-user text-2xl text-secondary mr-3"></i>
                 <div class="text-sm font-bold text-slate-700 truncate">{{ Auth::guard('admin')->user()->name ?? 'Admin User' }}</div>
             </div>
-            <form action="{{ route('logout') }}" method="POST">
+            <form action="{{ route('admin.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center px-4 py-2 bg-pink-100 hover:bg-secondary text-secondary hover:text-white rounded-xl text-sm font-bold transition duration-150 shadow-sm hover:shadow-md hover:shadow-secondary/30">
                     <i class="fa-solid fa-right-from-bracket mr-2"></i>Sign Out
