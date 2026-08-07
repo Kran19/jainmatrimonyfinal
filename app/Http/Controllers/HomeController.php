@@ -41,33 +41,36 @@ class HomeController extends Controller
             return Setting::pluck('setting_value', 'setting_key')->toArray();
         });
 
-        // 2. Session-based unique visitor counter (increments by 1 per new session only).
-        //    Excludes admin visits. Does NOT use a shared time-lock that skips real users.
+        // 2. Visitor counter — count each unique visitor.
+        //    Excludes admins, bots, and browser prefetch requests.
         try {
-            if (!Auth::guard('admin')->check() && !$request->session()->has('visitor_counted')) {
-                // Mark this session so subsequent requests don't re-count
-                $request->session()->put('visitor_counted', true);
+            $isBotOrPrefetch = $request->hasHeader('X-Purpose') || $request->hasHeader('Sec-Purpose')
+                || $request->header('Purpose') === 'prefetch';
 
-                // Atomically increment in DB (read current → write current+1)
-                $currentCount = (int) DB::table('site_settings')
+            if (!Auth::guard('admin')->check() && !$isBotOrPrefetch) {
+                // If this session has not been counted yet
+                if (!$request->session()->has('visitor_counted')) {
+                    $request->session()->put('visitor_counted', true);
+
+                    // Fetch current count to safely increment
+                    $currentValue = DB::table('site_settings')
+                        ->where('setting_key', 'visitor_count')
+                        ->value('setting_value');
+
+                    $newCount = (int)$currentValue + 1;
+
+                    DB::table('site_settings')->updateOrInsert(
+                        ['setting_key' => 'visitor_count'],
+                        ['setting_value' => (string)$newCount, 'updated_at' => now()]
+                    );
+
+                    // Bust cache so the dashboard/site shows the fresh count
+                    \Illuminate\Support\Facades\Cache::forget('site_settings');
+                }
+
+                $settings['visitor_count'] = (int) DB::table('site_settings')
                     ->where('setting_key', 'visitor_count')
                     ->value('setting_value');
-
-                $newCount = $currentCount + 1;
-
-                DB::table('site_settings')->updateOrInsert(
-                    ['setting_key' => 'visitor_count'],
-                    ['setting_value' => (string)$newCount, 'updated_at' => now()]
-                );
-
-                // Bust the settings cache so the admin panel shows the fresh count
-                \Illuminate\Support\Facades\Cache::forget('site_settings');
-                $settings['visitor_count'] = $newCount;
-            } else {
-                // Already counted this session — just read the stored value
-                $settings['visitor_count'] = isset($settings['visitor_count'])
-                    ? (int)$settings['visitor_count']
-                    : (int) DB::table('site_settings')->where('setting_key', 'visitor_count')->value('setting_value');
             }
         } catch (\Exception $e) {
             // Silence DB exception if read-only or table missing
