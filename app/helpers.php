@@ -192,11 +192,11 @@ if (!function_exists('format_indian_currency')) {
         if (is_null($number) || $number === '' || $number === 'N/A') {
             return 'N/A';
         }
-        $numStr = preg_replace('/[^0-9]/', '', (string)$number);
-        if ($numStr === '') {
+        $numStr = preg_replace('/[^0-9.]/', '', (string)$number);
+        if ($numStr === '' || $numStr === '.') {
             return 'N/A';
         }
-        $number = (int)$numStr;
+        $number = (int)round((float)$numStr);
         if ($number === 0) {
             return '₹0';
         }
