@@ -68,9 +68,9 @@ class HomeController extends Controller
                     \Illuminate\Support\Facades\Cache::forget('site_settings');
                 }
 
-                $settings['visitor_count'] = (int) DB::table('site_settings')
-                    ->where('setting_key', 'visitor_count')
-                    ->value('setting_value');
+                // Force reload the settings array so the current page load has the updated count
+                $settings = Setting::pluck('setting_value', 'setting_key')->toArray();
+                \Illuminate\Support\Facades\Cache::put('site_settings', $settings, 300);
             }
         } catch (\Exception $e) {
             // Silence DB exception if read-only or table missing
