@@ -134,11 +134,15 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-150 flex flex-col justify-between">
                     <!-- Photo Header -->
                     <div class="h-48 bg-slate-100 relative">
-                        @php
-                            $photoExists = !empty($profile->profile_photo) && (str_starts_with($profile->profile_photo, 'data:image/') || resolve_media_path($profile->profile_photo) !== null);
-                        @endphp
-                        @if($photoExists)
-                            <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo" class="w-full h-full object-contain object-center bg-slate-200">
+                        @if(!empty($profile->profile_photo))
+                            @php
+                                // Use direct asset URL for public files; fallback to image controller for private storage
+                                $isPublicPhoto = str_starts_with($profile->profile_photo, 'imports/') || str_starts_with($profile->profile_photo, 'uploads/');
+                                $photoSrc = $isPublicPhoto
+                                    ? asset($profile->profile_photo)
+                                    : route('image.serve', ['file' => $profile->profile_photo]);
+                            @endphp
+                            <img src="{{ $photoSrc }}" alt="Photo" class="w-full h-full object-contain object-center bg-slate-200">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-slate-300 font-black text-6xl">
                                 {{ substr($profile->full_name, 0, 1) }}
