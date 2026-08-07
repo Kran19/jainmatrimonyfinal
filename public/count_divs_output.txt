@@ -1,0 +1,3 @@
+HTML Tag Balance Analysis for user/detail.blade.php:
+=================================================
+Success! All checked tags are perfectly balanced.

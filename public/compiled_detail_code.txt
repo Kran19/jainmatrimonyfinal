@@ -1,9 +1,7 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', $profile->full_name . ' - Profile Details'); ?>
 
-@section('title', $profile->full_name . ' - Profile Details')
-
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
     $me = Auth::user();
     $activePlan = $me->memberships()
         ->where('status', 'active')
@@ -22,30 +20,31 @@
     $isLiked = \App\Models\UserLike::where('user_id', $me->id)
         ->where('liked_user_id', $profile->id)
         ->exists();
-@endphp
+?>
 
 <section class="py-12 bg-light min-h-screen">
     <div class="container mx-auto px-4 max-w-5xl">
 
-        {{-- Breadcrumb & Action Buttons --}}
+        
         <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between" data-aos="fade-up">
             <nav class="text-xs text-gray-500 mb-4 md:mb-0 flex items-center gap-1.5 font-medium">
-                <a href="{{ route('home') }}" class="hover:text-primary transition">Home</a>
+                <a href="<?php echo e(route('home')); ?>" class="hover:text-primary transition">Home</a>
                 <i class="fas fa-chevron-right text-[10px]"></i>
-                <a href="{{ $backUrl }}" class="hover:text-primary transition font-bold">Search Directory</a>
+                <a href="<?php echo e($backUrl); ?>" class="hover:text-primary transition font-bold">Search Directory</a>
                 <i class="fas fa-chevron-right text-[10px]"></i>
-                <span class="text-dark">{{ $profile->full_name }} [MID: {{ $profile->profile_id }}]</span>
+                <span class="text-dark"><?php echo e($profile->full_name); ?> [MID: <?php echo e($profile->profile_id); ?>]</span>
             </nav>
 
             <div class="flex gap-2.5">
-                {{-- Like / Unlike Button --}}
+                
                 <button id="like-btn"
-                    data-id="{{ $profile->id }}"
+                    data-id="<?php echo e($profile->id); ?>"
                     class="border font-extrabold text-xs px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition
-                           {{ $isLiked ? 'bg-primary text-white border-primary' : 'border-primary text-primary hover:bg-primary hover:text-white' }}"
-                    title="{{ $isLiked ? 'Unlike' : 'Like' }}">
-                    <i class="{{ $isLiked ? 'fas' : 'far' }} fa-heart"></i>
-                    {{ $isLiked ? 'Liked' : 'Like Profile' }}
+                           <?php echo e($isLiked ? 'bg-primary text-white border-primary' : 'border-primary text-primary hover:bg-primary hover:text-white'); ?>"
+                    title="<?php echo e($isLiked ? 'Unlike' : 'Like'); ?>">
+                    <i class="<?php echo e($isLiked ? 'fas' : 'far'); ?> fa-heart"></i>
+                    <?php echo e($isLiked ? 'Liked' : 'Like Profile'); ?>
+
                 </button>
 
                 <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition">
@@ -54,61 +53,49 @@
             </div>
         </div>
 
-        {{-- Main Profile Card --}}
+        
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8" data-aos="fade-up">
             <div class="flex flex-col md:flex-row">
-                {{-- Profile Image --}}
+                
                 <div class="w-full md:w-1/3 profile-image-container border-r border-gray-100">
-                    @if($profile->profile_photo)
-                        @php
-                            // Use direct asset URL for public files (faster, avoids PHP single-thread blocking)
-                            $publicPrefixes = ['imports/', 'uploads/'];
-                            $isPublicFile = false;
-                            foreach ($publicPrefixes as $prefix) {
-                                if (str_starts_with($profile->profile_photo, $prefix)) {
-                                    $isPublicFile = true;
-                                    break;
-                                }
-                            }
-                            $photoUrl = $isPublicFile
-                                ? asset($profile->profile_photo)
-                                : route('image.serve', ['file' => $profile->profile_photo]);
-                        @endphp
-                        <img src="{{ $photoUrl }}" alt="Photo of {{ $profile->full_name }}" class="profile-image">
-                    @else
+                    <?php if($profile->profile_photo): ?>
+                        <img src="<?php echo e(route('image.serve', ['file' => $profile->profile_photo])); ?>" alt="Photo of <?php echo e($profile->full_name); ?>" class="profile-image">
+                    <?php else: ?>
                         <div class="w-full h-full flex items-center justify-center bg-slate-100 font-bold text-6xl text-slate-300">
-                            {{ substr($profile->full_name, 0, 1) }}
+                            <?php echo e(substr($profile->full_name, 0, 1)); ?>
+
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
 
-                {{-- Core Details Summary --}}
+                
                 <div class="w-full md:w-2/3 p-6 md:p-8 flex flex-col justify-start">
                     <h2 class="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
-                        {{ $profile->full_name }}
-                        <span class="text-sm md:text-base font-bold text-primary block mt-1 font-mono uppercase tracking-wider">ID: {{ $profile->profile_id }}</span>
+                        <?php echo e($profile->full_name); ?>
+
+                        <span class="text-sm md:text-base font-bold text-primary block mt-1 font-mono uppercase tracking-wider">ID: <?php echo e($profile->profile_id); ?></span>
                     </h2>
-                    <p class="text-sm text-gray-500 font-semibold mt-1"><i class="fas fa-map-marker-alt text-primary mr-1"></i> Native: {{ $profile->native_place ?? 'N/A' }}</p>
+                    <p class="text-sm text-gray-500 font-semibold mt-1"><i class="fas fa-map-marker-alt text-primary mr-1"></i> Native: <?php echo e($profile->native_place ?? 'N/A'); ?></p>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base font-semibold text-gray-700 mt-6 bg-slate-50 p-4 rounded-xl border border-gray-100">
-                        <div class="flex items-center gap-2"><i class="far fa-calendar-alt text-primary w-5 text-center"></i> {{ $age }}, {{ $profile->height ?? 'N/A' }}</div>
-                        <div class="flex items-center gap-2"><i class="fas fa-graduation-cap text-primary w-5 text-center"></i> {{ $profile->higher_education ?? 'N/A' }}</div>
-                        <div class="flex items-center gap-2"><i class="fas fa-briefcase text-primary w-5 text-center"></i> {{ $profile->occupation ?? 'N/A' }}</div>
-                        <div class="flex items-center gap-2"><i class="fas fa-ring text-primary w-5 text-center"></i> {{ $profile->marital_status ?? 'N/A' }}</div>
-                        <div class="flex items-center gap-2"><i class="fas fa-language text-primary w-5 text-center"></i> {{ $profile->languages ?? 'N/A' }}</div>
-                        <div class="flex items-center gap-2"><i class="fas fa-om text-primary w-5 text-center"></i> Subcaste: {{ $profile->subcast ?? 'N/A' }}</div>
+                        <div class="flex items-center gap-2"><i class="far fa-calendar-alt text-primary w-5 text-center"></i> <?php echo e($age); ?>, <?php echo e($profile->height ?? 'N/A'); ?></div>
+                        <div class="flex items-center gap-2"><i class="fas fa-graduation-cap text-primary w-5 text-center"></i> <?php echo e($profile->higher_education ?? 'N/A'); ?></div>
+                        <div class="flex items-center gap-2"><i class="fas fa-briefcase text-primary w-5 text-center"></i> <?php echo e($profile->occupation ?? 'N/A'); ?></div>
+                        <div class="flex items-center gap-2"><i class="fas fa-ring text-primary w-5 text-center"></i> <?php echo e($profile->marital_status ?? 'N/A'); ?></div>
+                        <div class="flex items-center gap-2"><i class="fas fa-language text-primary w-5 text-center"></i> <?php echo e($profile->languages ?? 'N/A'); ?></div>
+                        <div class="flex items-center gap-2"><i class="fas fa-om text-primary w-5 text-center"></i> Subcaste: <?php echo e($profile->subcast ?? 'N/A'); ?></div>
                     </div>
 
                     <div class="mt-8 space-y-3">
                         <h4 class="font-extrabold text-sm sm:text-base text-dark uppercase tracking-wider border-l-2 border-primary pl-2">Hobbies & Interests</h4>
-                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{ $profile->hobbies ?? 'Not specified' }}</p>
-                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed"><strong class="text-gray-700">Physical Challenges:</strong> {{ $profile->handicapped ?? 'None' }}</p>
+                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed"><?php echo e($profile->hobbies ?? 'Not specified'); ?></p>
+                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed"><strong class="text-gray-700">Physical Challenges:</strong> <?php echo e($profile->handicapped ?? 'None'); ?></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        @if($profile->approval_date && $profile->expiry_date && $me && $me->id === $profile->id)
+        <?php if($profile->approval_date && $profile->expiry_date && $me && $me->id === $profile->id): ?>
         <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-8 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" data-aos="fade-up">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg flex-shrink-0">
@@ -122,172 +109,175 @@
             <div class="text-sm bg-white p-3 rounded-xl border border-blue-100/50 flex gap-6 self-start sm:self-auto">
                 <div>
                     <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Approved On</span>
-                    <span class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->approval_date)->format('d M Y') }}</span>
+                    <span class="font-bold text-gray-800"><?php echo e(\Carbon\Carbon::parse($profile->approval_date)->format('d M Y')); ?></span>
                 </div>
                 <div class="border-l border-gray-100 pl-6">
                     <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Expires On</span>
-                    <span class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($profile->expiry_date)->format('d M Y') }}</span>
+                    <span class="font-bold text-gray-800"><?php echo e(\Carbon\Carbon::parse($profile->expiry_date)->format('d M Y')); ?></span>
                 </div>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
 
-        {{-- Detail Sections Grid --}}
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm sm:text-base" data-aos="fade-up">
 
-            {{-- Personal Info --}}
+            
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Personal Information</h3>
                 <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
                     <div class="text-gray-500 font-semibold">Date of Birth</div>
-                    <div class="font-bold text-gray-800">{{ $profile->birth_date ? $profile->birth_date->format('d M Y') : 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->birth_date ? $profile->birth_date->format('d M Y') : 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Time of Birth</div>
-                    <div class="font-bold text-gray-800">{{ format_birth_time($profile->birth_time) }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e(format_birth_time($profile->birth_time)); ?></div>
                     <div class="text-gray-500 font-semibold">Birth Place</div>
-                    <div class="font-bold text-gray-800">{{ $profile->birth_place ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->birth_place ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Gender</div>
-                    <div class="font-bold text-gray-800">{{ $profile->gender ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->gender ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Weight</div>
-                    <div class="font-bold text-gray-800">{{ format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null)) }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e(format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null))); ?></div>
                     <div class="text-gray-500 font-semibold">Marital Status</div>
-                    <div class="font-bold text-gray-800">{{ $profile->marital_status ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->marital_status ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Disability</div>
-                    <div class="font-bold text-gray-800">{{ $profile->handicapped ?? 'None' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->handicapped ?? 'None'); ?></div>
                     <div class="text-gray-500 font-semibold">Native Place</div>
-                    <div class="font-bold text-gray-800">{{ $profile->native_place ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->native_place ?? 'N/A'); ?></div>
                 </div>
             </div>
 
-            {{-- Religious & Astro --}}
+            
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Religious & Astro Background</h3>
                 <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
                     <div class="text-gray-500 font-semibold">Subcaste</div>
-                    <div class="font-bold text-gray-800">{{ $profile->subcast ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->subcast ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Self Gotra</div>
-                    <div class="font-bold text-gray-800">{{ $profile->gotra ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->gotra ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Maternal Gotra (Mama)</div>
-                    <div class="font-bold text-gray-800">{{ $profile->mama_gotra ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->mama_gotra ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Manglik Status</div>
-                    <div class="font-bold {{ strtolower($profile->manglik ?? '') === 'no' ? 'text-green-600' : 'text-red-600' }}">
-                        {{ ucfirst($profile->manglik ?? 'N/A') }}
+                    <div class="font-bold <?php echo e(strtolower($profile->manglik ?? '') === 'no' ? 'text-green-600' : 'text-red-600'); ?>">
+                        <?php echo e(ucfirst($profile->manglik ?? 'N/A')); ?>
+
                     </div>
                     <div class="text-gray-500 font-semibold">Languages Known</div>
-                    <div class="font-bold text-gray-800">{{ $profile->languages ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->languages ?? 'N/A'); ?></div>
                 </div>
             </div>
 
-            {{-- Education & Career --}}
+            
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Education & Career</h3>
                 <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
                     <div class="text-gray-500 font-semibold">Highest Education</div>
-                    <div class="font-bold text-gray-800">{{ $profile->higher_education ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->higher_education ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Occupation</div>
-                    <div class="font-bold text-gray-800">{{ $profile->occupation ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->occupation ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Company / Firm</div>
-                    <div class="font-bold text-gray-800">{{ $profile->company_name ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->company_name ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Designation</div>
-                    <div class="font-bold text-gray-800">{{ $profile->designation ?? 'N/A' }}</div>
-                    <div class="text-gray-500 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</div>
-                    <div class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->designation ?? 'N/A'); ?></div>
+                    <div class="text-gray-500 font-semibold"><?php echo e(($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income'); ?></div>
+                    <div class="font-bold text-gray-800"><?php echo e(format_indian_currency($profile->monthly_income)); ?></div>
                 </div>
             </div>
 
-            {{-- Family Details --}}
+            
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Family Details</h3>
                 <div class="grid grid-cols-2 gap-y-3 text-sm sm:text-base">
                     <div class="text-gray-500 font-semibold">Father's Name</div>
-                    <div class="font-bold text-gray-800">{{ $profile->father_name ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->father_name ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Father's Occupation</div>
-                    <div class="font-bold text-gray-800">{{ $profile->father_occupation ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->father_occupation ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Mother's Name</div>
-                    <div class="font-bold text-gray-800">{{ $profile->mother_name ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->mother_name ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Mother's Occupation</div>
-                    <div class="font-bold text-gray-800">{{ $profile->mother_occupation ?? 'N/A' }}</div>
+                    <div class="font-bold text-gray-800"><?php echo e($profile->mother_occupation ?? 'N/A'); ?></div>
                     <div class="text-gray-500 font-semibold">Brothers</div>
                     <div class="font-bold text-gray-800">
-                        {{ $profile->brothers ?? 0 }}
-                        (Married: {{ $profile->brothers_married ?? 0 }}, Unmarried: {{ $profile->brothers_unmarried ?? 0 }})
+                        <?php echo e($profile->brothers ?? 0); ?>
+
+                        (Married: <?php echo e($profile->brothers_married ?? 0); ?>, Unmarried: <?php echo e($profile->brothers_unmarried ?? 0); ?>)
                     </div>
                     <div class="text-gray-500 font-semibold">Sisters</div>
                     <div class="font-bold text-gray-800">
-                        {{ $profile->sisters ?? 0 }}
-                        (Married: {{ $profile->sisters_married ?? 0 }}, Unmarried: {{ $profile->sisters_unmarried ?? 0 }})
+                        <?php echo e($profile->sisters ?? 0); ?>
+
+                        (Married: <?php echo e($profile->sisters_married ?? 0); ?>, Unmarried: <?php echo e($profile->sisters_unmarried ?? 0); ?>)
                     </div>
                 </div>
             </div>
 
-            {{-- References & Community --}}
+            
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">References & Community</h3>
 
                 <div class="mb-3">
                     <span class="text-gray-500 font-bold text-sm sm:text-base">Mandir / Community</span>
-                    <p class="font-bold text-gray-800 text-sm sm:text-base mt-1">{{ $profile->mandir_name ?? ($profile->mandir ?? 'N/A') }}</p>
+                    <p class="font-bold text-gray-800 text-sm sm:text-base mt-1"><?php echo e($profile->mandir_name ?? ($profile->mandir ?? 'N/A')); ?></p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {{-- Reference 1 --}}
+                    
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
                         <h4 class="font-bold text-gray-700 text-sm sm:text-base mb-3 border-b border-gray-200 pb-2">Reference 1</h4>
                         <div class="grid grid-cols-2 gap-y-2 text-sm sm:text-base">
                             <div class="text-gray-500 font-semibold">Name</div>
-                            <div class="font-bold text-gray-800">{{ $profile->ref1_name ?? 'N/A' }}</div>
+                            <div class="font-bold text-gray-800"><?php echo e($profile->ref1_name ?? 'N/A'); ?></div>
                             <div class="text-gray-500 font-semibold">Mobile</div>
-                            <div class="font-bold text-gray-800">{{ $profile->ref1_mobile ?? 'N/A' }}</div>
+                            <div class="font-bold text-gray-800"><?php echo e($profile->ref1_mobile ?? 'N/A'); ?></div>
                             <div class="text-gray-500 font-semibold">Relation</div>
-                            <div class="font-bold text-gray-800">{{ $profile->ref1_relation ?? 'N/A' }}</div>
+                            <div class="font-bold text-gray-800"><?php echo e($profile->ref1_relation ?? 'N/A'); ?></div>
                         </div>
                     </div>
 
-                    {{-- Reference 2 --}}
+                    
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
                         <h4 class="font-bold text-gray-700 text-sm sm:text-base mb-3 border-b border-gray-200 pb-2">Reference 2</h4>
                         <div class="grid grid-cols-2 gap-y-2 text-sm sm:text-base">
                             <div class="text-gray-500 font-semibold">Name</div>
-                            <div class="font-bold text-gray-800">{{ $profile->ref2_name ?? 'N/A' }}</div>
+                            <div class="font-bold text-gray-800"><?php echo e($profile->ref2_name ?? 'N/A'); ?></div>
                             <div class="text-gray-500 font-semibold">Mobile</div>
-                            <div class="font-bold text-gray-800">{{ $profile->ref2_mobile ?? 'N/A' }}</div>
+                            <div class="font-bold text-gray-800"><?php echo e($profile->ref2_mobile ?? 'N/A'); ?></div>
                             <div class="text-gray-500 font-semibold">Relation</div>
-                            <div class="font-bold text-gray-800">{{ $profile->ref2_relation ?? 'N/A' }}</div>
+                            <div class="font-bold text-gray-800"><?php echo e($profile->ref2_relation ?? 'N/A'); ?></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Additional Custom Fields (EAV) --}}
-            @if($customData->count() > 0)
+            
+            <?php if($customData->count() > 0): ?>
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Additional Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base">
-                    @foreach($customData as $data)
+                    <?php $__currentLoopData = $customData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="grid grid-cols-2">
-                            <div class="text-gray-500 font-semibold">{{ $data->field->field_label }}</div>
-                            <div class="font-bold text-gray-800">{{ $data->field_value ?? 'N/A' }}</div>
+                            <div class="text-gray-500 font-semibold"><?php echo e($data->field->field_label); ?></div>
+                            <div class="font-bold text-gray-800"><?php echo e($data->field_value ?? 'N/A'); ?></div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
-            {{-- Contact Information --}}
+            
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
                 <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">Contact Information</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-200 text-sm sm:text-base">
-                        <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-phone mr-1"></i> Mobile:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->mobile }}</span></div>
-                        <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-envelope mr-1"></i> Email:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->email }}</span></div>
-                        <div class="md:col-span-2 mt-1"><span class="text-emerald-800 font-bold"><i class="fa-solid fa-map-location mr-1"></i> Current Address:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->current_address ?? 'N/A' }}</span></div>
-                        <div class="md:col-span-2"><span class="text-emerald-800 font-bold"><i class="fa-solid fa-home mr-1"></i> Permanent Address:</span> <span class="font-black text-slate-900 ml-1">{{ $profile->permanent_address ?? 'N/A' }} {{ $profile->pin_code ?? '' }}</span></div>
+                        <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-phone mr-1"></i> Mobile:</span> <span class="font-black text-slate-900 ml-1"><?php echo e($profile->mobile); ?></span></div>
+                        <div><span class="text-emerald-800 font-bold"><i class="fa-solid fa-envelope mr-1"></i> Email:</span> <span class="font-black text-slate-900 ml-1"><?php echo e($profile->email); ?></span></div>
+                        <div class="md:col-span-2 mt-1"><span class="text-emerald-800 font-bold"><i class="fa-solid fa-map-location mr-1"></i> Current Address:</span> <span class="font-black text-slate-900 ml-1"><?php echo e($profile->current_address ?? 'N/A'); ?></span></div>
+                        <div class="md:col-span-2"><span class="text-emerald-800 font-bold"><i class="fa-solid fa-home mr-1"></i> Permanent Address:</span> <span class="font-black text-slate-900 ml-1"><?php echo e($profile->permanent_address ?? 'N/A'); ?> <?php echo e($profile->pin_code ?? ''); ?></span></div>
                     </div>
             </div>
 
-            {{-- Partner Preferences --}}
+            
             <div class="bg-slate-50 rounded-xl border p-6 space-y-3 md:col-span-2">
                 <h3 class="font-extrabold text-primary text-sm sm:text-base uppercase tracking-wider"><i class="fas fa-heart mr-1"></i> Partner Preferences</h3>
                 <p class="text-gray-600 text-sm sm:text-base leading-relaxed italic">
-                    "{{ $profile->partner_preference ?? 'Not specified by the candidate.' }}"
+                    "<?php echo e($profile->partner_preference ?? 'Not specified by the candidate.'); ?>"
                 </p>
             </div>
 
@@ -295,8 +285,8 @@
     </div>
 </section>
 
-{{-- HIDDEN PDF CARD TEMPLATE --}}
-@php
+
+<?php
     $gc = (strtolower($profile->gender ?? '') === 'female') ? 'F' : 'M';
     $rawNum = preg_replace('/[^0-9]/', '', $profile->profile_id ?: $profile->id);
     $pnum = !empty($rawNum) ? $rawNum : $profile->id;
@@ -320,21 +310,23 @@
         $parentMobiles[] = preg_replace('/^\+?91/', '', $profile->mother_mobile);
     }
     $parentMobileStr = count($parentMobiles) > 0 ? implode(' / ', $parentMobiles) : ($profile->mobile ?? 'N/A');
-@endphp
+?>
 <div id="pdf-content" style="display:none; font-family:Arial, sans-serif; width:720px; background:#ffffff; padding:0; margin:0 auto; color:#111; box-sizing:border-box;">
   <div style="border:3px solid #0f1754; background:#ffffff;">
     
     <!-- Top Pill Badge Row -->
     <div style="text-align:center; padding:8px 0; background:#ffffff; border-bottom:2px solid #0f1754;">
       <span style="display:inline-block; border:2px solid #0f1754; border-radius:4px; padding:3px 24px; font-size:16px; font-weight:bold; color:#0f1754; font-family:'Courier New', Courier, monospace, Arial, sans-serif; letter-spacing:1px;">
-        {{ $badgeCode }}
+        <?php echo e($badgeCode); ?>
+
       </span>
     </div>
 
     <!-- Candidate Name Dark Blue Header Bar -->
     <div style="background:#0f1754; padding:12px 16px; border-bottom:2px solid #0f1754;">
       <h2 style="color:#ffffff; font-size:20px; font-weight:bold; margin:0; text-transform:uppercase; font-family:Arial, sans-serif; letter-spacing:0.5px;">
-        {{ $profile->full_name }}
+        <?php echo e($profile->full_name); ?>
+
       </h2>
     </div>
 
@@ -345,55 +337,67 @@
         <td style="vertical-align:top; padding:12px 16px; font-size:13px; border-right:2px solid #0f1754; width:62%; line-height:1.8; color:#111;">
           
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Education</strong> : &nbsp;{{ $profile->higher_education ?? 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Education</strong> : &nbsp;<?php echo e($profile->higher_education ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Occu. / Firm</strong> : &nbsp;{{ $profile->occupation ?? 'N/A' }}@if(!empty($profile->company_name)) ({{ $profile->company_name }})@endif
+            <strong style="color:#000; width:130px; display:inline-block;">Occu. / Firm</strong> : &nbsp;<?php echo e($profile->occupation ?? 'N/A'); ?><?php if(!empty($profile->company_name)): ?> (<?php echo e($profile->company_name); ?>)<?php endif; ?>
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Designation</strong> : &nbsp;{{ $profile->designation ?? '' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Designation</strong> : &nbsp;<?php echo e($profile->designation ?? ''); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
+            <strong style="color:#000; width:130px; display:inline-block;"><?php echo e(($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income'); ?></strong> : &nbsp;<?php echo e(format_indian_currency($profile->monthly_income)); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Mobile</strong> : &nbsp;{{ $profile->mobile }}
+            <strong style="color:#000; width:130px; display:inline-block;">Mobile</strong> : &nbsp;<?php echo e($profile->mobile); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Hobbies</strong> : &nbsp;{{ $profile->hobbies ?? 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Hobbies</strong> : &nbsp;<?php echo e($profile->hobbies ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Father</strong> : &nbsp;{{ $profile->father_name ?? 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Father</strong> : &nbsp;<?php echo e($profile->father_name ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Father's Occupation</strong> : &nbsp;{{ $profile->father_occupation ?? 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Father's Occupation</strong> : &nbsp;<?php echo e($profile->father_occupation ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Parent's M. No.</strong> : &nbsp;{{ $parentMobileStr }}
+            <strong style="color:#000; width:130px; display:inline-block;">Parent's M. No.</strong> : &nbsp;<?php echo e($parentMobileStr); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Mother</strong> : &nbsp;{{ $profile->mother_name ?? 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Mother</strong> : &nbsp;<?php echo e($profile->mother_name ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Brothers</strong> : &nbsp;Married {{ $profile->brothers_married ?? 0 }} &nbsp;Unmarried {{ $profile->brothers_unmarried ?? 0 }}
+            <strong style="color:#000; width:130px; display:inline-block;">Brothers</strong> : &nbsp;Married <?php echo e($profile->brothers_married ?? 0); ?> &nbsp;Unmarried <?php echo e($profile->brothers_unmarried ?? 0); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">Sisters</strong> : &nbsp;Married {{ $profile->sisters_married ?? 0 }} &nbsp;Unmarried {{ $profile->sisters_unmarried ?? 0 }}
+            <strong style="color:#000; width:130px; display:inline-block;">Sisters</strong> : &nbsp;Married <?php echo e($profile->sisters_married ?? 0); ?> &nbsp;Unmarried <?php echo e($profile->sisters_unmarried ?? 0); ?>
+
           </div>
 
           <div style="margin-bottom:3px; word-break:break-word;">
-            <strong style="color:#000; width:130px; display:inline-block;">Address</strong> : &nbsp;{{ $profile->permanent_address ?? $profile->current_address ?? 'N/A' }}
+            <strong style="color:#000; width:130px; display:inline-block;">Address</strong> : &nbsp;<?php echo e($profile->permanent_address ?? $profile->current_address ?? 'N/A'); ?>
+
           </div>
 
         </td>
@@ -403,34 +407,42 @@
           
           <!-- High-Res Profile Image Container -->
           <div style="margin:0 auto 12px auto; width:170px; height:210px; border:2px solid #0f1754; background:#f8fafc; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <img src="{{ $pdfPhoto }}" style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block; image-rendering: -webkit-optimize-contrast;">
+            <img src="<?php echo e($pdfPhoto); ?>" style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block; image-rendering: -webkit-optimize-contrast;">
           </div>
 
           <!-- Key Details Under Photo -->
           <div style="padding-left:6px;">
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">DOB</strong> : &nbsp;{{ $profile->birth_date ? (is_string($profile->birth_date) ? date('d-m-Y', strtotime($profile->birth_date)) : $profile->birth_date->format('d-m-Y')) : 'N/A' }}
+              <strong style="color:#000; width:80px; display:inline-block;">DOB</strong> : &nbsp;<?php echo e($profile->birth_date ? (is_string($profile->birth_date) ? date('d-m-Y', strtotime($profile->birth_date)) : $profile->birth_date->format('d-m-Y')) : 'N/A'); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">B. Time</strong> : &nbsp;{{ format_birth_time($profile->birth_time) }}
+              <strong style="color:#000; width:80px; display:inline-block;">B. Time</strong> : &nbsp;<?php echo e(format_birth_time($profile->birth_time)); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">B. Place</strong> : &nbsp;{{ $profile->birth_place ?? 'N/A' }}
+              <strong style="color:#000; width:80px; display:inline-block;">B. Place</strong> : &nbsp;<?php echo e($profile->birth_place ?? 'N/A'); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Height</strong> : &nbsp;{{ $profile->height ?? 'N/A' }}
+              <strong style="color:#000; width:80px; display:inline-block;">Height</strong> : &nbsp;<?php echo e($profile->height ?? 'N/A'); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Weight</strong> : &nbsp;{{ format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null)) }}
+              <strong style="color:#000; width:80px; display:inline-block;">Weight</strong> : &nbsp;<?php echo e(format_weight($profile->weight ?? ($profile->weight_kg ? $profile->weight_kg . ' kg' : null))); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Native</strong> : &nbsp;{{ $profile->native_place ?? 'N/A' }}
+              <strong style="color:#000; width:80px; display:inline-block;">Native</strong> : &nbsp;<?php echo e($profile->native_place ?? 'N/A'); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Gotra</strong> : &nbsp;{{ $profile->gotra ?? 'N/A' }}
+              <strong style="color:#000; width:80px; display:inline-block;">Gotra</strong> : &nbsp;<?php echo e($profile->gotra ?? 'N/A'); ?>
+
             </div>
             <div style="margin-bottom:3px;">
-              <strong style="color:#000; width:80px; display:inline-block;">Manglik</strong> : &nbsp;{{ $profile->manglik ? ucfirst($profile->manglik) : 'No' }}
+              <strong style="color:#000; width:80px; display:inline-block;">Manglik</strong> : &nbsp;<?php echo e($profile->manglik ? ucfirst($profile->manglik) : 'No'); ?>
+
             </div>
           </div>
 
@@ -442,19 +454,23 @@
         <td colspan="2" style="border-top:2px solid #0f1754; padding:12px 16px; font-size:13px; line-height:1.8; color:#111; background:#ffffff;">
           
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:165px; display:inline-block;">Current Address</strong> : &nbsp;{{ $profile->current_address ?? 'as above' }}
+            <strong style="color:#000; width:165px; display:inline-block;">Current Address</strong> : &nbsp;<?php echo e($profile->current_address ?? 'as above'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:165px; display:inline-block;">Specific Partner Choice</strong> : &nbsp;{{ $profile->partner_preference ?? 'N/A' }}
+            <strong style="color:#000; width:165px; display:inline-block;">Specific Partner Choice</strong> : &nbsp;<?php echo e($profile->partner_preference ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:165px; display:inline-block;">Language Known</strong> : &nbsp;{{ $profile->languages ?? 'N/A' }}
+            <strong style="color:#000; width:165px; display:inline-block;">Language Known</strong> : &nbsp;<?php echo e($profile->languages ?? 'N/A'); ?>
+
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:165px; display:inline-block;">Other Info.</strong> : &nbsp;{{ $profile->handicapped ? ($profile->handicapped === 'Yes' ? 'Handicapped' : 'No') : 'No' }} / {{ $profile->marital_status ?? 'N/A' }}
+            <strong style="color:#000; width:165px; display:inline-block;">Other Info.</strong> : &nbsp;<?php echo e($profile->handicapped ? ($profile->handicapped === 'Yes' ? 'Handicapped' : 'No') : 'No'); ?> / <?php echo e($profile->marital_status ?? 'N/A'); ?>
+
           </div>
 
         </td>
@@ -464,7 +480,7 @@
   </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 function downloadPDF() {
@@ -486,9 +502,9 @@ function downloadPDF() {
     cloneContainer.appendChild(clone);
     document.body.appendChild(cloneContainer);
 
-    const pnum = "{{ $pnum }}";
+    const pnum = "<?php echo e($pnum); ?>";
     const filename = 'Profile_MID_' + pnum + '.pdf';
-    const pdfUrl = "{{ route('profiles.pdf', $profile->id) }}";
+    const pdfUrl = "<?php echo e(route('profiles.pdf', $profile->id)); ?>";
 
     const opt = {
       margin:       [5, 5, 5, 5],
@@ -527,7 +543,7 @@ if (likeBtn) {
         const profileId = this.getAttribute('data-id');
         const isLiked = this.classList.contains('bg-primary');
 
-        fetch('{{ route("profiles.like", ":id") }}'.replace(':id', profileId), {
+        fetch('<?php echo e(route("profiles.like", ":id")); ?>'.replace(':id', profileId), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -563,8 +579,7 @@ if (likeBtn) {
     });
 }
 </script>
-@endpush
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 .profile-image-container {
     position: relative;
@@ -592,6 +607,8 @@ if (likeBtn) {
     background-color: #f8fafc;
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\matrimonydigambar\digambarlaravel\resources\views/user/detail.blade.php ENDPATH**/ ?>

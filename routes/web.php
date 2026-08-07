@@ -38,23 +38,83 @@ use App\Http\Controllers\Admin\CommitteeController;
 // Utility & Maintenance Routes
 
 Route::get('/dbcheck', function() {
-    $field = RegistrationField::where('field_key', 'subcast')->first();
-    if (!$field) {
-        $field = RegistrationField::create([
-            'field_group' => 'Personal Details',
-            'field_key' => 'subcast',
-            'field_label' => 'Sub-Cast (उपजाति)',
-            'field_type' => 'dropdown',
-            'field_options' => 'Khandelwal,Agrawal,Oswal,Porwal,Golalare,Humad,Bagherwal,Chaturth,Pancham,Other (अन्य)',
-            'is_custom' => false,
-            'is_visible' => true,
-            'is_required' => true,
-            'is_core' => true,
-            'sort_order' => 1,
-        ]);
-        return 'Created: ' . $field->id;
+    // Clear compiled view cache
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    
+    $me = \App\Models\User::first();
+    if (!$me) {
+        return "No users found in database to login.";
     }
-    return $field;
+    \Illuminate\Support\Facades\Auth::login($me);
+    $profile = \App\Models\User::find(314) ?? \App\Models\User::where('id', '!=', $me->id)->first();
+    if (!$profile) {
+        return "No profile found.";
+    }
+    $customData = $profile->customData()->with('field')->get();
+    $html = view('user.detail', compact('profile', 'customData'))->render();
+    file_put_contents(public_path('rendered_profile.html'), $html);
+    
+    // Dump DOM Structure
+    $dom = new DOMDocument();
+    @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+    
+    $dumpDom = function($node, $indent = 0) use (&$dumpDom) {
+        $out = "";
+        if ($node->nodeType === XML_ELEMENT_NODE) {
+            $tagName = strtolower($node->tagName);
+            if (in_array($tagName, ['html', 'head', 'body', 'header', 'nav', 'main', 'section', 'footer', 'div'])) {
+                $out .= str_repeat('  ', $indent) . '<' . $tagName;
+                if ($node->hasAttribute('class')) {
+                    $out .= ' class="' . substr($node->getAttribute('class'), 0, 50) . '"';
+                }
+                if ($node->hasAttribute('id')) {
+                    $out .= ' id="' . $node->getAttribute('id') . '"';
+                }
+                $out .= ">\n";
+                foreach ($node->childNodes as $child) {
+                    $out .= $dumpDom($child, $indent + 1);
+                }
+                $out .= str_repeat('  ', $indent) . '</' . $tagName . ">\n";
+            } else {
+                foreach ($node->childNodes as $child) {
+                    $out .= $dumpDom($child, $indent);
+                }
+            }
+        } else {
+            foreach ($node->childNodes as $child) {
+                $out .= $dumpDom($child, $indent);
+            }
+        }
+        return $out;
+    };
+    
+    $domStructure = $dumpDom($dom);
+    file_put_contents(public_path('dom_structure.txt'), $domStructure);
+    
+    // In-process Image serving diagnostics
+    try {
+        $imgRequest = \Illuminate\Http\Request::create('/image', 'GET', ['file' => 'imports/profile_photos/Shivani_Jain_profile.jpg']);
+        $controller = app()->make(\App\Http\Controllers\ImageController::class);
+        $res = $controller->serve($imgRequest);
+        
+        $status = $res->getStatusCode();
+        $headers = json_encode($res->headers->all());
+        $contentLen = 0;
+        
+        // If it's a BinaryFileResponse, get the file path instead of loading binary content
+        if ($res instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse) {
+            $imgFilePath = $res->getFile()->getPathname();
+            $fileCheck = file_exists($imgFilePath) ? 'EXISTS' : 'DOES NOT EXIST';
+            file_put_contents(public_path('image_debug.txt'), "Type: BinaryFileResponse\nStatus: $status\nHeaders: $headers\nFilePath: $imgFilePath ($fileCheck)\n");
+        } else {
+            $contentLen = strlen($res->getContent());
+            file_put_contents(public_path('image_debug.txt'), "Type: GeneralResponse\nStatus: $status\nHeaders: $headers\nContentLen: $contentLen\n");
+        }
+    } catch (\Throwable $e) {
+        file_put_contents(public_path('image_debug.txt'), "Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+    }
+    
+    return "Cleared cache, rendered view, and dumped structure! check files.";
 });
 
 Route::get('/run-prod-migrations', function() {
