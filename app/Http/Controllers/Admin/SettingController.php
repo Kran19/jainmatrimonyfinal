@@ -43,6 +43,7 @@ class SettingController extends Controller
             'show_hero_bottom_ad' => '1',
             'about_youtube' => '',
             'about_us' => '',
+            'about_us_en' => '',
             'terms_conditions' => '',
             'privacy_policy' => '',
             'community_content' => '<div class="text-center">

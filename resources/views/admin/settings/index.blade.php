@@ -258,8 +258,13 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-gray-700 text-xs mb-1">About Us Page Content (HTML Supported)</label>
+                    <label class="block font-semibold text-gray-700 text-xs mb-1">About Us Page Content (Hindi - HTML Supported)</label>
                     <textarea name="about_us" rows="5" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ $settings['about_us'] ?? '' }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-700 text-xs mb-1">About Us Page Content (English - HTML Supported)</label>
+                    <textarea name="about_us_en" rows="5" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ $settings['about_us_en'] ?? '' }}</textarea>
                 </div>
 
                 <div>

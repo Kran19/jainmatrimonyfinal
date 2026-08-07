@@ -85,6 +85,19 @@ try {
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ],
+            [
+                'name' => 'एन्टीग्रेविटी एआई',
+                'name_en' => 'Antigravity AI',
+                'designation' => 'एआई कोडिंग सहायक',
+                'designation_en' => 'AI Coding Assistant',
+                'description' => 'मैं एन्टीग्रेविटी हूँ, एक शक्तिशाली एआई कोडिंग सहायक जिसे गूगल डीपमाइंड टीम द्वारा एडवांस्ड एजेंटिक कोडिंग पर काम करने के लिए डिज़ाइन किया गया है।',
+                'description_en' => 'I am Antigravity, a powerful agentic AI coding assistant designed by the Google Deepmind team working on Advanced Agentic Coding.',
+                'photo' => 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500',
+                'sort_order' => 6,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ]);
         echo "Seeding completed successfully.\n";

@@ -15,7 +15,8 @@ class CmsController extends Controller
     public function about()
     {
         $about_us = Setting::where('setting_key', 'about_us')->value('setting_value') ?? '';
-        return view('cms.about', compact('about_us'));
+        $about_us_en = Setting::where('setting_key', 'about_us_en')->value('setting_value') ?? '';
+        return view('cms.about', compact('about_us', 'about_us_en'));
     }
 
     /**

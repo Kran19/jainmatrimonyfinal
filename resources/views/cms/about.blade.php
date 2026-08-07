@@ -28,13 +28,11 @@
             <div class="w-16 h-1 bg-primary mb-6"></div>
 
             <!-- Content -->
-            @if (!empty($about_us))
-                <div class="text-gray-600 leading-relaxed text-lg space-y-4">
+            <!-- Hindi Content -->
+            <div id="aboutContentHi" class="text-gray-600 leading-relaxed text-lg space-y-4 text-justify">
+                @if (!empty($about_us))
                     {!! $about_us !!}
-                </div>
-            @else
-                <!-- Hindi Content -->
-                <div id="aboutContentHi" class="text-gray-600 leading-relaxed text-lg space-y-4 text-justify">
+                @else
                     <p class="font-bold text-xl text-primary">सादर जय जिनेंद्र,</p>
                     <p>धर्म, समाज, संस्कृति और राष्ट्र की प्रतिष्ठा को अक्षुण्ण बनाए रखने में विवाह की अत्यंत महत्वपूर्ण भूमिका होती है। विवाह न केवल दो व्यक्तियों का मिलन है, बल्कि यह आगामी पीढ़ियों के निर्माण और सुदृढ़ीकरण का मुख्य आधार है। यदि उचित समय पर सही वर-वधू का चयन कर विवाह संपन्न हो, तो निश्चित ही समाज और राष्ट्र को एक स्वस्थ और सुसंस्कृत स्वरूप प्राप्त होगा।</p>
                     <p>हमारी संस्था द्वारा विगत 5 वर्षों से समग्र दिगंबर जैन समाज के योग्य युवक-युवतियों के लिए 'परिचय सम्मेलन' का आयोजन अहमदाबाद में अत्यंत सफलतापूर्वक किया जा रहा है। यह गुजरात राज्य का सबसे सफल and प्रतिष्ठित आयोजन माना जाता है। आज के आधुनिक परिवेश में योग्य वर-वधू का चयन बेहद जटिल और कठिन कार्य हो गया है, इसी बात को ध्यान में रखकर समिति निरंतर इस दिशा में कार्यरत है।</p>
@@ -51,16 +49,20 @@
                     <p>जीवनसाथी का चयन जीवन के सबसे महत्वपूर्ण निर्णयों में से एक है। “दिगम्बर जैन परिचय” वेबसाइट इस महत्वपूर्ण यात्रा के प्रत्येक चरण में आपके साथ खड़ी है। हम आपको 100% सत्यापित एवं विस्तृत प्रोफ़ाइल और डेटाबेस अपने समाज के विवाह योग्य बच्चो के इस माध्यम से उपलब्ध कराते हैं, जिनकी सहायता से आप ऐसा जीवनसाथी चुन सकें जो आपके मूल्यों, जीवन-दृष्टि और भविष्य के सपनों के अनुरूप हो। हमारा मुख्य उद्देश्य यही है कि जैन की शादी जैन मे हो और हमारे बच्चो मे दिगम्बर जैन परम्परा के संस्कार बने रहें और अक्षुण बनी रहे।</p>
                     <p>वर्तमान समय की परिस्थितियों एवं बदलते परिवेश में मनुष्य के पास समय का अभाव है। वह दिन-रात अपने परिवार के खुशहाल जीवन यापन एवं उनके भविष्य को उज्जवल बनाने के लिए प्रयासरत रहता है। जीवन की इसी भागदौड़ में वह यह भी भूल जाता है कि उसके बच्चे बड़े एवं विवाह योग्य हो गए हैं। जब उसे इस बात का ध्यान आता है बिंदु तो वह अच्छे संबंध की तलाश करना शुरु करता है और यही से उसकी परेशानी शुरू होती है। आज का समय पहले जैसा नही रहा कि अपने परिचित / रिश्तेदार ही सम्बंध बता देते थे अब किसी का भी सहयोग इस कार्य मे नही के बराबर हो गया है।</p>
                     <p>हमारी संस्था ने सकल दिगम्बर जैन समाज के लिये ही यह बीड़ा उठाया है। हमारी संस्था का उद्देश्य केवल यही है कि समाज के बच्चों का विवाह समाज मे ही समय पर हो जाये, हमारी संस्था विगत 5 वर्षो से अहमदाबाद मे सकल दिगम्बर जैन समाज के विवाह योग्य युवक युवतियो का परिचय सम्मेलन बहुत ही सफलता पूर्वक आयोजित कर रही है। संस्था का उद्देश्य कभी भी पैसा कमाना नही रहा। समिति के सभी सद्स्य अपना अमूल्य समय देकर इस कार्य को समाज हित मे कर रहे हैं।</p>
-                </div>
+                @endif
+            </div>
 
-                <!-- English Content -->
-                <div id="aboutContentEn" class="text-gray-600 leading-relaxed text-lg space-y-4 hidden">
+            <!-- English Content -->
+            <div id="aboutContentEn" class="text-gray-600 leading-relaxed text-lg space-y-4 hidden">
+                @if (!empty($about_us_en))
+                    {!! $about_us_en !!}
+                @else
                     <p>Marriage plays an important role in maintaining the prestige of religion, society, culture, and the nation. Marriage is not just a union of two individuals but also plays a vital role in building future generations. If the right girl and boy are selected at the right time and the marriage takes place, it will certainly create a healthy environment for society and the country.</p>
                     <p>For the past 5 years, our organization has been very successfully organizing the Parichay Sammelan for the young men and women of the entire Digambar Jain community in Ahmedabad. This is the most successful event in the state of Gujarat. Today, selecting a suitable girl and boy in society has become very complex and difficult. Keeping this in mind, this program is organized by the committee. In the same series, taking a step forward, our organization has created this website so that a suitable life partner is always available for the young men and women of the society. We have full faith that through this website we will be successful in fulfilling your aspirations.</p>
                     <p>I convey my best wishes for the bright future of all the parents and loving young men and women registering on this website and hope that everyone's search for a life partner will definitely be fulfilled through this website.</p>
                     <p>Our main objective is that a Jain's marriage should happen within Jainism and Jain religious values should be maintained in our children.</p>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
     </div>
 </section>
