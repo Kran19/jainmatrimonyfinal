@@ -28,17 +28,17 @@
         <!-- Quote Section -->
         <div class="text-center mb-16">
             <div id="committeeQuoteHi">
+                <p class="text-primary font-bold text-lg mb-3">- दिगम्बर जैन परिचय सम्मेलन समिति अहमदाबाद</p>
                 <p class="text-gray-600 max-w-4xl mx-auto italic text-lg leading-relaxed font-medium">
                     "स्थापना काल से ही समिति के पाँचों सदस्य इस संस्था को आगे ले जाने में जुटे हुए हैं। सभी सदस्यों के सामूहिक प्रयासों और आपसी तालमेल का ही परिणाम है कि संस्था आज इस गौरवशाली मुकाम पर खड़ी है। यह पारस्परिक सामंजस्य ही हमारी संस्था का मुख्य आधार स्तंभ है।"
                 </p>
-                <p class="text-primary font-bold mt-3 text-lg">- दिगम्बर जैन परिचय सम्मेलन समिति अहमदाबाद</p>
             </div>
             
             <div id="committeeQuoteEn" class="hidden">
+                <p class="text-primary font-bold text-lg mb-3">- Digambar Jain Parichay Sammelan Samiti Ahmedabad</p>
                 <p class="text-gray-600 max-w-4xl mx-auto italic text-lg leading-relaxed font-medium">
                     "Since its inception, all five members of the committee have been dedicated to taking this organization forward. It is the result of their collective efforts and mutual coordination that the organization stands at this glorious stage today. This mutual harmony is the main pillar of our organization."
                 </p>
-                <p class="text-primary font-bold mt-3 text-lg">- Digambar Jain Parichay Sammelan Samiti Ahmedabad</p>
             </div>
             
             <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
