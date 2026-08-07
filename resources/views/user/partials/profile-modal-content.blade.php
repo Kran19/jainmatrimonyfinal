@@ -12,11 +12,7 @@
     <div class="flex flex-col md:flex-row gap-6 items-center border-b pb-6">
         <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 bg-gray-50">
             @if($profile->profile_photo)
-                @php
-                    $isPublicPhoto = str_starts_with($profile->profile_photo, 'imports/') || str_starts_with($profile->profile_photo, 'uploads/');
-                    $photoSrc = $isPublicPhoto ? asset($profile->profile_photo) : route('image.serve', ['file' => $profile->profile_photo]);
-                @endphp
-                <img src="{{ $photoSrc }}" alt="Photo" class="w-full h-full object-cover">
+                <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo" class="w-full h-full object-cover">
             @else
                 <div class="w-full h-full bg-slate-100 flex items-center justify-center font-bold text-3xl text-slate-400">
                     {{ substr($profile->full_name, 0, 1) }}

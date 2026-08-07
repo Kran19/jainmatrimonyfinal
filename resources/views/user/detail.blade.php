@@ -60,21 +60,7 @@
                 {{-- Profile Image --}}
                 <div class="w-full md:w-1/3 profile-image-container border-r border-gray-100">
                     @if($profile->profile_photo)
-                        @php
-                            // Use direct asset URL for public files (faster, avoids PHP single-thread blocking)
-                            $publicPrefixes = ['imports/', 'uploads/'];
-                            $isPublicFile = false;
-                            foreach ($publicPrefixes as $prefix) {
-                                if (str_starts_with($profile->profile_photo, $prefix)) {
-                                    $isPublicFile = true;
-                                    break;
-                                }
-                            }
-                            $photoUrl = $isPublicFile
-                                ? asset($profile->profile_photo)
-                                : route('image.serve', ['file' => $profile->profile_photo]);
-                        @endphp
-                        <img src="{{ $photoUrl }}" alt="Photo of {{ $profile->full_name }}" class="profile-image">
+                        <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo of {{ $profile->full_name }}" class="profile-image">
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-slate-100 font-bold text-6xl text-slate-300">
                             {{ substr($profile->full_name, 0, 1) }}
