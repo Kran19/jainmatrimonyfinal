@@ -193,7 +193,7 @@ $expected = [
     ],
 
     'committee_members' => [
-        'id','name','designation','description','photo','sort_order','status',
+        'id','name','name_en','designation','designation_en','description','description_en','photo','sort_order','status',
         'created_at','updated_at',
     ],
 

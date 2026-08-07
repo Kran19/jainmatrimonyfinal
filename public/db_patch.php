@@ -379,15 +379,18 @@ $schema = [
 
     // ── COMMITTEE_MEMBERS ─────────────────────────────────────────────────────
     'committee_members' => [
-        'id'          => 'bigint unsigned auto_increment PK',
-        'name'        => ['type'=>'string','len'=>255,'nullable'=>false],
-        'designation' => ['type'=>'string','len'=>150,'nullable'=>true],
-        'description' => ['type'=>'text','nullable'=>true],
-        'photo'       => ['type'=>'string','len'=>255,'nullable'=>true],
-        'sort_order'  => ['type'=>'int','default'=>0],
-        'status'      => ['type'=>'tinyint','default'=>1],
-        'created_at'  => ['type'=>'timestamp','nullable'=>true],
-        'updated_at'  => ['type'=>'timestamp','nullable'=>true],
+        'id'             => 'bigint unsigned auto_increment PK',
+        'name'           => ['type'=>'string','len'=>255,'nullable'=>false],
+        'name_en'        => ['type'=>'string','len'=>255,'nullable'=>true],
+        'designation'    => ['type'=>'string','len'=>150,'nullable'=>true],
+        'designation_en' => ['type'=>'string','len'=>150,'nullable'=>true],
+        'description'    => ['type'=>'text','nullable'=>true],
+        'description_en' => ['type'=>'text','nullable'=>true],
+        'photo'          => ['type'=>'string','len'=>255,'nullable'=>true],
+        'sort_order'     => ['type'=>'int','default'=>0],
+        'status'         => ['type'=>'tinyint','default'=>1],
+        'created_at'     => ['type'=>'timestamp','nullable'=>true],
+        'updated_at'     => ['type'=>'timestamp','nullable'=>true],
     ],
 
     // ── OTP_VERIFICATIONS ─────────────────────────────────────────────────────

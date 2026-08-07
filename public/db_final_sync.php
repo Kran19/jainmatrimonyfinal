@@ -377,14 +377,17 @@ $expect = [
 
   // ─ committee_members ──────────────────────────────────────────────────────
   'committee_members' => [
-    'name'        => 'VARCHAR(255) NOT NULL',
-    'designation' => 'VARCHAR(150) NULL DEFAULT NULL',
-    'description' => 'TEXT NULL',
-    'photo'       => 'VARCHAR(255) NULL DEFAULT NULL',
-    'sort_order'  => 'INT NOT NULL DEFAULT 0',
-    'status'      => 'TINYINT(1) NOT NULL DEFAULT 1',
-    'created_at'  => 'TIMESTAMP NULL DEFAULT NULL',
-    'updated_at'  => 'TIMESTAMP NULL DEFAULT NULL',
+    'name'           => 'VARCHAR(255) NOT NULL',
+    'name_en'        => 'VARCHAR(255) NULL DEFAULT NULL',
+    'designation'    => 'VARCHAR(150) NULL DEFAULT NULL',
+    'designation_en' => 'VARCHAR(150) NULL DEFAULT NULL',
+    'description'    => 'TEXT NULL',
+    'description_en' => 'TEXT NULL',
+    'photo'          => 'VARCHAR(255) NULL DEFAULT NULL',
+    'sort_order'     => 'INT NOT NULL DEFAULT 0',
+    'status'         => 'TINYINT(1) NOT NULL DEFAULT 1',
+    'created_at'     => 'TIMESTAMP NULL DEFAULT NULL',
+    'updated_at'     => 'TIMESTAMP NULL DEFAULT NULL',
   ],
 
   // ─ community_events ───────────────────────────────────────────────────────
