@@ -56,18 +56,45 @@ class AppServiceProvider extends ServiceProvider
                         $table->string('income_type', 50)->default('Yearly');
                     });
                 }
+
+                // Relax advertisements table position column type to allow any custom position (Column 2/3, etc.)
+                if (\Illuminate\Support\Facades\Schema::hasTable('advertisements')) {
+                    $driver = \Illuminate\Support\Facades\DB::getDriverName();
+                    if ($driver === 'mysql' || $driver === 'mariadb') {
+                        try {
+                            \Illuminate\Support\Facades\DB::statement("ALTER TABLE advertisements MODIFY COLUMN position VARCHAR(100) NULL DEFAULT NULL");
+                        } catch (\Throwable $e) {}
+                    }
+                }
+
                 // One-time update for existing users
                 if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'approval_date')) {
-                    $hasUnmigrated = \Illuminate\Support\Facades\DB::table('users')
+                    // Correct legacy approved users who lack dates
+                    \Illuminate\Support\Facades\DB::table('users')
+                        ->where('status', 'approved')
                         ->whereNull('approval_date')
-                        ->exists();
-                    if ($hasUnmigrated) {
+                        ->update([
+                            'approval_date' => '2026-07-31',
+                            'expiry_date' => '2027-07-31',
+                        ]);
+
+                    // Clean up incorrect dates for non-approved users that were mistakenly updated
+                    \Illuminate\Support\Facades\DB::table('users')
+                        ->where('status', '!=', 'approved')
+                        ->whereNotNull('approval_date')
+                        ->update([
+                            'approval_date' => null,
+                            'expiry_date' => null,
+                        ]);
+
+                    // Normalize existing income_type casing in database to prevent toggle issues
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'income_type')) {
                         \Illuminate\Support\Facades\DB::table('users')
-                            ->whereNull('approval_date')
-                            ->update([
-                                'approval_date' => '2026-07-31',
-                                'expiry_date' => '2027-07-31',
-                            ]);
+                            ->whereRaw("LOWER(income_type) = 'monthly'")
+                            ->update(['income_type' => 'Monthly']);
+                        \Illuminate\Support\Facades\DB::table('users')
+                            ->whereRaw("LOWER(income_type) = 'yearly'")
+                            ->update(['income_type' => 'Yearly']);
                     }
                 }
             }

@@ -60,6 +60,8 @@ class HomeController extends Controller
 
         $home_top_ads = array_values(array_filter($advertisements, fn($ad) => $ad['position'] === 'home_top'));
         $left_sidebar_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['left', 'left_side', 'left_sidebar'])));
+        $center_left_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['center_left', 'col2'])));
+        $center_right_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['center_right', 'col3'])));
         $right_sidebar_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['right', 'right_side', 'right_sidebar'])));
         $bottom_ads = array_values(array_filter($advertisements, fn($ad) => in_array($ad['position'], ['bottom', 'bottom_banner', 'home_bottom', 'footer'])));
         $home_bottom_ads = !empty($bottom_ads) ? $bottom_ads : array_values(array_filter($advertisements, fn($ad) => $ad['position'] === 'home_bottom'));
@@ -172,6 +174,8 @@ class HomeController extends Controller
             'home_bottom_ads',
             'latest_profiles_bottom_ads',
             'left_sidebar_ads',
+            'center_left_ads',
+            'center_right_ads',
             'right_sidebar_ads',
             'bottom_ads',
             'footer_ads',

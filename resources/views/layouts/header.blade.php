@@ -78,33 +78,33 @@
     </div>
 
     <!-- Navigation Section -->
-    <nav class="container mx-auto px-4 md:px-8 py-3 hidden md:block">
-        <div class="flex justify-center items-center space-x-6 lg:space-x-8">
-            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">Home</a>
+    <nav class="bg-primary text-white py-3.5 hidden md:block shadow-md">
+        <div class="container mx-auto px-4 md:px-8 flex justify-center items-center space-x-6 lg:space-x-8">
+            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">Home</a>
             <div class="relative group py-1">
-                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1 flex items-center gap-1">
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1 flex items-center gap-1">
                     About Us <i class="fas fa-chevron-down text-xs transition-transform duration-300 group-hover:rotate-180"></i>
                 </a>
-                <div class="absolute left-0 top-full w-48 bg-white border border-gray-100 shadow-xl rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
+                <div class="absolute left-0 top-full w-48 bg-white border border-gray-100 shadow-xl rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden text-gray-800">
                     <a href="{{ route('about') }}" class="block px-4 py-2.5 text-sm {{ request()->routeIs('about') ? 'bg-primary/5 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition border-b border-gray-50">About Us</a>
                     <a href="{{ route('community') }}" class="block px-4 py-2.5 text-sm {{ request()->routeIs('community') ? 'bg-primary/5 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">Committee</a>
                 </div>
             </div>
-            <a href="{{ route('stories') }}" class="{{ request()->routeIs('stories') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">Success Story</a>
-            <a href="{{ route('profiles') }}" class="{{ request()->routeIs('profiles') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">Find Your Match</a>
-            <a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">Gallery</a>
-            <a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">News & Updates</a>
+            <a href="{{ route('stories') }}" class="{{ request()->routeIs('stories') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">Success Story</a>
+            <a href="{{ route('profiles') }}" class="{{ request()->routeIs('profiles') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">Find Your Match</a>
+            <a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">Gallery</a>
+            <a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">News & Updates</a>
             
             @if($is_logged_in)
-                <a href="{{ route('profile.my') }}" class="{{ request()->routeIs('profile.my') || request()->routeIs('registration.wizard') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">
+                <a href="{{ route('profile.my') }}" class="{{ request()->routeIs('profile.my') || request()->routeIs('registration.wizard') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">
                     My Profile
                 </a>
-                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-desktop').submit();" class="text-red-500 hover:text-red-700 transition font-medium ml-2">Logout</a>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-desktop').submit();" class="text-red-300 hover:text-red-400 transition font-bold ml-2">Logout</a>
                 <form id="logout-form-desktop" action="{{ route('logout') }}" method="POST" class="hidden">
                     @csrf
                 </form>
             @else
-                <a href="{{ route('login') }}" class="{{ request()->routeIs('login') || request()->routeIs('register') || request()->routeIs('register.otp') ? 'text-primary font-bold border-b-2 border-primary' : 'text-dark hover:text-primary font-medium' }} transition pb-1">Login / Registration</a>
+                <a href="{{ route('login') }}" class="{{ request()->routeIs('login') || request()->routeIs('register') || request()->routeIs('register.otp') ? 'text-yellow-300 font-bold border-b-2 border-yellow-300' : 'text-white/90 hover:text-yellow-300 font-semibold' }} transition pb-1">Login / Registration</a>
             @endif
         </div>
     </nav>

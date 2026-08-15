@@ -77,15 +77,14 @@
 <section class="relative flex flex-col justify-start items-center overflow-hidden bg-gray-900 pt-3 pb-6 sm:pb-8 lg:pb-10">
     <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-primary/20 z-0"></div>
 
-    <div class="container mx-auto px-4 relative z-20 w-full flex flex-col xl:flex-row gap-6">
-        <!-- Left + Right Ads wrapper: 1-col on mobile, 2-col on tablet, becomes plain flex children (sidebars) on xl -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:contents order-2 xl:order-none">
+    <div class="container mx-auto px-4 relative z-20 w-full">
+        <!-- 4 Equal Column Grid for Portrait Ads -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch w-full">
 
-            <!-- Left Ad Panel -->
-            @if (!isset($settings['show_hero_left_ad']) || $settings['show_hero_left_ad'] == '1')
-            <div class="flex flex-col w-full xl:w-56 space-y-3 flex-shrink-0 xl:order-1">
+            <!-- Column 1: Left Sidebar Ads -->
+            <div class="flex flex-col w-full space-y-3" data-aos="fade-up">
                 @if (!empty($left_sidebar_ads))
-                    <div class="ad-rotator-container relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden bg-slate-900">
+                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
                         @foreach($left_sidebar_ads as $index => $ad)
                             @php
                                 $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
@@ -126,52 +125,125 @@
                     </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
-                    <div class="relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden group">
+                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
                         <img src="https://images.unsplash.com/photo-1583939000148-f75e1140984f?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <span class="text-white font-bold text-base sm:text-lg xl:text-xl tracking-widest uppercase">Advertise</span>
+                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
                         </div>
                     </div>
                 @endif
             </div>
-            @endif
 
-            <!-- Center Section (Content & Banner) -->
-            <div class="flex-grow w-full col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-0 items-stretch bg-[#1a2942] rounded-2xl overflow-hidden shadow-2xl order-first xl:order-2 min-h-[220px] sm:min-h-[260px] md:min-h-[280px]" data-aos="fade-up">
-                <div class="flex flex-col justify-center p-4 sm:p-5 md:p-8 lg:p-10 text-center sm:text-left h-full">
-                    <h2 class="text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight">
-                        @php
-                            $hero_h = $settings['hero_heading'] ?? "The most trusted\nmatrimony\nservice for\nDigambar Jain!";
-                            $hero_h = str_ireplace(['<br>', '<br/>', '<br />'], "\n", $hero_h);
-                            echo nl2br(htmlspecialchars($hero_h));
-                        @endphp
-                    </h2>
-                    <p class="hidden sm:block text-sm sm:text-base md:text-[15px] lg:text-base text-gray-300 leading-relaxed max-w-xl mt-3 sm:mt-4 md:mt-6">
-                        {{ $settings['hero_description'] ?? 'This website is created only for the Digambar Jain community to help eligible young men and women of the entire Digambar Jain society find their suitable life partner.' }}
-                    </p>
-                </div>
-                
-                <div class="relative w-full h-full min-h-[140px] sm:min-h-[200px] md:min-h-[260px] flex items-center justify-center bg-[#1a2942] p-2 sm:p-4">
-                    @php
-                        $hero_img_src = asset('assets/images/gallery/TEMP1.jpg');
-                        if (!empty($settings['hero_banner'])) {
-                            if (str_starts_with($settings['hero_banner'], 'data:image/')) {
-                                $hero_img_src = $settings['hero_banner'];
-                            } else {
-                                $clean_banner = ltrim(str_replace('../', '', $settings['hero_banner']), '/\\');
-                                $hero_img_src = route('image.serve', ['file' => $clean_banner]);
-                            }
-                        }
-                    @endphp
-                    <img src="{{ $hero_img_src }}" alt="Matrimony Hero" fetchpriority="high" decoding="async" class="w-full h-full object-contain max-h-[160px] sm:max-h-[220px] md:max-h-[280px] lg:max-h-[300px]">
-                </div>
+            <!-- Column 2: Center Left Ads -->
+            <div class="flex flex-col w-full space-y-3" data-aos="fade-up" data-aos-delay="100">
+                @if (!empty($center_left_ads))
+                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
+                        @foreach($center_left_ads as $index => $ad)
+                            @php
+                                $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
+                                $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
+                                $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
+                                
+                                $ad_link = trim($ad['link'] ?? '');
+                                $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+
+                                if (str_starts_with($ad_img, 'data:image/')) {
+                                    $img_src = $ad_img;
+                                } else {
+                                    $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
+                                    $img_src = route('image.serve', ['file' => $img_path]);
+                                }
+                            @endphp
+                            <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                                 data-duration="{{ $duration * 1000 }}">
+                                @if($has_valid_link)
+                                    <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </a>
+                                @else
+                                    <div class="w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- Unsplash Placeholder Ad -->
+                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
+                        </div>
+                    </div>
+                @endif
             </div>
 
-            <!-- Right Ad Panel -->
-            @if (!isset($settings['show_hero_right_ad']) || $settings['show_hero_right_ad'] == '1')
-            <div class="flex flex-col w-full xl:w-56 space-y-3 flex-shrink-0 xl:order-3">
+            <!-- Column 3: Center Right Ads -->
+            <div class="flex flex-col w-full space-y-3" data-aos="fade-up" data-aos-delay="200">
+                @if (!empty($center_right_ads))
+                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
+                        @foreach($center_right_ads as $index => $ad)
+                            @php
+                                $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
+                                $is_video = isset($ad['media_type']) && $ad['media_type'] === 'video';
+                                $duration = isset($ad['duration_seconds']) && $ad['duration_seconds'] > 0 ? $ad['duration_seconds'] : 3;
+                                
+                                $ad_link = trim($ad['link'] ?? '');
+                                $has_valid_link = !empty($ad_link) && $ad_link !== '#' && !str_contains(strtolower($ad_link), 'printmines');
+
+                                if (str_starts_with($ad_img, 'data:image/')) {
+                                    $img_src = $ad_img;
+                                } else {
+                                    $img_path = ltrim(str_replace('../', '', $ad_img), '/\\');
+                                    $img_src = route('image.serve', ['file' => $img_path]);
+                                }
+                            @endphp
+                            <div class="ad-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                                 data-duration="{{ $duration * 1000 }}">
+                                @if($has_valid_link)
+                                    <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </a>
+                                @else
+                                    <div class="w-full h-full">
+                                        @if($is_video)
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        @else
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- Unsplash Placeholder Ad -->
+                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Column 4: Right Sidebar Ads -->
+            <div class="flex flex-col w-full space-y-3" data-aos="fade-up" data-aos-delay="300">
                 @if (!empty($right_sidebar_ads))
-                    <div class="ad-rotator-container relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden bg-slate-900">
+                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
                         @foreach($right_sidebar_ads as $index => $ad)
                             @php
                                 $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
@@ -212,18 +284,16 @@
                     </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
-                    <div class="relative w-full h-full min-h-[160px] sm:min-h-[180px] xl:min-h-[200px] flex-grow rounded shadow-lg border border-gray-700 overflow-hidden group">
+                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
                         <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <span class="text-white font-bold text-base sm:text-lg xl:text-xl tracking-widest uppercase">Advertise</span>
+                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
                         </div>
                     </div>
                 @endif
             </div>
-            @endif
 
         </div>
-        <!-- /Left + Right Ads wrapper -->
     </div>
 
     <!-- Bottom Ad Panel -->

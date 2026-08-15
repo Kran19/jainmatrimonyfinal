@@ -293,6 +293,9 @@
             <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/settings*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-gears mr-3 w-5 text-center"></i>Settings Configuration
             </a>
+            <a href="{{ route('admin.settings.index') }}#tab-dynamic-pages" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 text-slate-600">
+                <i class="fa-solid fa-file-signature mr-3 w-5 text-center text-secondary"></i>About Us & Pages CMS
+            </a>
             <div class="pt-4 pb-2 text-xs font-bold text-accent uppercase tracking-wider px-4">CMS Modules</div>
             <a href="{{ route('admin.cms.news.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/cms/news*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-newspaper mr-3 w-5 text-center"></i>News & Notice

@@ -298,4 +298,20 @@ class User extends Authenticatable
 
         $this->attributes['birth_time'] = null;
     }
+
+    /**
+     * Accessor for income_type to ensure capitalized casing.
+     */
+    public function getIncomeTypeAttribute($value)
+    {
+        return empty($value) ? 'Yearly' : ucfirst(strtolower(trim($value)));
+    }
+
+    /**
+     * Mutator for income_type to ensure capitalized casing.
+     */
+    public function setIncomeTypeAttribute($value)
+    {
+        $this->attributes['income_type'] = empty($value) ? 'Yearly' : ucfirst(strtolower(trim($value)));
+    }
 }
