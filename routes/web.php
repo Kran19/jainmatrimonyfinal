@@ -117,6 +117,8 @@ Route::get('/dbcheck', function() {
     return "Cleared cache, rendered view, and dumped structure! check files.";
 });
 
+Route::get('/api/track-visit', [\App\Http\Controllers\VisitorCountController::class, 'track'])->name('visitor.track');
+
 Route::get('/seed-admin', function() {
     try {
         \App\Models\Admin::updateOrCreate(

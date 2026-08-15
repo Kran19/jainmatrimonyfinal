@@ -233,6 +233,16 @@
         if (typeof Fancybox !== 'undefined') {
             Fancybox.bind("[data-fancybox]", {});
         }
+
+        // Asynchronously track visitor count in background
+        fetch('/api/track-visit')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'counted') {
+                    console.log('Unique visit counted. Fresh visitor_count: ' + data.visitor_count);
+                }
+            })
+            .catch(err => console.error('Error tracking visit:', err));
     });
 
     // Prevent Form Resubmission Warning on Refresh

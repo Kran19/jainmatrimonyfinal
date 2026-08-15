@@ -41,40 +41,7 @@ class HomeController extends Controller
             return Setting::pluck('setting_value', 'setting_key')->toArray();
         });
 
-        // 2. Visitor counter — count each unique visitor.
-        //    Excludes admins, bots, and browser prefetch requests.
-        try {
-            $isBotOrPrefetch = $request->hasHeader('X-Purpose') || $request->hasHeader('Sec-Purpose')
-                || $request->header('Purpose') === 'prefetch';
-
-            if (!Auth::guard('admin')->check() && !$isBotOrPrefetch) {
-                // If this session has not been counted yet
-                if (!$request->session()->has('visitor_counted')) {
-                    $request->session()->put('visitor_counted', true);
-
-                    // Fetch current count to safely increment
-                    $currentValue = DB::table('site_settings')
-                        ->where('setting_key', 'visitor_count')
-                        ->value('setting_value');
-
-                    $newCount = (int)$currentValue + 1;
-
-                    DB::table('site_settings')->updateOrInsert(
-                        ['setting_key' => 'visitor_count'],
-                        ['setting_value' => (string)$newCount, 'updated_at' => now()]
-                    );
-
-                    // Bust cache so the dashboard/site shows the fresh count
-                    \Illuminate\Support\Facades\Cache::forget('site_settings');
-                }
-
-                // Force reload the settings array so the current page load has the updated count
-                $settings = Setting::pluck('setting_value', 'setting_key')->toArray();
-                \Illuminate\Support\Facades\Cache::put('site_settings', $settings, 300);
-            }
-        } catch (\Exception $e) {
-            // Silence DB exception if read-only or table missing
-        }
+        // 2. Visitor counter is now handled asynchronously via AJAX (/api/track-visit).
 
         // 3. Fetch active advertisements with a short cache duration (10s) to reflect production updates instantly
         $advertisements = \Illuminate\Support\Facades\Cache::remember('active_advertisements', 10, function() {
