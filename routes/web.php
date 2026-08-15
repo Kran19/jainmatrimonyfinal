@@ -117,6 +117,34 @@ Route::get('/dbcheck', function() {
     return "Cleared cache, rendered view, and dumped structure! check files.";
 });
 
+Route::get('/seed-admin', function() {
+    try {
+        \App\Models\Admin::updateOrCreate(
+            ['email' => 'admin@jain.com'],
+            [
+                'name' => 'Admin',
+                'password_hash' => \Illuminate\Support\Facades\Hash::make('12344321'),
+                'role' => 'super_admin',
+                'status' => true,
+            ]
+        );
+        return "Admin user seeded/updated successfully! Email: admin@jain.com, Password: 12344321";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('/run-seed', function() {
+    try {
+        echo "<pre>Running Database Seeder...\n";
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        echo \Illuminate\Support\Facades\Artisan::output() . "\n";
+        return "Seeding Completed Successfully!</pre>";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
 Route::get('/run-prod-migrations', function() {
     try {
         echo "<pre>Running migrations...\n";

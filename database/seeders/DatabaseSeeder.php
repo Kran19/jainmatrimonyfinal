@@ -15,6 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed default admin
+        \App\Models\Admin::updateOrCreate(
+            ['email' => 'admin@jain.com'],
+            [
+                'name' => 'Admin',
+                'password_hash' => \Illuminate\Support\Facades\Hash::make('12344321'),
+                'role' => 'super_admin',
+                'status' => true,
+            ]
+        );
+
         // User::factory(10)->create();
 
         User::factory()->create([
