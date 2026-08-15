@@ -234,8 +234,8 @@
             Fancybox.bind("[data-fancybox]", {});
         }
 
-        // Asynchronously track visitor count in background
-        fetch('/api/track-visit')
+        // Asynchronously track visitor count in background (with timestamp to prevent browser cache)
+        fetch('/api/track-visit?_t=' + Date.now())
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'counted') {

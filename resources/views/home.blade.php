@@ -78,13 +78,13 @@
     <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-primary/20 z-0"></div>
 
     <div class="container mx-auto px-4 relative z-20 w-full">
-        <!-- 4 Equal Column Grid for Portrait Ads -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch w-full">
+        <!-- 4 Column Grid: 2 columns on mobile, 4 columns on desktop -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-stretch w-full">
 
             <!-- Column 1: Left Sidebar Ads -->
             <div class="flex flex-col w-full space-y-3" data-aos="fade-up">
                 @if (!empty($left_sidebar_ads))
-                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
+                    <div class="ad-rotator-container relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
                         @foreach($left_sidebar_ads as $index => $ad)
                             @php
                                 $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
@@ -106,17 +106,17 @@
                                 @if($has_valid_link)
                                     <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </a>
                                 @else
                                     <div class="w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </div>
                                 @endif
@@ -125,10 +125,10 @@
                     </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
-                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
-                        <img src="https://images.unsplash.com/photo-1583939000148-f75e1140984f?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1583939000148-f75e1140984f?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-contain bg-slate-800">
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
+                            <span class="text-white font-bold text-sm tracking-widest uppercase">Advertise</span>
                         </div>
                     </div>
                 @endif
@@ -137,7 +137,7 @@
             <!-- Column 2: Center Left Ads -->
             <div class="flex flex-col w-full space-y-3" data-aos="fade-up" data-aos-delay="100">
                 @if (!empty($center_left_ads))
-                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
+                    <div class="ad-rotator-container relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
                         @foreach($center_left_ads as $index => $ad)
                             @php
                                 $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
@@ -159,17 +159,17 @@
                                 @if($has_valid_link)
                                     <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </a>
                                 @else
                                     <div class="w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </div>
                                 @endif
@@ -178,10 +178,10 @@
                     </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
-                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
-                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-contain bg-slate-800">
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
+                            <span class="text-white font-bold text-sm tracking-widest uppercase">Advertise</span>
                         </div>
                     </div>
                 @endif
@@ -190,7 +190,7 @@
             <!-- Column 3: Center Right Ads -->
             <div class="flex flex-col w-full space-y-3" data-aos="fade-up" data-aos-delay="200">
                 @if (!empty($center_right_ads))
-                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
+                    <div class="ad-rotator-container relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
                         @foreach($center_right_ads as $index => $ad)
                             @php
                                 $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
@@ -212,17 +212,17 @@
                                 @if($has_valid_link)
                                     <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </a>
                                 @else
                                     <div class="w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </div>
                                 @endif
@@ -231,10 +231,10 @@
                     </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
-                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
-                        <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-contain bg-slate-800">
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
+                            <span class="text-white font-bold text-sm tracking-widest uppercase">Advertise</span>
                         </div>
                     </div>
                 @endif
@@ -243,7 +243,7 @@
             <!-- Column 4: Right Sidebar Ads -->
             <div class="flex flex-col w-full space-y-3" data-aos="fade-up" data-aos-delay="300">
                 @if (!empty($right_sidebar_ads))
-                    <div class="ad-rotator-container relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
+                    <div class="ad-rotator-container relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden bg-slate-900">
                         @foreach($right_sidebar_ads as $index => $ad)
                             @php
                                 $ad_img = $ad['image'] ?? $ad['image_path'] ?? '';
@@ -265,17 +265,17 @@
                                 @if($has_valid_link)
                                     <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </a>
                                 @else
                                     <div class="w-full h-full">
                                         @if($is_video)
-                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                            <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                         @else
-                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                            <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                         @endif
                                     </div>
                                 @endif
@@ -284,10 +284,10 @@
                     </div>
                 @else
                     <!-- Unsplash Placeholder Ad -->
-                    <div class="relative w-full h-[350px] sm:h-[450px] lg:h-[480px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
-                        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="relative w-full h-[220px] sm:h-[350px] lg:h-[450px] rounded-2xl shadow-xl border border-gray-700 overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80" alt="Advertise" class="absolute inset-0 w-full h-full object-contain bg-slate-800">
                         <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <span class="text-white font-bold text-base sm:text-lg tracking-widest uppercase">Advertise</span>
+                            <span class="text-white font-bold text-sm tracking-widest uppercase">Advertise</span>
                         </div>
                     </div>
                 @endif

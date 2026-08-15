@@ -13,7 +13,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('users')) {
+        if (Schema::hasTable('users') && DB::getDriverName() === 'mysql') {
             // Disable strict mode for session to avoid MySQL errors when inspecting or altering legacy tables with '0000-00-00' dates
             DB::statement("SET SESSION sql_mode = ''");
 
@@ -72,7 +72,7 @@ return new class extends Migration
         }
 
         // 4. Add 'Widower' to marital_status enum if missing (wizard uses it)
-        if (Schema::hasTable('users') && Schema::hasColumn('users', 'marital_status')) {
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'marital_status') && DB::getDriverName() === 'mysql') {
             $colInfo = DB::selectOne("
                 SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
                 WHERE TABLE_SCHEMA = DATABASE() 
@@ -86,7 +86,7 @@ return new class extends Migration
 
         // 5. Ensure weight is VARCHAR to support text values like "82 kg"
         // The wizard validates as string, so we relax to varchar
-        if (Schema::hasTable('users') && Schema::hasColumn('users', 'weight')) {
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'weight') && DB::getDriverName() === 'mysql') {
             $colType = DB::selectOne("
                 SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
                 WHERE TABLE_SCHEMA = DATABASE() 
@@ -112,7 +112,7 @@ return new class extends Migration
             }
 
             // 7. Ensure birth_time column is relaxed to VARCHAR(50) to support both 12-hour AM/PM and 24-hour formats
-            if (Schema::hasColumn('users', 'birth_time')) {
+            if (Schema::hasColumn('users', 'birth_time') && DB::getDriverName() === 'mysql') {
                 $colType = DB::selectOne("
                     SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
                     WHERE TABLE_SCHEMA = DATABASE() 
@@ -125,7 +125,7 @@ return new class extends Migration
             }
 
             // 8. Relax status column to VARCHAR(50) to support 'deactivated', 'blocked', 'account_approved', etc.
-            if (Schema::hasColumn('users', 'status')) {
+            if (Schema::hasColumn('users', 'status') && DB::getDriverName() === 'mysql') {
                 $colType = DB::selectOne("
                     SELECT DATA_TYPE, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
                     WHERE TABLE_SCHEMA = DATABASE() 
@@ -246,7 +246,7 @@ return new class extends Migration
                     $table->timestamp('updated_at')->nullable();
                 });
             }
-            if (Schema::hasColumn('news', 'image')) {
+            if (Schema::hasColumn('news', 'image') && DB::getDriverName() === 'mysql') {
                 $colType = DB::selectOne("
                     SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
                     WHERE TABLE_SCHEMA = DATABASE() 

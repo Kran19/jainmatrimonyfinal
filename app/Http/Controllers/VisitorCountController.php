@@ -45,14 +45,14 @@ class VisitorCountController extends Controller
                     return response()->json([
                         'status' => 'counted',
                         'visitor_count' => $newCount
-                    ]);
+                    ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
                 }
             }
 
             return response()->json([
                 'status' => 'already_counted_or_ignored',
                 'visitor_count' => (int)$currentValue
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 
         } catch (\Exception $e) {
             return response()->json([

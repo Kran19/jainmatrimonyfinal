@@ -41,8 +41,13 @@
                 </div>
                 <div>
                     <label for="password" class="block text-sm font-semibold text-slate-300 mb-1">Password</label>
-                    <input id="password" name="password" type="password" required
-                           class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-slate-700 bg-slate-700 placeholder-slate-400 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <div class="relative">
+                        <input id="password" name="password" type="password" required
+                               class="appearance-none rounded-lg relative block w-full pl-3 pr-10 py-2 border border-slate-700 bg-slate-700 placeholder-slate-400 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white focus:outline-none">
+                            <i class="fa-solid fa-eye-slash text-sm" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
                     @error('password')
                         <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
                     @enderror
@@ -60,5 +65,21 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.getElementById('togglePasswordIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    </script>
 </body>
 </html>
