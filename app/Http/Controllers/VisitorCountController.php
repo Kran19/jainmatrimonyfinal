@@ -23,35 +23,47 @@ class VisitorCountController extends Controller
                 || $request->hasHeader('Sec-Purpose')
                 || $request->header('Purpose') === 'prefetch';
 
-            $currentValue = DB::table('site_settings')
+            $isAdmin = Auth::guard('admin')->check();
+
+            if (!$isAdmin && !$isBotOrPrefetch) {
+                // Perform atomic database increment
+                $affected = DB::table('site_settings')
+                    ->where('setting_key', 'visitor_count')
+                    ->update([
+                        'setting_value' => DB::raw('CAST(setting_value AS SIGNED) + 1'),
+                        'updated_at' => now()
+                    ]);
+
+                if ($affected === 0) {
+                    // Fallback to updateOrInsert if row did not exist
+                    DB::table('site_settings')->updateOrInsert(
+                        ['setting_key' => 'visitor_count'],
+                        ['setting_value' => '1', 'updated_at' => now()]
+                    );
+                }
+
+                // Bust cache so the dashboard/site shows the fresh count
+                Cache::forget('site_settings');
+
+                // Get fresh updated count to return
+                $newCount = DB::table('site_settings')
+                    ->where('setting_key', 'visitor_count')
+                    ->value('setting_value') ?: 0;
+
+                return response()->json([
+                    'status' => 'counted',
+                    'visitor_count' => (int)$newCount
+                ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+            }
+
+            // If it's admin or bot, fetch current count without incrementing
+            $currentCount = DB::table('site_settings')
                 ->where('setting_key', 'visitor_count')
                 ->value('setting_value') ?: 0;
 
-            if (!Auth::guard('admin')->check() && !$isBotOrPrefetch) {
-                // If this session has not been counted yet
-                if (!$request->session()->has('visitor_counted')) {
-                    $request->session()->put('visitor_counted', true);
-
-                    $newCount = (int)$currentValue + 1;
-
-                    DB::table('site_settings')->updateOrInsert(
-                        ['setting_key' => 'visitor_count'],
-                        ['setting_value' => (string)$newCount, 'updated_at' => now()]
-                    );
-
-                    // Bust cache so the dashboard/site shows the fresh count
-                    Cache::forget('site_settings');
-
-                    return response()->json([
-                        'status' => 'counted',
-                        'visitor_count' => $newCount
-                    ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-                }
-            }
-
             return response()->json([
-                'status' => 'already_counted_or_ignored',
-                'visitor_count' => (int)$currentValue
+                'status' => 'ignored',
+                'visitor_count' => (int)$currentCount
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 
         } catch (\Exception $e) {
