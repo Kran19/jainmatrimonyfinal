@@ -24,7 +24,8 @@ class PerformanceOptimizationMiddleware
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         // Dynamic vs Static Response Caching
-        if ($request->isMethod('GET') && !$request->ajax() && !auth()->check() && !$request->is('admin*')) {
+        $isAuthRoute = $request->is('login', 'register', 'forgot-password', 'reset-password*', 'register/*');
+        if ($request->isMethod('GET') && !$request->ajax() && !auth()->check() && !$request->is('admin*') && !$isAuthRoute) {
             // Public GET pages cache for short duration
             $response->headers->set('Cache-Control', 'public, max-age=60, s-maxage=120, must-revalidate');
         }

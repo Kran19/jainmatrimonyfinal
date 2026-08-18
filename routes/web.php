@@ -184,7 +184,7 @@ Route::get('/run-prod-migrations', function() {
                     'updated_at' => now(),
                 ],
                 [
-                    'name' => 'श्री दर्शन जैन वखारिया',
+                    'name' => 'दर्शन जैन वखारिया',
                     'name_en' => 'Darshan Jain Vakharia',
                     'designation' => 'Committee Member',
                     'designation_en' => 'Committee Member',

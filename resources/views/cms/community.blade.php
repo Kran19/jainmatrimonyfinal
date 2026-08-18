@@ -4,13 +4,9 @@
 
 @section('content')
 <!-- Page Banner -->
-<section class="relative h-72 md:h-96 bg-cover bg-center flex items-center justify-center text-center px-4"
+<section class="relative h-48 md:h-64 bg-cover bg-center flex items-center justify-center text-center px-4"
     style="background-image: url('{{ asset('assets/images/about-us-img.jpeg') }}');">
     <div class="absolute inset-0 bg-black bg-opacity-40"></div>
-    <div class="relative z-10">
-        <h1 class="text-3xl md:text-5xl font-bold text-white tracking-wide" id="pageTitleHi">कार्यकारिणी समिति</h1>
-        <h1 class="text-3xl md:text-5xl font-bold text-white tracking-wide hidden" id="pageTitleEn">Executive Committee</h1>
-    </div>
 </section>
 
 <!-- Language Toggle -->
@@ -28,6 +24,7 @@
         <!-- Quote Section -->
         <div class="text-center mb-16">
             <div id="committeeQuoteHi">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-dark mb-4" id="pageTitleHi">कार्यकारिणी समिति</h1>
                 <p class="text-primary font-bold text-lg mb-3">- दिगम्बर जैन परिचय सम्मेलन समिति अहमदाबाद</p>
                 <p class="text-gray-600 max-w-4xl mx-auto italic text-lg leading-relaxed font-medium">
                     "स्थापना काल से ही समिति के पाँचों सदस्य इस संस्था को आगे ले जाने में जुटे हुए हैं। सभी सदस्यों के सामूहिक प्रयासों और आपसी तालमेल का ही परिणाम है कि संस्था आज इस गौरवशाली मुकाम पर खड़ी है। यह पारस्परिक सामंजस्य ही हमारी संस्था का मुख्य आधार स्तंभ है।"
@@ -35,6 +32,7 @@
             </div>
             
             <div id="committeeQuoteEn" class="hidden">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-dark mb-4" id="pageTitleEn">Executive Committee</h1>
                 <p class="text-primary font-bold text-lg mb-3">- Digambar Jain Parichay Sammelan Samiti Ahmedabad</p>
                 <p class="text-gray-600 max-w-4xl mx-auto italic text-lg leading-relaxed font-medium">
                     "Since its inception, all five members of the committee have been dedicated to taking this organization forward. It is the result of their collective efforts and mutual coordination that the organization stands at this glorious stage today. This mutual harmony is the main pillar of our organization."
