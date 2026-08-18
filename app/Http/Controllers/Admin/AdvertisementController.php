@@ -113,7 +113,7 @@ class AdvertisementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
-            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar,latest_profiles_bottom',
+            'position' => 'required|string|in:left_sidebar,center_left,center_right,right_sidebar,bottom_banner,home_top,home_bottom,sidebar,latest_profiles_bottom',
             'image' => 'required|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm,mov,avi|max:20480',
             'sort_order' => 'nullable|integer|min:0',
             'duration_seconds' => 'nullable|integer|min:1|max:60',
@@ -168,7 +168,7 @@ class AdvertisementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'link' => 'nullable|url|max:255',
-            'position' => 'required|string|in:left_sidebar,right_sidebar,bottom_banner,home_top,home_bottom,sidebar,latest_profiles_bottom',
+            'position' => 'required|string|in:left_sidebar,center_left,center_right,right_sidebar,bottom_banner,home_top,home_bottom,sidebar,latest_profiles_bottom',
             'image' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif,mp4,webm,mov,avi|max:20480',
             'sort_order' => 'nullable|integer|min:0',
             'duration_seconds' => 'nullable|integer|min:1|max:60',
