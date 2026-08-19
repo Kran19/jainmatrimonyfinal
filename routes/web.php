@@ -334,8 +334,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/account-approvals/{id}/reject', [AccountApprovalController::class, 'reject'])->name('admin.account-approvals.reject');
     
     // Contact Messages
-    Route::get('/admin/contacts', [ContactMessageController::class, 'index'])->name('admin.contacts.index');
-    Route::delete('/admin/contacts/{id}', [ContactMessageController::class, 'destroy'])->name('admin.contacts.destroy');
+    Route::middleware('superadmin')->group(function () {
+        Route::get('/admin/contacts', [ContactMessageController::class, 'index'])->name('admin.contacts.index');
+        Route::delete('/admin/contacts/{id}', [ContactMessageController::class, 'destroy'])->name('admin.contacts.destroy');
     
     // Bulk Email
     Route::get('/admin/bulk-email', [BulkEmailController::class, 'index'])->name('admin.bulk-email.index');
@@ -364,7 +365,8 @@ Route::middleware('auth:admin')->group(function () {
     // Reports
     Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/admin/reports/export', [ReportController::class, 'export'])->name('admin.reports.export');
-    
+    });
+
     // Approvals queue
     Route::get('/admin/approvals', [ProfileApprovalController::class, 'index'])->name('admin.approvals.index');
     Route::post('/admin/approvals/{member}/approve', [ProfileApprovalController::class, 'approve'])->name('admin.approvals.approve');
@@ -382,7 +384,8 @@ Route::middleware('auth:admin')->group(function () {
     Route::delete('/admin/members/{member}', [MemberController::class, 'destroy'])->name('admin.members.destroy');
 
     // Payments management
-    Route::get('/admin/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
+    Route::middleware('superadmin')->group(function () {
+        Route::get('/admin/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
     Route::post('/admin/payments/manual', [PaymentController::class, 'storeManual'])->name('admin.payments.manual');
     Route::post('/admin/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('admin.payments.verify');
 
@@ -432,6 +435,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::put('/admin/cms/committee/{member}', [CommitteeController::class, 'update'])->name('admin.cms.committee.update');
     Route::post('/admin/cms/committee/{member}/toggle', [CommitteeController::class, 'toggle'])->name('admin.cms.committee.toggle');
     Route::delete('/admin/cms/committee/{member}', [CommitteeController::class, 'destroy'])->name('admin.cms.committee.destroy');
+    });
 });
 
 // CMS Pages

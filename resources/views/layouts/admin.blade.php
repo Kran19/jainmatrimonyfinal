@@ -269,6 +269,7 @@
             <a href="{{ route('admin.members.requests') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/members-requests*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-user-minus mr-3 w-5 text-center"></i>Deactivation / Deletion Requests
             </a>
+            @if(Auth::guard('admin')->user()->isSuperAdmin())
             <a href="{{ route('admin.payments.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/payments*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-receipt mr-3 w-5 text-center"></i>Payments & Billing
             </a>
@@ -312,6 +313,7 @@
             <a href="{{ route('admin.cms.ads.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/cms/ads*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-rectangle-ad mr-3 w-5 text-center"></i>Advertisements
             </a>
+            @endif
         </nav>
         
         <!-- Sidebar Footer & Logout -->

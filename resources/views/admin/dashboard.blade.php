@@ -26,6 +26,7 @@
         </div>
     </div>
 
+    @if(Auth::guard('admin')->user()->isSuperAdmin())
     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
         <div>
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Revenue</p>
@@ -45,6 +46,7 @@
             <i class="fa-solid fa-crown text-xl"></i>
         </div>
     </div>
+    @endif
 
     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
         <div>
@@ -117,6 +119,7 @@
     </div>
 </div>
 
+@if(Auth::guard('admin')->user()->isSuperAdmin())
 <!-- Recent Payments -->
 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
     <div class="flex justify-between items-center mb-4">
@@ -159,4 +162,5 @@
         </table>
     </div>
 </div>
+@endif
 @endsection
