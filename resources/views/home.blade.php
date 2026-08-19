@@ -322,17 +322,17 @@
                             @if($has_valid_link)
                                 <a href="{{ $ad_link }}" target="_blank" class="block w-full h-full">
                                     @if($is_video)
-                                        <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                     @else
-                                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                     @endif
                                 </a>
                             @else
                                 <div class="w-full h-full">
                                     @if($is_video)
-                                        <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                        <video src="{{ $img_src }}" autoplay loop muted playsinline class="w-full h-full object-contain"></video>
                                     @else
-                                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-cover">
+                                        <img src="{{ $img_src }}" alt="{{ $ad['title'] ?? '' }}" class="w-full h-full object-contain">
                                     @endif
                                 </div>
                             @endif
