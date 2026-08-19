@@ -26,19 +26,49 @@ class VisitorCountController extends Controller
             $isAdmin = Auth::guard('admin')->check();
 
             if (!$isAdmin && !$isBotOrPrefetch) {
+                // Determine driver to use appropriate SQL cast expression (cross-database compatibility)
+                $driver = DB::getDriverName();
+                $castExpression = match ($driver) {
+                    'pgsql' => 'CAST(setting_value AS INTEGER) + 1',
+                    'sqlsrv' => 'CAST(setting_value AS INT) + 1',
+                    default => 'CAST(setting_value AS SIGNED) + 1',
+                };
+
+                // Check if site_settings table has updated_at column to avoid SQL failures on legacy databases
+                $hasUpdatedAt = Cache::remember('site_settings_has_updated_at', 86400, function () {
+                    try {
+                        return \Illuminate\Support\Facades\Schema::hasColumn('site_settings', 'updated_at');
+                    } catch (\Exception $e) {
+                        return false;
+                    }
+                });
+
+                $updateData = [
+                    'setting_value' => DB::raw($castExpression)
+                ];
+                if ($hasUpdatedAt) {
+                    $updateData['updated_at'] = now();
+                }
+
                 // Perform atomic database increment
                 $affected = DB::table('site_settings')
                     ->where('setting_key', 'visitor_count')
-                    ->update([
-                        'setting_value' => DB::raw('CAST(setting_value AS SIGNED) + 1'),
-                        'updated_at' => now()
-                    ]);
+                    ->update($updateData);
 
                 if ($affected === 0) {
                     // Fallback to updateOrInsert if row did not exist
+                    $insertData = ['setting_value' => '1'];
+                    if ($hasUpdatedAt) {
+                        $insertData['updated_at'] = now();
+                        try {
+                            if (\Illuminate\Support\Facades\Schema::hasColumn('site_settings', 'created_at')) {
+                                $insertData['created_at'] = now();
+                            }
+                        } catch (\Exception $e) {}
+                    }
                     DB::table('site_settings')->updateOrInsert(
                         ['setting_key' => 'visitor_count'],
-                        ['setting_value' => '1', 'updated_at' => now()]
+                        $insertData
                     );
                 }
 
