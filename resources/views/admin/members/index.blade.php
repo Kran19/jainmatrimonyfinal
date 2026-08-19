@@ -63,6 +63,7 @@
                         <th class="py-3 px-6">Contact Info</th>
                         <th class="py-3 px-6 text-center">Reg. Count</th>
                         <th class="py-3 px-6 text-center">Delete Count</th>
+                        <th class="py-3 px-6">Registered On</th>
                         @if(request('status') === 'approved')
                             <th class="py-3 px-6">Approved Date</th>
                         @elseif(request('status') === 'blocked')
@@ -187,6 +188,14 @@
                             <span class="px-2.5 py-1 rounded-full text-xs font-extrabold @if(($member->deletion_count ?? 0) > 0) bg-rose-50 text-rose-700 border border-rose-100 @else bg-slate-50 text-slate-600 @endif">
                                 {{ $member->deletion_count ?? 0 }}
                             </span>
+                        </td>
+                        <td class="py-4 px-6 text-sm font-medium text-gray-700 whitespace-nowrap">
+                            @if($member->created_at)
+                                <div>{{ \Carbon\Carbon::parse($member->created_at)->format('d/m/Y') }}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">{{ \Carbon\Carbon::parse($member->created_at)->format('h:i A') }}</div>
+                            @else
+                                <span class="text-xs text-slate-400">N/A</span>
+                            @endif
                         </td>
                         <td class="py-4 px-6 font-medium text-gray-700">
                             @php

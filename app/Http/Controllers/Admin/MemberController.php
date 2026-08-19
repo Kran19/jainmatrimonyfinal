@@ -53,8 +53,8 @@ class MemberController extends Controller
             $query->where('gender', $request->gender);
         }
 
-        // 4. Paginate
-        $members = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        // 4. Sort newest first, then paginate
+        $members = $query->orderBy('users.created_at', 'desc')->paginate(10)->withQueryString();
 
         return view('admin.members.index', compact('members'));
     }
