@@ -55,6 +55,7 @@
                         <th class="py-3 px-6">Plan / Amount</th>
                         <th class="py-3 px-6">Transaction Details</th>
                         <th class="py-3 px-6">Screenshot</th>
+                        <th class="py-3 px-6">Paid Date</th>
                         <th class="py-3 px-6">Status</th>
                         <th class="py-3 px-6 text-center">Actions</th>
                     @else
@@ -62,6 +63,15 @@
                         <th class="py-3 px-6">Contact Info</th>
                         <th class="py-3 px-6 text-center">Reg. Count</th>
                         <th class="py-3 px-6 text-center">Delete Count</th>
+                        @if(request('status') === 'approved')
+                            <th class="py-3 px-6">Approved Date</th>
+                        @elseif(request('status') === 'blocked')
+                            <th class="py-3 px-6">Blocked Date</th>
+                        @elseif(request('status') === 'rejected')
+                            <th class="py-3 px-6">Rejected Date</th>
+                        @else
+                            <th class="py-3 px-6">Status Date</th>
+                        @endif
                         <th class="py-3 px-6">Status</th>
                         <th class="py-3 px-6 text-center">Actions</th>
                     @endif
@@ -127,6 +137,15 @@
                                 <span class="text-xs text-slate-400">None</span>
                             @endif
                         </td>
+                        <td class="py-4 px-6 font-medium text-gray-700">
+                            @php
+                                $paidDate = $member->paid_at 
+                                    ? \Carbon\Carbon::parse($member->paid_at) 
+                                    : ($member->payments()->where('status', 'verified')->latest()->first()?->created_at 
+                                        ?? $member->memberships()->latest()->first()?->pivot?->start_date);
+                            @endphp
+                            {{ $paidDate ? \Carbon\Carbon::parse($paidDate)->format('d/m/Y') : 'N/A' }}
+                        </td>
                         <td class="py-4 px-6">
                             <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
                                 Approved
@@ -168,6 +187,26 @@
                             <span class="px-2.5 py-1 rounded-full text-xs font-extrabold @if(($member->deletion_count ?? 0) > 0) bg-rose-50 text-rose-700 border border-rose-100 @else bg-slate-50 text-slate-600 @endif">
                                 {{ $member->deletion_count ?? 0 }}
                             </span>
+                        </td>
+                        <td class="py-4 px-6 font-medium text-gray-700">
+                            @php
+                                $statusDate = 'N/A';
+                                if ($member->status === 'approved') {
+                                    $rawDate = $member->approved_at ?? $member->approval_date;
+                                    $statusDate = $rawDate ? \Carbon\Carbon::parse($rawDate)->format('d/m/Y') : 'N/A';
+                                } elseif ($member->status === 'blocked') {
+                                    $statusDate = $member->blocked_at ? \Carbon\Carbon::parse($member->blocked_at)->format('d/m/Y') : 'N/A';
+                                } elseif ($member->status === 'rejected') {
+                                    $statusDate = $member->rejected_at ? \Carbon\Carbon::parse($member->rejected_at)->format('d/m/Y') : 'N/A';
+                                } elseif ($member->payment_status === 'approved') {
+                                    $paidDate = $member->paid_at 
+                                        ? \Carbon\Carbon::parse($member->paid_at) 
+                                        : ($member->payments()->where('status', 'verified')->latest()->first()?->created_at 
+                                            ?? $member->memberships()->latest()->first()?->pivot?->start_date);
+                                    $statusDate = $paidDate ? \Carbon\Carbon::parse($paidDate)->format('d/m/Y') : 'N/A';
+                                }
+                            @endphp
+                            {{ $statusDate }}
                         </td>
                         <td class="py-4 px-6">
                             <span class="px-2.5 py-1 rounded-full text-xs font-bold

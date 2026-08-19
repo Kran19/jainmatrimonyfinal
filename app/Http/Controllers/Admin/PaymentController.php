@@ -169,11 +169,17 @@ class PaymentController extends Controller
 
                 logger()->info("Payment #{$payment->id} status set to {$newPaymentStatus}. Rows updated: {$updated}");
 
-                // 2. Update linked user payment_status
+                // 2. Update linked user payment_status and paid_at
                 if ($payment->user_id) {
+                    $userUpdateData = ['payment_status' => $newUserStatus];
+                    if ($isApprove) {
+                        $userUpdateData['paid_at'] = now();
+                    } else {
+                        $userUpdateData['paid_at'] = null;
+                    }
                     $userUpdated = DB::table('users')
                         ->where('id', $payment->user_id)
-                        ->update(['payment_status' => $newUserStatus]);
+                        ->update($userUpdateData);
 
                     logger()->info("User #{$payment->user_id} payment_status set to {$newUserStatus}. Rows updated: {$userUpdated}");
                 }
@@ -249,8 +255,11 @@ class PaymentController extends Controller
                 'email'          => $user->email,
             ]);
 
-            // 2. Update user payment_status
-            $user->update(['payment_status' => 'approved']);
+            // 2. Update user payment_status and paid_at
+            $user->update([
+                'payment_status' => 'approved',
+                'paid_at' => now(),
+            ]);
 
             // 3. Create active membership
             UserMembership::create([

@@ -127,6 +127,8 @@ class User extends Authenticatable
         'rejected_at',
         'rejected_by',
         'submitted_for_review_at',
+        'blocked_at',
+        'paid_at',
     ];
 
     /**
@@ -170,6 +172,8 @@ class User extends Authenticatable
             'birth_date' => 'date',
             'approved_at' => 'datetime',
             'rejected_at' => 'datetime',
+            'blocked_at' => 'datetime',
+            'paid_at' => 'datetime',
             'submitted_for_review_at' => 'datetime',
             'featured_until' => 'date',
             'verified' => 'boolean',

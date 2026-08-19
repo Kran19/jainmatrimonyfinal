@@ -147,9 +147,36 @@ class MemberController extends Controller
                 $input['approval_date'] = now()->toDateString();
                 $input['expiry_date'] = now()->addMonths(12)->toDateString();
             }
+            $input['blocked_at'] = null;
+            $input['rejected_at'] = null;
+            $input['rejected_by'] = null;
+            $input['rejection_reason'] = null;
             $input['is_public'] = true;
-        } elseif (in_array($input['status'], ['blocked', 'deleted', 'rejected'])) {
+        } elseif ($input['status'] === 'blocked') {
+            $input['blocked_at'] = now();
+            $input['approved_at'] = null;
+            $input['approval_date'] = null;
+            $input['rejected_at'] = null;
+            $input['rejected_by'] = null;
+            $input['rejection_reason'] = null;
             $input['is_public'] = false;
+        } elseif ($input['status'] === 'rejected') {
+            $input['rejected_at'] = now();
+            $input['rejected_by'] = Auth::guard('admin')->id();
+            $input['approved_at'] = null;
+            $input['approval_date'] = null;
+            $input['blocked_at'] = null;
+            $input['is_public'] = false;
+        } else {
+            $input['approved_at'] = null;
+            $input['approval_date'] = null;
+            $input['blocked_at'] = null;
+            $input['rejected_at'] = null;
+            $input['rejected_by'] = null;
+            $input['rejection_reason'] = null;
+            if (in_array($input['status'], ['deleted'])) {
+                $input['is_public'] = false;
+            }
         }
 
         // 4. Handle file uploads
@@ -207,10 +234,11 @@ class MemberController extends Controller
                 $updateData['approval_date'] = now()->toDateString();
                 $updateData['expiry_date'] = now()->addMonths(12)->toDateString();
             }
-            // Clear rejection details
+            // Clear rejection and block details
             $updateData['rejection_reason'] = null;
             $updateData['rejected_at'] = null;
             $updateData['rejected_by'] = null;
+            $updateData['blocked_at'] = null;
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = true;
@@ -220,12 +248,34 @@ class MemberController extends Controller
             $updateData['rejected_by'] = Auth::guard('admin')->id();
             $updateData['rejection_reason'] = $request->rejection_reason;
             $updateData['approved_at'] = null;
+            $updateData['approval_date'] = null;
             $updateData['approved_by'] = null;
+            $updateData['blocked_at'] = null;
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+                $updateData['is_approved'] = false;
+            }
+        } elseif ($status === 'blocked') {
+            $updateData['blocked_at'] = now();
+            $updateData['approved_at'] = null;
+            $updateData['approval_date'] = null;
+            $updateData['approved_by'] = null;
+            $updateData['rejected_at'] = null;
+            $updateData['rejected_by'] = null;
+            $updateData['rejection_reason'] = null;
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = false;
             }
         } else {
+            $updateData['approved_at'] = null;
+            $updateData['approval_date'] = null;
+            $updateData['approved_by'] = null;
+            $updateData['rejected_at'] = null;
+            $updateData['rejected_by'] = null;
+            $updateData['rejection_reason'] = null;
+            $updateData['blocked_at'] = null;
+
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = false;
             }

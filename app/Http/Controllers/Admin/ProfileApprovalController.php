@@ -37,6 +37,7 @@ class ProfileApprovalController extends Controller
             'rejection_reason' => null,
             'rejected_at' => null,
             'rejected_by' => null,
+            'blocked_at' => null,
         ];
 
         if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
@@ -89,7 +90,9 @@ class ProfileApprovalController extends Controller
             'rejected_by' => Auth::guard('admin')->id(),
             'rejection_reason' => $request->rejection_reason,
             'approved_at' => null,
+            'approval_date' => null,
             'approved_by' => null,
+            'blocked_at' => null,
         ];
 
         if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
