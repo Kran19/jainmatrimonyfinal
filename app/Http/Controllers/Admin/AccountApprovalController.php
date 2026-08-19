@@ -19,10 +19,16 @@ class AccountApprovalController extends Controller
         $query = User::where('status', 'account_pending');
 
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            $search = trim($search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $numericSearch) {
                 $q->where('full_name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('mobile', 'like', "%{$search}%");
+
+                if (!empty($numericSearch)) {
+                    $q->orWhere('id', '=', $numericSearch);
+                }
             });
         }
 

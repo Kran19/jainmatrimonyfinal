@@ -41,238 +41,252 @@ class ProfileSearchController extends Controller
         $likedIdsStr = implode(',', array_merge([0], $likedIds));
 
         // Base query
-        $query = User::approved()->public()
+        $query = User::approved()
             ->where('users.id', '!=', $me->id)
             ->select('users.*')
             ->selectRaw("IF(users.id IN ($likedIdsStr), 1, 0) AS is_liked");
 
-        if ($genderVal) {
-            $query->where('gender', $genderVal);
-        }
-
         // 1. Filter by Match ID
-        if ($request->filled('match_id')) {
+        $hasMatchId = $request->filled('match_id');
+        if ($hasMatchId) {
             $matchIdVal = trim($request->match_id);
+            // Remove any trailing plus sign or spaces (e.g. "JDM974827+" -> "JDM974827")
+            $matchIdVal = rtrim($matchIdVal, '+ ');
             $cleanMatchId = preg_replace('/^[MF]-?/i', '', $matchIdVal);
-            $query->where(function($q) use ($matchIdVal, $cleanMatchId) {
+            $numericSearch = preg_replace('/[^0-9]/', '', $matchIdVal);
+            
+            $query->where(function($q) use ($matchIdVal, $cleanMatchId, $numericSearch) {
                 $q->where('profile_id', 'like', "%{$matchIdVal}%")
-                  ->orWhere('profile_id', 'like', "%{$cleanMatchId}%")
-                  ->orWhere('users.id', '=', $cleanMatchId);
+                  ->orWhere('profile_id', 'like', "%{$cleanMatchId}%");
+
+                if (!empty($numericSearch)) {
+                    $q->orWhere('profile_id', 'like', "%{$numericSearch}%")
+                      ->orWhere('users.id', '=', $numericSearch);
+                } else {
+                    $q->orWhere('users.id', '=', $cleanMatchId);
+                }
             });
-        }
+        } else {
+            // Apply standard filters only if NOT searching by Match ID
+            $query->public();
 
-        // 2. Filter by City / Native Place
-        if ($request->filled('city')) {
-            $cityVal = trim($request->city);
-            $query->where(function ($q) use ($cityVal) {
-                $q->where('native_place', 'like', "%{$cityVal}%")
-                  ->orWhere('current_address', 'like', "%{$cityVal}%")
-                  ->orWhere('permanent_address', 'like', "%{$cityVal}%")
-                  ->orWhere('birth_place', 'like', "%{$cityVal}%");
-            });
-        }
-
-        // 3. Filter by State
-        if ($request->filled('state')) {
-            $stateVal = trim($request->state);
-            $query->where(function ($q) use ($stateVal) {
-                $q->where('current_address', 'like', "%{$stateVal}%")
-                  ->orWhere('permanent_address', 'like', "%{$stateVal}%")
-                  ->orWhere('native_place', 'like', "%{$stateVal}%");
-            });
-        }
-
-        // 4. Filter by Education
-        if ($request->filled('education') && $request->education !== 'Education All') {
-            $edu = trim($request->education);
-            if (in_array($edu, ['Doctors', 'Doctor', 'Doctorate'])) {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '%Doctor%')
-                      ->orWhere('higher_education', 'like', '%MBBS%')
-                      ->orWhere('higher_education', 'like', '%BDS%')
-                      ->orWhere('higher_education', 'like', '%MD %')
-                      ->orWhere('higher_education', 'like', '%M.D%')
-                      ->orWhere('higher_education', 'like', '%MD(%')
-                      ->orWhere('higher_education', '=', 'MD')
-                      ->orWhere('higher_education', 'like', '%Surgery%')
-                      ->orWhere('higher_education', 'like', '%Surgeon%')
-                      ->orWhere('higher_education', 'like', '%BAMS%')
-                      ->orWhere('higher_education', 'like', '%BHMS%')
-                      ->orWhere('higher_education', 'like', '%MDS%')
-                      ->orWhere('higher_education', 'like', '%Dentist%')
-                      ->orWhere('higher_education', 'like', '%Medical%');
-                });
-            } elseif ($edu === 'Engineer') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '%Engineer%')
-                      ->orWhere('higher_education', 'like', '%B.E%')
-                      ->orWhere('higher_education', 'like', '%B.Tech%')
-                      ->orWhere('higher_education', 'like', '%M.Tech%')
-                      ->orWhere('higher_education', 'like', '%B Tech%')
-                      ->orWhere('higher_education', 'like', '%M Tech%')
-                      ->orWhere('higher_education', 'like', '%B. E%');
-                });
-            } elseif ($edu === 'MBA') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '%MBA%')
-                      ->orWhere('higher_education', 'like', '%PGBDM%')
-                      ->orWhere('higher_education', 'like', '%PGDM%');
-                });
-            } elseif ($edu === 'MCA') {
-                $query->where('higher_education', 'like', '%MCA%');
-            } elseif ($edu === 'MBA/MCA') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '%MBA%')
-                      ->orWhere('higher_education', 'like', '%MCA%')
-                      ->orWhere('higher_education', 'like', '%PGBDM%')
-                      ->orWhere('higher_education', 'like', '%PGDM%');
-                });
-            } elseif ($edu === 'CA') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '% CA %')
-                      ->orWhere('higher_education', 'like', 'CA %')
-                      ->orWhere('higher_education', 'like', '% CA')
-                      ->orWhere('higher_education', '=', 'CA')
-                      ->orWhere('higher_education', 'like', '%Chartered Accountant%');
-                });
-            } elseif ($edu === 'CS') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '% CS %')
-                      ->orWhere('higher_education', 'like', 'CS %')
-                      ->orWhere('higher_education', 'like', '% CS')
-                      ->orWhere('higher_education', '=', 'CS')
-                      ->orWhere('higher_education', 'like', '%Company Secretary%');
-                });
-            } elseif ($edu === 'CA/CS') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '% CA %')
-                      ->orWhere('higher_education', 'like', 'CA %')
-                      ->orWhere('higher_education', 'like', '% CA')
-                      ->orWhere('higher_education', '=', 'CA')
-                      ->orWhere('higher_education', 'like', '%Chartered Accountant%')
-                      ->orWhere('higher_education', 'like', '% CS %')
-                      ->orWhere('higher_education', 'like', 'CS %')
-                      ->orWhere('higher_education', 'like', '% CS')
-                      ->orWhere('higher_education', '=', 'CS')
-                      ->orWhere('higher_education', 'like', '%Company Secretary%');
-                });
-            } elseif ($edu === 'Graduate') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '%B.Com%')
-                      ->orWhere('higher_education', 'like', '%BCom%')
-                      ->orWhere('higher_education', 'like', '%B.Sc%')
-                      ->orWhere('higher_education', 'like', '%BSc%')
-                      ->orWhere('higher_education', 'like', '%B.A%')
-                      ->orWhere('higher_education', 'like', '%B.Tech%')
-                      ->orWhere('higher_education', 'like', '%B Tech%')
-                      ->orWhere('higher_education', 'like', '%B.E%')
-                      ->orWhere('higher_education', 'like', '%BE%')
-                      ->orWhere('higher_education', 'like', '%BBA%')
-                      ->orWhere('higher_education', 'like', '%BCA%')
-                      ->orWhere('higher_education', 'like', '%Bachelor%')
-                      ->orWhere('higher_education', 'like', '%Graduat%');
-                });
-            } elseif ($edu === 'Post Graduate') {
-                $query->where(function ($q) {
-                    $q->where('higher_education', 'like', '%M.Com%')
-                      ->orWhere('higher_education', 'like', '%MCom%')
-                      ->orWhere('higher_education', 'like', '%M.Sc%')
-                      ->orWhere('higher_education', 'like', '%MSc%')
-                      ->orWhere('higher_education', 'like', '%M.A%')
-                      ->orWhere('higher_education', 'like', '%M.Tech%')
-                      ->orWhere('higher_education', 'like', '%M Tech%')
-                      ->orWhere('higher_education', 'like', '%M.E%')
-                      ->orWhere('higher_education', 'like', '%ME%')
-                      ->orWhere('higher_education', 'like', '%MBA%')
-                      ->orWhere('higher_education', 'like', '%MCA%')
-                      ->orWhere('higher_education', 'like', '%CS%')
-                      ->orWhere('higher_education', 'like', '%CA%')
-                      ->orWhere('higher_education', 'like', '%Master%')
-                      ->orWhere('higher_education', 'like', '%Post Graduat%');
-                });
-            } else {
-                $query->where('higher_education', 'like', "%{$edu}%");
+            if ($genderVal) {
+                $query->where('gender', $genderVal);
             }
-        }
 
-        // 5. Filter by Manglik Status
-        if ($request->filled('manglik')) {
-            $manglikVal = strtolower($request->manglik);
-            if ($manglikVal === 'yes') {
-                $query->where('manglik', 'Yes');
-            } elseif ($manglikVal === 'no') {
-                $query->where('manglik', 'No');
-            }
-        }
-
-        // 6. Filter by Marital Status
-        if ($request->filled('marital') && $request->marital !== 'All') {
-            $maritalVal = trim($request->marital);
-            if ($maritalVal === 'Unmarried') {
-                $maritalVal = 'Never Married';
-            } elseif ($maritalVal === 'Divorcee') {
-                $maritalVal = 'Divorce';
-            }
-            $query->where('marital_status', $maritalVal);
-        }
-
-        // 7. Filter by Occupation
-        if ($request->filled('occupation') && $request->occupation !== 'Occupation All') {
-            $occVal = trim($request->occupation);
-            if ($occVal === 'Business') {
-                $query->where(function ($q) {
-                    $q->where('occupation', 'like', '%Business%')
-                      ->orWhere('occupation', 'like', '%Self Employed%')
-                      ->orWhere('occupation', 'like', '%Owner%')
-                      ->orWhere('occupation', 'like', '%Entrepreneur%');
+            // 2. Filter by City / Native Place
+            if ($request->filled('city')) {
+                $cityVal = trim($request->city);
+                $query->where(function ($q) use ($cityVal) {
+                    $q->where('native_place', 'like', "%{$cityVal}%")
+                      ->orWhere('current_address', 'like', "%{$cityVal}%")
+                      ->orWhere('permanent_address', 'like', "%{$cityVal}%")
+                      ->orWhere('birth_place', 'like', "%{$cityVal}%");
                 });
-            } elseif ($occVal === 'Service') {
-                $query->where(function ($q) {
-                    $q->where('occupation', 'like', '%Job%')
-                      ->orWhere('occupation', 'like', '%Service%')
-                      ->orWhere('occupation', 'like', '%Private%')
-                      ->orWhere('occupation', 'like', '%Govt%')
-                      ->orWhere('occupation', 'like', '%Government%')
-                      ->orWhere('occupation', 'like', '%Employee%');
-                });
-            } elseif ($occVal === 'Not Working') {
-                $query->where(function ($q) {
-                    $q->where('occupation', 'like', '%Housewife%')
-                      ->orWhere('occupation', 'like', '%Retired%')
-                      ->orWhere('occupation', 'like', '%Unemployed%')
-                      ->orWhere('occupation', 'like', '%Student%')
-                      ->orWhere('occupation', 'like', '%Not Working%')
-                      ->orWhere('occupation', '=', '')
-                      ->orWhereNull('occupation');
-                });
-            } else {
-                $query->where('occupation', 'like', "%{$occVal}%");
             }
-        }
 
-        // 8. Filter by Age range
-        if ($request->filled('age_from') && is_numeric($request->age_from)) {
-            $maxBirthDate = Carbon::now()->subYears((int)$request->age_from)->endOfDay()->toDateString();
-            $query->where('birth_date', '<=', $maxBirthDate);
-        }
-        if ($request->filled('age_to') && is_numeric($request->age_to)) {
-            $minBirthDate = Carbon::now()->subYears((int)$request->age_to + 1)->addDay()->toDateString();
-            $query->where('birth_date', '>=', $minBirthDate);
-        }
+            // 3. Filter by State
+            if ($request->filled('state')) {
+                $stateVal = trim($request->state);
+                $query->where(function ($q) use ($stateVal) {
+                    $q->where('current_address', 'like', "%{$stateVal}%")
+                      ->orWhere('permanent_address', 'like', "%{$stateVal}%")
+                      ->orWhere('native_place', 'like', "%{$stateVal}%");
+                });
+            }
 
-        // 9. Filter by NRI Status
-        if ($request->filled('nri') && strtolower($request->nri) === 'yes') {
-            $nriCountries = ['USA', 'United States', 'America', 'Canada', 'Dubai', 'UAE', 'Australia', 'United Kingdom', 'London', 'Singapore', 'New Zealand', 'Germany', 'France', 'Kuwait', 'Oman', 'Qatar', 'California', 'Texas', 'New York', 'Toronto', 'Melbourne', 'Sydney'];
-            $query->where(function ($q) use ($nriCountries) {
-                $q->whereNotIn('country_code', ['91', '+91', ' 91', ' +91', '091', '+091'])
-                  ->whereNotNull('country_code')
-                  ->where('country_code', '!=', '')
-                  ->orWhere(function ($sub) use ($nriCountries) {
-                      foreach ($nriCountries as $country) {
-                          $sub->orWhere('current_address', 'like', "%{$country}%");
-                      }
-                  });
-            });
+            // 4. Filter by Education
+            if ($request->filled('education') && $request->education !== 'Education All') {
+                $edu = trim($request->education);
+                if (in_array($edu, ['Doctors', 'Doctor', 'Doctorate'])) {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '%Doctor%')
+                          ->orWhere('higher_education', 'like', '%MBBS%')
+                          ->orWhere('higher_education', 'like', '%BDS%')
+                          ->orWhere('higher_education', 'like', '%MD %')
+                          ->orWhere('higher_education', 'like', '%M.D%')
+                          ->orWhere('higher_education', 'like', '%MD(%')
+                          ->orWhere('higher_education', '=', 'MD')
+                          ->orWhere('higher_education', 'like', '%Surgery%')
+                          ->orWhere('higher_education', 'like', '%Surgeon%')
+                          ->orWhere('higher_education', 'like', '%BAMS%')
+                          ->orWhere('higher_education', 'like', '%BHMS%')
+                          ->orWhere('higher_education', 'like', '%MDS%')
+                          ->orWhere('higher_education', 'like', '%Dentist%')
+                          ->orWhere('higher_education', 'like', '%Medical%');
+                    });
+                } elseif ($edu === 'Engineer') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '%Engineer%')
+                          ->orWhere('higher_education', 'like', '%B.E%')
+                          ->orWhere('higher_education', 'like', '%B.Tech%')
+                          ->orWhere('higher_education', 'like', '%M.Tech%')
+                          ->orWhere('higher_education', 'like', '%B Tech%')
+                          ->orWhere('higher_education', 'like', '%M Tech%')
+                          ->orWhere('higher_education', 'like', '%B. E%');
+                    });
+                } elseif ($edu === 'MBA') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '%MBA%')
+                          ->orWhere('higher_education', 'like', '%PGBDM%')
+                          ->orWhere('higher_education', 'like', '%PGDM%');
+                    });
+                } elseif ($edu === 'MCA') {
+                    $query->where('higher_education', 'like', '%MCA%');
+                } elseif ($edu === 'MBA/MCA') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '%MBA%')
+                          ->orWhere('higher_education', 'like', '%MCA%')
+                          ->orWhere('higher_education', 'like', '%PGBDM%')
+                          ->orWhere('higher_education', 'like', '%PGDM%');
+                    });
+                } elseif ($edu === 'CA') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '% CA %')
+                          ->orWhere('higher_education', 'like', 'CA %')
+                          ->orWhere('higher_education', 'like', '% CA')
+                          ->orWhere('higher_education', '=', 'CA')
+                          ->orWhere('higher_education', 'like', '%Chartered Accountant%');
+                    });
+                } elseif ($edu === 'CS') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '% CS %')
+                          ->orWhere('higher_education', 'like', 'CS %')
+                          ->orWhere('higher_education', 'like', '% CS')
+                          ->orWhere('higher_education', '=', 'CS')
+                          ->orWhere('higher_education', 'like', '%Company Secretary%');
+                    });
+                } elseif ($edu === 'CA/CS') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '% CA %')
+                          ->orWhere('higher_education', 'like', 'CA %')
+                          ->orWhere('higher_education', 'like', '% CA')
+                          ->orWhere('higher_education', '=', 'CA')
+                          ->orWhere('higher_education', 'like', '%Chartered Accountant%')
+                          ->orWhere('higher_education', 'like', '% CS %')
+                          ->orWhere('higher_education', 'like', 'CS %')
+                          ->orWhere('higher_education', 'like', '% CS')
+                          ->orWhere('higher_education', '=', 'CS')
+                          ->orWhere('higher_education', 'like', '%Company Secretary%');
+                    });
+                } elseif ($edu === 'Graduate') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '%B.Com%')
+                          ->orWhere('higher_education', 'like', '%BCom%')
+                          ->orWhere('higher_education', 'like', '%B.Sc%')
+                          ->orWhere('higher_education', 'like', '%BSc%')
+                          ->orWhere('higher_education', 'like', '%B.A%')
+                          ->orWhere('higher_education', 'like', '%B.Tech%')
+                          ->orWhere('higher_education', 'like', '%B Tech%')
+                          ->orWhere('higher_education', 'like', '%B.E%')
+                          ->orWhere('higher_education', 'like', '%BE%')
+                          ->orWhere('higher_education', 'like', '%BBA%')
+                          ->orWhere('higher_education', 'like', '%BCA%')
+                          ->orWhere('higher_education', 'like', '%Bachelor%')
+                          ->orWhere('higher_education', 'like', '%Graduat%');
+                    });
+                } elseif ($edu === 'Post Graduate') {
+                    $query->where(function ($q) {
+                        $q->where('higher_education', 'like', '%M.Com%')
+                          ->orWhere('higher_education', 'like', '%MCom%')
+                          ->orWhere('higher_education', 'like', '%M.Sc%')
+                          ->orWhere('higher_education', 'like', '%MSc%')
+                          ->orWhere('higher_education', 'like', '%M.A%')
+                          ->orWhere('higher_education', 'like', '%M.Tech%')
+                          ->orWhere('higher_education', 'like', '%M Tech%')
+                          ->orWhere('higher_education', 'like', '%M.E%')
+                          ->orWhere('higher_education', 'like', '%ME%')
+                          ->orWhere('higher_education', 'like', '%MBA%')
+                          ->orWhere('higher_education', 'like', '%MCA%')
+                          ->orWhere('higher_education', 'like', '%CS%')
+                          ->orWhere('higher_education', 'like', '%CA%')
+                          ->orWhere('higher_education', 'like', '%Master%')
+                          ->orWhere('higher_education', 'like', '%Post Graduat%');
+                    });
+                } else {
+                    $query->where('higher_education', 'like', "%{$edu}%");
+                }
+            }
+
+            // 5. Filter by Manglik Status
+            if ($request->filled('manglik')) {
+                $manglikVal = strtolower($request->manglik);
+                if ($manglikVal === 'yes') {
+                    $query->where('manglik', 'Yes');
+                } elseif ($manglikVal === 'no') {
+                    $query->where('manglik', 'No');
+                }
+            }
+
+            // 6. Filter by Marital Status
+            if ($request->filled('marital') && $request->marital !== 'All') {
+                $maritalVal = trim($request->marital);
+                if ($maritalVal === 'Unmarried') {
+                    $maritalVal = 'Never Married';
+                } elseif ($maritalVal === 'Divorcee') {
+                    $maritalVal = 'Divorce';
+                }
+                $query->where('marital_status', $maritalVal);
+            }
+
+            // 7. Filter by Occupation
+            if ($request->filled('occupation') && $request->occupation !== 'Occupation All') {
+                $occVal = trim($request->occupation);
+                if ($occVal === 'Business') {
+                    $query->where(function ($q) {
+                        $q->where('occupation', 'like', '%Business%')
+                          ->orWhere('occupation', 'like', '%Self Employed%')
+                          ->orWhere('occupation', 'like', '%Owner%')
+                          ->orWhere('occupation', 'like', '%Entrepreneur%');
+                    });
+                } elseif ($occVal === 'Service') {
+                    $query->where(function ($q) {
+                        $q->where('occupation', 'like', '%Job%')
+                          ->orWhere('occupation', 'like', '%Service%')
+                          ->orWhere('occupation', 'like', '%Private%')
+                          ->orWhere('occupation', 'like', '%Govt%')
+                          ->orWhere('occupation', 'like', '%Government%')
+                          ->orWhere('occupation', 'like', '%Employee%');
+                    });
+                } elseif ($occVal === 'Not Working') {
+                    $query->where(function ($q) {
+                        $q->where('occupation', 'like', '%Housewife%')
+                          ->orWhere('occupation', 'like', '%Retired%')
+                          ->orWhere('occupation', 'like', '%Unemployed%')
+                          ->orWhere('occupation', 'like', '%Student%')
+                          ->orWhere('occupation', 'like', '%Not Working%')
+                          ->orWhere('occupation', '=', '')
+                          ->orWhereNull('occupation');
+                    });
+                } else {
+                    $query->where('occupation', 'like', "%{$occVal}%");
+                }
+            }
+
+            // 8. Filter by Age range
+            if ($request->filled('age_from') && is_numeric($request->age_from)) {
+                $maxBirthDate = Carbon::now()->subYears((int)$request->age_from)->endOfDay()->toDateString();
+                $query->where('birth_date', '<=', $maxBirthDate);
+            }
+            if ($request->filled('age_to') && is_numeric($request->age_to)) {
+                $minBirthDate = Carbon::now()->subYears((int)$request->age_to + 1)->addDay()->toDateString();
+                $query->where('birth_date', '>=', $minBirthDate);
+            }
+
+            // 9. Filter by NRI Status
+            if ($request->filled('nri') && strtolower($request->nri) === 'yes') {
+                $nriCountries = ['USA', 'United States', 'America', 'Canada', 'Dubai', 'UAE', 'Australia', 'United Kingdom', 'London', 'Singapore', 'New Zealand', 'Germany', 'France', 'Kuwait', 'Oman', 'Qatar', 'California', 'Texas', 'New York', 'Toronto', 'Melbourne', 'Sydney'];
+                $query->where(function ($q) use ($nriCountries) {
+                    $q->whereNotIn('country_code', ['91', '+91', ' 91', ' +91', '091', '+091'])
+                      ->whereNotNull('country_code')
+                      ->where('country_code', '!=', '')
+                      ->orWhere(function ($sub) use ($nriCountries) {
+                          foreach ($nriCountries as $country) {
+                              $sub->orWhere('current_address', 'like', "%{$country}%");
+                          }
+                      });
+                });
+            }
         }
 
         // Apply Sorting

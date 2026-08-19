@@ -34,17 +34,23 @@ class PaymentController extends Controller
 
         // 2. Search Filter (by User name, User mobile, User email, User Profile ID, backup columns, or Transaction ID)
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $search = trim($request->search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function($q) use ($search, $numericSearch) {
                 $q->where('transaction_id', 'like', "%{$search}%")
                   ->orWhere('full_name', 'like', "%{$search}%")
                   ->orWhere('phone_number', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($uq) use ($search) {
+                  ->orWhereHas('user', function($uq) use ($search, $numericSearch) {
                       $uq->where('full_name', 'like', "%{$search}%")
                         ->orWhere('mobile', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('profile_id', 'like', "%{$search}%");
+
+                      if (!empty($numericSearch)) {
+                          $uq->orWhere('profile_id', 'like', "%{$numericSearch}%")
+                            ->orWhere('users.id', '=', $numericSearch);
+                      }
                   });
             });
         }
@@ -68,17 +74,23 @@ class PaymentController extends Controller
         // Counts for filter tabs (calculated without standard status limit but including search and date filters)
         $countQuery = Payment::query();
         if ($request->filled('search')) {
-            $search = $request->search;
-            $countQuery->where(function($q) use ($search) {
+            $search = trim($request->search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $countQuery->where(function($q) use ($search, $numericSearch) {
                 $q->where('transaction_id', 'like', "%{$search}%")
                   ->orWhere('full_name', 'like', "%{$search}%")
                   ->orWhere('phone_number', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($uq) use ($search) {
+                  ->orWhereHas('user', function($uq) use ($search, $numericSearch) {
                       $uq->where('full_name', 'like', "%{$search}%")
                         ->orWhere('mobile', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('profile_id', 'like', "%{$search}%");
+
+                      if (!empty($numericSearch)) {
+                          $uq->orWhere('profile_id', 'like', "%{$numericSearch}%")
+                            ->orWhere('users.id', '=', $numericSearch);
+                      }
                   });
             });
         }

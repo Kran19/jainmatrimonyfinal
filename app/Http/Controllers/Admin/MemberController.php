@@ -23,12 +23,18 @@ class MemberController extends Controller
 
         // 1. Filter by search string
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $search = trim($request->search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $numericSearch) {
                 $q->where('full_name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('mobile', 'like', "%{$search}%")
                   ->orWhere('profile_id', 'like', "%{$search}%");
+
+                if (!empty($numericSearch)) {
+                    $q->orWhere('profile_id', 'like', "%{$numericSearch}%")
+                      ->orWhere('users.id', '=', $numericSearch);
+                }
             });
         }
 
@@ -61,11 +67,16 @@ class MemberController extends Controller
         $query = User::where('status', 'account_approved');
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $search = trim($request->search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $numericSearch) {
                 $q->where('full_name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('mobile', 'like', "%{$search}%");
+
+                if (!empty($numericSearch)) {
+                    $q->orWhere('id', '=', $numericSearch);
+                }
             });
         }
 
