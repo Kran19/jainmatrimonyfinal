@@ -9,11 +9,14 @@
     <div class="flex flex-col space-y-6 px-8 mt-4">
         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-primary font-bold' : 'text-dark hover:text-primary font-medium' }} transition text-lg">Home</a>
         <div class="relative group">
-            <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') ? 'text-primary font-bold' : 'text-dark hover:text-primary font-medium' }} transition text-lg flex items-center gap-2">
-                About Us <i class="fas fa-chevron-down text-xs"></i>
-            </a>
-            <div class="pl-4 mt-2 space-y-2">
-                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} transition block">About Us</a>
+            <div class="flex items-center justify-between w-full">
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') ? 'text-primary font-bold' : 'text-dark hover:text-primary font-medium' }} transition text-lg flex-grow">About Us</a>
+                <button onclick="document.getElementById('mobileAboutMenu').classList.toggle('hidden'); document.getElementById('mobileAboutIcon').classList.toggle('rotate-180');" class="focus:outline-none p-2 -mr-2 text-dark">
+                    <i id="mobileAboutIcon" class="fas fa-chevron-down text-xs transition-transform duration-300"></i>
+                </button>
+            </div>
+            <div id="mobileAboutMenu" class="pl-4 mt-2 space-y-3 hidden pb-2 border-l-2 border-gray-100 ml-2">
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} transition block mt-2">About Us</a>
                 <a href="{{ route('community') }}" class="{{ request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} transition block">Committee</a>
             </div>
         </div>
