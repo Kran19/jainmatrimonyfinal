@@ -118,6 +118,7 @@ Route::get('/dbcheck', function() {
 });
 
 Route::get('/api/track-visit', [\App\Http\Controllers\VisitorCountController::class, 'track'])->name('visitor.track');
+Route::get('/api/reset-visitor-count', [\App\Http\Controllers\VisitorCountController::class, 'reset'])->name('visitor.reset');
 
 Route::get('/seed-admin', function() {
     try {
