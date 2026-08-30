@@ -153,14 +153,8 @@ class HomeController extends Controller
                     }
                     $p->computed_age = $age;
 
-                    // Fallback image URL
-                    $photoExists = !empty($p->profile_photo) && (str_starts_with($p->profile_photo, 'data:image/') || resolve_media_path($p->profile_photo) !== null);
-
-                    if ($photoExists) {
-                        $p->computed_img = route('image.serve', ['file' => $p->profile_photo]);
-                    } else {
-                        $p->computed_img = 'https://ui-avatars.com/api/?name=' . urlencode($p->full_name) . '&background=random';
-                    }
+                    // Fallback image URL using unique seeded profile_photo_url
+                    $p->computed_img = $p->profile_photo_url;
 
                     $index_profiles[] = $p;
                 }

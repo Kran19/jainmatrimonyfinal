@@ -41,7 +41,7 @@
                     <td class="py-4 px-6">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($member->full_name) }}" class="w-full h-full object-cover" alt="Profile Photo">
+                                <img src="{{ $member->profile_photo_url }}" class="w-full h-full object-cover" alt="Profile Photo">
                             </div>
                             <div>
                                 <p class="font-bold text-gray-900 leading-tight">{{ $member->full_name }}</p>

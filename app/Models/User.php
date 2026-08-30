@@ -261,14 +261,22 @@ class User extends Authenticatable
     }
 
     /**
-     * Get computed profile photo URL or default avatar fallback.
+     * Get computed profile photo URL or uniquely seeded avatar fallback.
      */
     public function getProfilePhotoUrlAttribute(): string
     {
         if ($this->hasProfilePhoto()) {
             return route('image.serve', ['file' => $this->profile_photo]);
         }
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&background=random';
+
+        // Distinct, curated palette seeded deterministically per candidate ID + Profile ID
+        $palette = ['1E3A5F', '8B2323', '0D9488', '7C3AED', 'D97706', '2563EB', 'DB2777', '059669', '4F46E5', 'DC2626', '0891B2', '9333EA'];
+        $uniqueSeed = (string)($this->id . '_' . ($this->profile_id ?? $this->id));
+        $colorIndex = abs(crc32($uniqueSeed)) % count($palette);
+        $bgColor = $palette[$colorIndex];
+
+        $nameParam = urlencode(!empty($this->full_name) ? trim($this->full_name) : 'Candidate');
+        return "https://ui-avatars.com/api/?name={$nameParam}&background={$bgColor}&color=ffffff&size=256&bold=true";
     }
 
     /**

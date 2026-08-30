@@ -36,53 +36,68 @@
             </div>
             <div class="p-6 space-y-6">
 
-                <!-- Toggle: Payment Enabled -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h5 class="font-bold text-gray-800 text-sm">Enable Payment on Registration</h5>
-                        <p class="text-xs text-slate-500 mt-1">If enabled, candidates must pay the subscription fee before completing profile registration.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer ml-4">
-                        <input type="hidden" name="payment_enabled" value="0">
-                        <input type="checkbox" name="payment_enabled" value="1" {{ ($settings['payment_enabled'] ?? '0') == '1' ? 'checked' : '' }} class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                    </label>
-                </div>
-
-                <hr class="border-gray-100">
-
-                <!-- Toggle: Matrimony Book Fee Notice -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h5 class="font-bold text-gray-800 text-sm">Show Matrimony Book Fee Notice (Homepage)</h5>
-                        <p class="text-xs text-slate-500 mt-1">Display a notice on the homepage regarding the Rs. 1000/- fee for printing photos in the matrimony book.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer ml-4">
-                        <input type="hidden" name="show_matrimony_book_fee" value="0">
-                        <input type="checkbox" name="show_matrimony_book_fee" value="1" {{ ($settings['show_matrimony_book_fee'] ?? '0') == '1' ? 'checked' : '' }} class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                    </label>
-                </div>
-
-                <hr class="border-gray-100">
-
-                <!-- Payment QR Code Image Upload -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div class="flex-grow">
-                        <h5 class="font-bold text-gray-800 text-sm">Payment QR Code Image</h5>
-                        <p class="text-xs text-slate-500 mt-1">Upload the QR code image for payments (displayed during payment verification).</p>
-                        @if(!empty($settings['payment_qr_code']))
-                            <div class="mt-3">
-                                @if(str_starts_with($settings['payment_qr_code'], 'data:image/'))
-                                    <img src="{{ $settings['payment_qr_code'] }}" alt="QR Code" class="w-24 h-24 object-cover border rounded-xl shadow-sm">
+                <!-- Payment Management Section -->
+                <div class="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100 space-y-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h5 class="font-bold text-gray-900 text-sm">Registration Payment (पंजीकरण शुल्क)</h5>
+                                @if(($settings['payment_enabled'] ?? '0') == '1')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <i class="fa-solid fa-circle-check"></i> Enabled (₹{{ number_format((float)($settings['registration_fee'] ?? 0), 0) }})
+                                    </span>
                                 @else
-                                    <img src="/image?file={{ urlencode(ltrim(str_replace('../', '', $settings['payment_qr_code']), '/\\')) }}" alt="QR Code" class="w-24 h-24 object-cover border rounded-xl shadow-sm" onerror="this.src='https://placehold.co/200x200/fef08a/854d0e?text=QR+Code';">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                        <i class="fa-solid fa-ban"></i> Disabled (Free Registration)
+                                    </span>
                                 @endif
                             </div>
-                        @endif
+                            <p class="text-xs text-slate-500 mt-1">When turned ON, candidates must pay the specified registration fee and upload proof to complete registration. When turned OFF, registration is 100% free and no payment screen is shown.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer ml-4">
+                            <input type="hidden" name="payment_enabled" value="0">
+                            <input type="checkbox" name="payment_enabled" id="payment_enabled_toggle" value="1" {{ ($settings['payment_enabled'] ?? '0') == '1' ? 'checked' : '' }} class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
                     </div>
-                    <div>
-                        <input type="file" name="payment_qr_code_file" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-indigo-100">
+                        <div>
+                            <label class="block font-bold text-gray-800 text-xs uppercase mb-1">Registration Fee Amount (₹) <span class="text-slate-400 font-normal">(शुल्क राशि)</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 font-bold text-sm">₹</span>
+                                <input type="number" name="registration_fee" value="{{ $settings['registration_fee'] ?? '0' }}" min="0" step="1" placeholder="e.g. 500"
+                                       class="w-full pl-8 pr-4 py-2 border border-gray-200 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1">The amount shown to candidates when payment is enabled.</p>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-800 text-xs uppercase mb-1">UPI ID for Payment <span class="text-slate-400 font-normal">(यूपीआई आईडी)</span></label>
+                            <input type="text" name="upi_id" value="{{ $settings['upi_id'] ?? '' }}" placeholder="e.g. digambarsamaj@bank"
+                                   class="w-full px-4 py-2 border border-gray-200 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+                            <p class="text-[11px] text-slate-500 mt-1">Displayed alongside QR code for direct UPI transfers.</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment QR Code Image Upload -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-3 border-t border-indigo-100">
+                        <div class="flex-grow">
+                            <h5 class="font-bold text-gray-800 text-sm">Payment QR Code Image</h5>
+                            <p class="text-xs text-slate-500 mt-1">Upload the QR code image for payments (displayed in registration wizard and payment modal).</p>
+                            @if(!empty($settings['payment_qr_code']))
+                                <div class="mt-3">
+                                    @if(str_starts_with($settings['payment_qr_code'], 'data:image/'))
+                                        <img src="{{ $settings['payment_qr_code'] }}" alt="QR Code" class="w-24 h-24 object-cover border rounded-xl shadow-sm bg-white p-1">
+                                    @else
+                                        <img src="/image?file={{ urlencode(ltrim(str_replace('../', '', $settings['payment_qr_code']), '/\\')) }}" alt="QR Code" class="w-24 h-24 object-cover border rounded-xl shadow-sm bg-white p-1" onerror="this.src='https://placehold.co/200x200/fef08a/854d0e?text=QR+Code';">
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                        <div>
+                            <input type="file" name="payment_qr_code_file" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-indigo-50 cursor-pointer shadow-xs border border-gray-200 rounded-xl">
+                        </div>
                     </div>
                 </div>
 
@@ -238,7 +253,7 @@
         </div>
 
         <!-- 4. Dynamic Pages (About Us, Terms & Privacy) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div id="tab-dynamic-pages" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="bg-slate-50 px-6 py-4 border-b border-gray-100">
                 <h4 class="font-bold text-gray-800 flex items-center gap-2">
                     <i class="fa-solid fa-file-lines text-indigo-500"></i> Dynamic Page Contents & Policies

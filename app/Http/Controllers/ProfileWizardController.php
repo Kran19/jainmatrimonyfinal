@@ -42,10 +42,23 @@ class ProfileWizardController extends Controller
 
         $memberships = Membership::where('status', true)->get();
 
-        // Fetch site settings for payment QR Code
-        $payment_qr_code = DB::table('site_settings')->where('setting_key', 'payment_qr_code')->value('setting_value') ?? 'assets/images/qr_code.jpg';
+        // Fetch site settings for payment toggle, registration fee, UPI ID, and QR Code
+        $settings = \App\Models\Setting::pluck('setting_value', 'setting_key')->toArray();
+        $payment_enabled = ($settings['payment_enabled'] ?? '0') === '1';
+        $registration_fee = $settings['registration_fee'] ?? '0';
+        $upi_id = $settings['upi_id'] ?? '';
+        $payment_qr_code = $settings['payment_qr_code'] ?? 'assets/images/qr_code.jpg';
 
-        return view('user.wizard', compact('user', 'memberships', 'customFieldsByGroup', 'customValues', 'payment_qr_code'));
+        return view('user.wizard', compact(
+            'user', 
+            'memberships', 
+            'customFieldsByGroup', 
+            'customValues', 
+            'payment_enabled',
+            'registration_fee',
+            'upi_id',
+            'payment_qr_code'
+        ));
     }
 
     /**
@@ -392,9 +405,19 @@ class ProfileWizardController extends Controller
             'membership_id' => 'nullable|exists:memberships,id',
             'payment_transaction_id' => 'nullable|string',
         ], [
-            'mandir_pincode.regex' => 'Temple pincode must be 4 to 6 digits.',
-            'ref1_mobile.regex' => 'Please ensure Reference 1 mobile number is exactly 10 digits.',
-            'ref2_mobile.regex' => 'Please ensure Reference 2 mobile number is exactly 10 digits.',
+            'mandir_name.required' => 'Temple / Mandir Name is mandatory for community verification (मंदिर का नाम अनिवार्य है).',
+            'mandir_address.required' => 'Temple / Mandir Address is mandatory (मंदिर का पता अनिवार्य है).',
+            'mandir_pincode.required' => 'Temple / Mandir Pincode is mandatory (मंदिर का पिनकोड अनिवार्य है).',
+            'mandir_pincode.regex' => 'Temple pincode must be 4 to 6 digits (मंदिर का पिनकोड 4 से 6 अंकों का होना चाहिए).',
+            'ref1_name.required' => 'Reference Person 1 Name is mandatory (प्रथम संदर्भ व्यक्ति का नाम अनिवार्य है).',
+            'ref1_mobile.required' => 'Reference Person 1 Mobile Number is mandatory (प्रथम संदर्भ व्यक्ति का मोबाइल नंबर अनिवार्य है).',
+            'ref1_mobile.regex' => 'Please ensure Reference 1 mobile number is exactly 10 digits (प्रथम संदर्भ व्यक्ति का 10 अंकों का मोबाइल नंबर दर्ज करें).',
+            'ref1_relation.required' => 'Reference Person 1 Relation is mandatory (प्रथम संदर्भ व्यक्ति से संबंध चुनें).',
+            'ref2_name.required' => 'Reference Person 2 Name is mandatory (द्वितीय संदर्भ व्यक्ति का नाम अनिवार्य है).',
+            'ref2_mobile.required' => 'Reference Person 2 Mobile Number is mandatory (द्वितीय संदर्भ व्यक्ति का मोबाइल नंबर अनिवार्य है).',
+            'ref2_mobile.regex' => 'Please ensure Reference 2 mobile number is exactly 10 digits (द्वितीय संदर्भ व्यक्ति का 10 अंकों का मोबाइल नंबर दर्ज करें).',
+            'ref2_relation.required' => 'Reference Person 2 Relation is mandatory (द्वितीय संदर्भ व्यक्ति से संबंध चुनें).',
+            'id_proof_type.required' => 'Please select an ID Proof type (पहचान प्रमाण पत्र का प्रकार चुनें).',
         ]);
 
         if ($validator->fails()) {
@@ -443,7 +466,8 @@ class ProfileWizardController extends Controller
         $photoPath = $user->profile_photo;
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
-            $filename = time() . '_photo_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_photo.' . $ext;
             $file->move($uploadDir, $filename);
             $photoPath = 'storage/uploads/' . $filename;
         }
@@ -451,7 +475,8 @@ class ProfileWizardController extends Controller
         $familyPhotoPath = $user->family_photo;
         if ($request->hasFile('family_photo')) {
             $file = $request->file('family_photo');
-            $filename = time() . '_family_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_family.' . $ext;
             $file->move($uploadDir, $filename);
             $familyPhotoPath = 'storage/uploads/' . $filename;
         }
@@ -459,7 +484,8 @@ class ProfileWizardController extends Controller
         $idProofPath = $user->id_proof_path;
         if ($request->hasFile('id_proof_path')) {
             $file = $request->file('id_proof_path');
-            $filename = time() . '_idproof_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_idproof.' . $ext;
             $file->move($uploadDir, $filename);
             $idProofPath = 'storage/uploads/' . $filename;
         }
@@ -467,7 +493,8 @@ class ProfileWizardController extends Controller
         $paymentScreenshotPath = $user->payment_screenshot;
         if ($request->hasFile('payment_screenshot')) {
             $file = $request->file('payment_screenshot');
-            $filename = time() . '_payment_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_payment.' . $ext;
             $file->move($uploadDir, $filename);
             $paymentScreenshotPath = 'storage/uploads/' . $filename;
         }

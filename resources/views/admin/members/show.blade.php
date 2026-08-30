@@ -7,8 +7,8 @@
 
 {{-- Back + Edit header bar --}}
 <div class="mb-6 flex justify-between items-center">
-    <a href="{{ route('admin.members.index') }}" class="text-slate-600 hover:text-indigo-600 font-semibold transition text-sm flex items-center gap-2">
-        <i class="fa-solid fa-arrow-left"></i> Back to Members
+    <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('admin.members.index') }}" onclick="if (document.referrer && document.referrer !== window.location.href && !document.referrer.endsWith('/edit')) { history.back(); return false; }" class="text-slate-600 hover:text-indigo-600 font-semibold transition text-sm flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-2xs hover:border-indigo-300">
+        <i class="fa-solid fa-arrow-left text-xs"></i> Back
     </a>
     <a href="{{ route('admin.members.edit', $member->id) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition duration-150 shadow-sm flex items-center gap-2">
         <i class="fa-solid fa-pen-to-square"></i> Edit Candidate Profile
@@ -27,15 +27,9 @@
             <div class="px-6 pb-6 relative">
                 {{-- Avatar --}}
                 <div class="w-28 h-28 rounded-full border-4 border-white bg-gray-100 mx-auto -mt-14 flex items-center justify-center shadow-md overflow-hidden relative z-10">
-                    @if($member->profile_photo)
-                        <img src="/image?file={{ urlencode($member->profile_photo) }}"
-                             alt="Profile Photo"
-                             class="w-full h-full object-cover">
-                    @else
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($member->full_name) }}&background=random"
-                             alt="Profile Photo"
-                             class="w-full h-full object-cover">
-                    @endif
+                    <img src="{{ $member->profile_photo_url }}"
+                         alt="Profile Photo"
+                         class="w-full h-full object-cover">
                 </div>
 
                 {{-- Name / Occupation / Location --}}
@@ -337,7 +331,7 @@
                     </p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($member->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($member->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</p>
                     <p class="font-medium text-green-700">
                         {{ format_indian_currency($member->monthly_income) }}
                     </p>

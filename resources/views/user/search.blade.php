@@ -133,14 +133,8 @@
                 @forelse($profiles as $profile)
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-150 flex flex-col justify-between">
                     <!-- Photo Header -->
-                    <div class="h-48 bg-slate-100 relative">
-                        @if(!empty($profile->profile_photo))
-                            <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo" class="w-full h-full object-contain object-center bg-slate-200">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-slate-300 font-black text-6xl">
-                                {{ substr($profile->full_name, 0, 1) }}
-                            </div>
-                        @endif
+                    <div class="h-48 bg-slate-100 relative overflow-hidden flex items-center justify-center">
+                        <img src="{{ $profile->profile_photo_url }}" alt="Photo of {{ $profile->full_name }}" class="w-full h-full object-contain object-center bg-slate-200" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($profile->full_name) }}&background=1E3A5F&color=fff&size=256';">
 
                         <!-- Shortlist Heart button -->
                         <button onclick="toggleShortlist({{ $profile->id }}, this)"

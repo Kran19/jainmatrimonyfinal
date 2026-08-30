@@ -69,7 +69,9 @@
         $b64 = base64_encode(file_get_contents($photoPath));
         $pdfPhoto = 'data:' . $mime . ';base64,' . $b64;
     } else {
-        $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=300&background=0f1754&color=fff';
+        $palette = ['1E3A5F', '8B2323', '0D9488', '7C3AED', 'D97706', '2563EB', 'DB2777', '059669', '4F46E5', 'DC2626'];
+        $bgColor = $palette[abs(crc32((string)($profile->id . ($profile->profile_id ?? $profile->id)))) % count($palette)];
+        $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=300&background=' . $bgColor . '&color=fff&bold=true';
     }
 
     $parentMobiles = [];
@@ -118,7 +120,7 @@
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
+            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
           </div>
 
           <div style="margin-bottom:3px;">

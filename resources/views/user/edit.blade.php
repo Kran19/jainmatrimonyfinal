@@ -235,14 +235,15 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Income Amount (INR)</label>
-                                <input type="number" name="monthly_income" value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 50000">
+                                <label class="block font-semibold text-gray-700 mb-1.5">Annual Salary / Income (वार्षिक आय) (INR)</label>
+                                <input type="number" name="monthly_income" value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 800000 (Annual Salary)">
+                                <p class="text-xs text-gray-500 mt-1">Please enter your annual (yearly) salary / income amount.</p>
                             </div>
                             <div>
                                 <label class="block font-semibold text-gray-700 mb-1.5">Income Type</label>
                                 <select name="income_type" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium bg-white">
-                                    <option value="Monthly" {{ old('income_type', $user->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                                    <option value="Yearly" {{ old('income_type', $user->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly</option>
+                                    <option value="Yearly" {{ old('income_type', $user->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly / Annual (वार्षिक)</option>
+                                    <option value="Monthly" {{ old('income_type', $user->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly (मासिक)</option>
                                 </select>
                             </div>
                         </div>
@@ -266,8 +267,8 @@
                             <input type="text" name="father_mobile" value="{{ old('father_mobile', $user->father_mobile) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Father's Annual Income (INR)</label>
-                            <input type="number" name="father_income" value="{{ old('father_income', $user->father_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 500000">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Father's Annual Income (वार्षिक आय) (INR)</label>
+                            <input type="number" name="father_income" value="{{ old('father_income', $user->father_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 500000 (Annual Income)">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1.5">Mother's Name <span class="text-red-500">*</span></label>
@@ -365,27 +366,30 @@
                         </div>
                         
                         <div class="border-t pt-4 md:col-span-2">
-                            <h4 class="font-bold text-dark text-sm mb-1 flex items-center gap-2"><i class="fas fa-gopuram text-primary"></i> Mandir / Community Verification</h4>
-                            <p class="text-xs text-gray-600 mb-3">आपका परिवार किस दिगंबर जैन मंदिर से जुड़ा है.</p>
+                            <h4 class="font-bold text-dark text-sm mb-1 flex items-center gap-2"><i class="fas fa-gopuram text-primary"></i> Mandir / Community Verification <span class="text-rose-500 font-bold text-xs">(Compulsory / अनिवार्य)</span></h4>
+                            <p class="text-xs text-gray-600 mb-3">आपका परिवार किस दिगंबर जैन मंदिर से जुड़ा है (सत्यापन हेतु अनिवार्य).</p>
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Jain Mandir / Temple Name</label>
-                            <input type="text" name="mandir_name" value="{{ old('mandir_name', $user->mandir_name ?? $user->mandir) }}" placeholder="e.g. Digambar Jain Temple" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Jain Mandir / Temple Name <span class="text-rose-500">*</span></label>
+                            <input type="text" name="mandir_name" value="{{ old('mandir_name', $user->mandir_name ?? $user->mandir) }}" required placeholder="e.g. Shri Digambar Jain Temple" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1.5">Temple Pincode</label>
-                            <input type="text" name="mandir_pincode" value="{{ old('mandir_pincode', $user->mandir_pincode) }}" placeholder="e.g. 452001" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Temple Pincode <span class="text-rose-500">*</span></label>
+                            <input type="text" name="mandir_pincode" value="{{ old('mandir_pincode', $user->mandir_pincode) }}" required pattern="[0-9]{4,6}" maxlength="6" minlength="4" placeholder="e.g. 452001" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block font-semibold text-gray-700 mb-1.5">Temple Address</label>
-                            <input type="text" name="mandir_address" value="{{ old('mandir_address', $user->mandir_address) }}" placeholder="e.g. Main Street, City" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
+                            <label class="block font-semibold text-gray-700 mb-1.5">Temple Address <span class="text-rose-500">*</span></label>
+                            <input type="text" name="mandir_address" value="{{ old('mandir_address', $user->mandir_address) }}" required placeholder="e.g. Main Street, City" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium">
                         </div>
                     </div>
                 </div>
 
                 <!-- Tab: References -->
                 <div id="tab-panel-references" class="tab-panel hidden space-y-6">
-                    <h3 class="text-xl font-bold text-dark border-b pb-2 mb-4 flex items-center gap-2"><i class="fas fa-address-book text-primary"></i> Reference Contacts</h3>
+                    <div class="border-b pb-2 mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-dark flex items-center gap-2"><i class="fas fa-address-book text-primary"></i> 2 Reference Persons from Same Mandir/Community</h3>
+                        <span class="text-xs bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full font-bold">Compulsory / अनिवार्य</span>
+                    </div>
                     <div class="space-y-6 text-sm">
                         @php
                             $relationsList = ['Relative', 'Friend', 'Neighbor', 'Mandir / Samaj Member', 'Samiti Member', 'Family Friend', 'Other'];
@@ -394,19 +398,19 @@
                         @endphp
                         <!-- Reference 1 -->
                         <div class="bg-gray-50 p-4 rounded-xl border space-y-4">
-                            <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 1</h4>
+                            <h4 class="font-extrabold text-primary text-xs uppercase tracking-wider flex items-center gap-1.5"><span class="w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center">1</span> Reference Person 1 <span class="text-rose-500">*</span></h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
-                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="ref1_name" value="{{ old('ref1_name', $user->ref1_name) }}" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
-                                    <input type="tel" name="ref1_mobile" value="{{ old('ref1_mobile', preg_replace('/^\+?91/', '', $user->ref1_mobile)) }}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-rose-500">*</span></label>
+                                    <input type="tel" name="ref1_mobile" value="{{ old('ref1_mobile', preg_replace('/^\+?91/', '', $user->ref1_mobile)) }}" required pattern="[0-9]{10}" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
-                                    <select name="ref1_relation" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-rose-500">*</span></label>
+                                    <select name="ref1_relation" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                         <option value="">Select Relation</option>
                                         @foreach($relationsList as $rel)
                                             <option value="{{ $rel }}" {{ ($currentRef1Rel == $rel) ? 'selected' : '' }}>{{ $rel }}</option>
@@ -421,19 +425,19 @@
 
                         <!-- Reference 2 -->
                         <div class="bg-gray-50 p-4 rounded-xl border space-y-4">
-                            <h4 class="font-extrabold text-gray-800 text-xs uppercase tracking-wider">Reference 2</h4>
+                            <h4 class="font-extrabold text-primary text-xs uppercase tracking-wider flex items-center gap-1.5"><span class="w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center">2</span> Reference Person 2 <span class="text-rose-500">*</span></h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Full Name</label>
-                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Full Name <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="ref2_name" value="{{ old('ref2_name', $user->ref2_name) }}" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number</label>
-                                    <input type="tel" name="ref2_mobile" value="{{ old('ref2_mobile', preg_replace('/^\+?91/', '', $user->ref2_mobile)) }}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Mobile Number <span class="text-rose-500">*</span></label>
+                                    <input type="tel" name="ref2_mobile" value="{{ old('ref2_mobile', preg_replace('/^\+?91/', '', $user->ref2_mobile)) }}" required pattern="[0-9]{10}" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                 </div>
                                 <div>
-                                    <label class="block font-semibold text-gray-600 mb-1">Relation</label>
-                                    <select name="ref2_relation" class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
+                                    <label class="block font-semibold text-gray-600 mb-1">Relation <span class="text-rose-500">*</span></label>
+                                    <select name="ref2_relation" required class="w-full border rounded-lg px-3 py-2 bg-white text-dark font-medium">
                                         <option value="">Select Relation</option>
                                         @foreach($relationsList as $rel)
                                             <option value="{{ $rel }}" {{ ($currentRef2Rel == $rel) ? 'selected' : '' }}>{{ $rel }}</option>

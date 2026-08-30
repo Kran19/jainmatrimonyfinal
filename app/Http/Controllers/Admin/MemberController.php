@@ -60,6 +60,221 @@ class MemberController extends Controller
     }
 
     /**
+     * Export members data to Excel (.csv / .xls) or PDF.
+     */
+    public function export(Request $request)
+    {
+        $query = User::with(['memberships', 'payments']);
+
+        // 1. Filter by search string
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $numericSearch) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%")
+                  ->orWhere('profile_id', 'like', "%{$search}%");
+
+                if (!empty($numericSearch)) {
+                    $q->orWhere('profile_id', 'like', "%{$numericSearch}%")
+                      ->orWhere('users.id', '=', $numericSearch);
+                }
+            });
+        }
+
+        // 2. Filter by status
+        if ($request->filled('status')) {
+            if ($request->status === 'paid') {
+                $query->where('payment_status', 'approved');
+            } else {
+                $query->where('status', $request->status);
+            }
+        }
+
+        // 3. Filter by gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // 4. Filter by date range if provided
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $members = $query->orderBy('users.created_at', 'desc')->get();
+        $format = strtolower($request->input('format', 'excel'));
+
+        // Handle PDF / Printable Tabular format
+        if ($format === 'pdf') {
+            return view('admin.members.export-pdf', compact('members'));
+        }
+
+        // Handle Excel / CSV format
+        $filename = 'jain_matrimony_members_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $columns = [
+            'Member ID',
+            'Profile ID',
+            'Full Name',
+            'Gender',
+            'Status',
+            'Verified',
+            'Registration Date',
+            'Date of Birth',
+            'Age',
+            'Time of Birth',
+            'Place of Birth',
+            'Native Place',
+            'Gotra',
+            'Mama Gotra',
+            'Manglik',
+            'Height',
+            'Weight (kg)',
+            'Marital Status',
+            'Handicapped',
+            'Higher Education',
+            'Occupation',
+            'Designation',
+            'Company Name',
+            'Annual Salary / Income (INR)',
+            'Primary Mobile',
+            'Email Address',
+            'Current Address',
+            'Permanent Address',
+            'Pin Code',
+            'Father Name',
+            'Father Mobile',
+            'Father Occupation',
+            'Father Annual Income (INR)',
+            'Mother Name',
+            'Mother Mobile',
+            'Mother Occupation',
+            'Brothers (Total)',
+            'Brothers Married',
+            'Brothers Unmarried',
+            'Sisters (Total)',
+            'Sisters Married',
+            'Sisters Unmarried',
+            'Mandir Name',
+            'Mandir Address',
+            'Mandir Pincode',
+            'Reference 1 Name',
+            'Reference 1 Mobile',
+            'Reference 1 Relation',
+            'Reference 2 Name',
+            'Reference 2 Mobile',
+            'Reference 2 Relation',
+            'Form Filled By',
+            'Payment Status',
+            'Payment Transaction ID',
+            'Active Plan Name',
+            'Amount Paid (INR)',
+            'Approved At'
+        ];
+
+        $callback = function () use ($members, $columns) {
+            $handle = fopen('php://output', 'w');
+            // Write UTF-8 BOM so Excel opens Hindi & special characters flawlessly
+            fputs($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, $columns);
+
+            foreach ($members as $m) {
+                // Calculate age
+                $age = 'N/A';
+                if (!empty($m->birth_date)) {
+                    try {
+                        $dob = new \DateTime($m->birth_date);
+                        $today = new \DateTime('today');
+                        $age = $dob->diff($today)->y;
+                    } catch (\Exception $e) {}
+                }
+
+                // Latest payment / membership
+                $lastPayment = $m->payments ? $m->payments->sortByDesc('created_at')->first() : null;
+                $activePlan = $m->memberships ? $m->memberships->sortByDesc('pivot.created_at')->first() : null;
+                $planName = $activePlan ? $activePlan->plan_name : ($lastPayment && $lastPayment->membership ? $lastPayment->membership->plan_name : 'None');
+                $planAmount = $lastPayment ? number_format($lastPayment->amount, 2, '.', '') : '0.00';
+
+                fputcsv($handle, [
+                    $m->id,
+                    $m->profile_id ?? 'N/A',
+                    $m->full_name ?? '',
+                    $m->gender ?? '',
+                    ucfirst(str_replace('_', ' ', $m->status ?? '')),
+                    $m->verified ? 'Yes' : 'No',
+                    $m->created_at ? $m->created_at->format('Y-m-d H:i:s') : '',
+                    $m->birth_date ?? '',
+                    $age,
+                    $m->birth_time ?? '',
+                    $m->birth_place ?? '',
+                    $m->native_place ?? '',
+                    $m->gotra ?? '',
+                    $m->mama_gotra ?? '',
+                    $m->manglik ?? '',
+                    $m->height ?? '',
+                    $m->weight ?? '',
+                    $m->marital_status ?? '',
+                    $m->handicapped ?? '',
+                    $m->higher_education ?? '',
+                    $m->occupation ?? '',
+                    $m->designation ?? '',
+                    $m->company_name ?? '',
+                    $m->monthly_income ? number_format($m->monthly_income, 2, '.', '') : '',
+                    $m->mobile ? "\t" . $m->mobile : '',
+                    $m->email ?? '',
+                    $m->current_address ?? '',
+                    $m->permanent_address ?? '',
+                    $m->pin_code ? "\t" . $m->pin_code : '',
+                    $m->father_name ?? '',
+                    $m->father_mobile ? "\t" . $m->father_mobile : '',
+                    $m->father_occupation ?? '',
+                    $m->father_income ? number_format($m->father_income, 2, '.', '') : '',
+                    $m->mother_name ?? '',
+                    $m->mother_mobile ? "\t" . $m->mother_mobile : '',
+                    $m->mother_occupation ?? '',
+                    $m->brothers ?? 0,
+                    $m->brothers_married ?? 0,
+                    $m->brothers_unmarried ?? 0,
+                    $m->sisters ?? 0,
+                    $m->sisters_married ?? 0,
+                    $m->sisters_unmarried ?? 0,
+                    $m->mandir_name ?? $m->mandir ?? '',
+                    $m->mandir_address ?? '',
+                    $m->mandir_pincode ? "\t" . $m->mandir_pincode : '',
+                    $m->ref1_name ?? '',
+                    $m->ref1_mobile ? "\t" . $m->ref1_mobile : '',
+                    $m->ref1_relation ?? '',
+                    $m->ref2_name ?? '',
+                    $m->ref2_mobile ? "\t" . $m->ref2_mobile : '',
+                    $m->ref2_relation ?? '',
+                    $m->filled_by ?? '',
+                    ucfirst($m->payment_status ?? 'Pending'),
+                    $m->payment_transaction_id ?? ($lastPayment->transaction_id ?? ''),
+                    $planName,
+                    $planAmount,
+                    $m->approved_at ? \Carbon\Carbon::parse($m->approved_at)->format('Y-m-d H:i:s') : ''
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Display incomplete registrations.
      */
     public function incomplete(Request $request)
@@ -191,17 +406,31 @@ class MemberController extends Controller
         }
 
         // 4. Handle file uploads
+        $uploadDir = storage_path('app/public/uploads');
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
         if ($request->hasFile('profile_photo_file') && $request->file('profile_photo_file')->isValid()) {
-            $path = $request->file('profile_photo_file')->store('profiles', 'public');
-            $input['profile_photo'] = $path;
+            $file = $request->file('profile_photo_file');
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $member->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_photo.' . $ext;
+            $file->move($uploadDir, $filename);
+            $input['profile_photo'] = 'storage/uploads/' . $filename;
         }
         if ($request->hasFile('horoscope_photo_file') && $request->file('horoscope_photo_file')->isValid()) {
-            $path = $request->file('horoscope_photo_file')->store('horoscopes', 'public');
-            $input['horoscope_photo'] = $path;
+            $file = $request->file('horoscope_photo_file');
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $member->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_horoscope.' . $ext;
+            $file->move($uploadDir, $filename);
+            $input['horoscope_photo'] = 'storage/uploads/' . $filename;
         }
         if ($request->hasFile('id_proof_photo_file') && $request->file('id_proof_photo_file')->isValid()) {
-            $path = $request->file('id_proof_photo_file')->store('id_proofs', 'public');
-            $input['id_proof_photo'] = $path;
+            $file = $request->file('id_proof_photo_file');
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $member->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_idproof.' . $ext;
+            $file->move($uploadDir, $filename);
+            $input['id_proof_photo'] = 'storage/uploads/' . $filename;
         }
 
         // 5. Save Custom EAV Data if submitted

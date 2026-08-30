@@ -10,14 +10,8 @@
 
 <div class="space-y-6">
     <div class="flex flex-col md:flex-row gap-6 items-center border-b pb-6">
-        <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 bg-gray-50">
-            @if($profile->profile_photo)
-                <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo" class="w-full h-full object-cover">
-            @else
-                <div class="w-full h-full bg-slate-100 flex items-center justify-center font-bold text-3xl text-slate-400">
-                    {{ substr($profile->full_name, 0, 1) }}
-                </div>
-            @endif
+        <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 bg-gray-50 flex items-center justify-center">
+            <img src="{{ $profile->profile_photo_url }}" alt="Photo of {{ $profile->full_name }}" class="w-full h-full object-cover">
         </div>
         <div class="text-center md:text-left flex-grow">
             <h3 class="text-2xl font-black text-gray-900">{{ $profile->full_name }}</h3>
@@ -46,7 +40,7 @@
             <div class="space-y-1 bg-slate-50 p-3 rounded-xl border border-gray-100">
                 <div><span class="text-gray-400 font-semibold">Education:</span> <span class="font-bold text-gray-800">{{ $profile->higher_education ?? 'N/A' }}</span></div>
                 <div><span class="text-gray-400 font-semibold">Occupation:</span> <span class="font-bold text-gray-800">{{ $profile->occupation ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income:' : 'Yearly Income:' }}</span> <span class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</span></div>
+                <div><span class="text-gray-400 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income:' : 'Annual Salary / Income:' }}</span> <span class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</span></div>
             </div>
         </div>
 
@@ -102,7 +96,9 @@
         $b64 = base64_encode(file_get_contents($photoPath));
         $pdfPhoto = 'data:' . $mime . ';base64,' . $b64;
     } else {
-        $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=300&background=0f1754&color=fff';
+        $palette = ['1E3A5F', '8B2323', '0D9488', '7C3AED', 'D97706', '2563EB', 'DB2777', '059669', '4F46E5', 'DC2626'];
+        $bgColor = $palette[abs(crc32((string)($profile->id . ($profile->profile_id ?? $profile->id)))) % count($palette)];
+        $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=300&background=' . $bgColor . '&color=fff&bold=true';
     }
 
     $parentMobiles = [];
@@ -150,7 +146,7 @@
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
+            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
           </div>
 
           <div style="margin-bottom:3px;">

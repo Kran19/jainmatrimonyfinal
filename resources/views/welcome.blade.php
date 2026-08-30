@@ -88,7 +88,7 @@
                 <div class="bg-slate-800/40 p-5 rounded-2xl border border-slate-800/80 backdrop-blur-sm space-y-2">
                     <i class="fa-solid fa-magnifying-glass-chart text-rose-400 text-xl"></i>
                     <h3 class="font-bold text-white text-sm">Advanced Search</h3>
-                    <p class="text-xs text-slate-400 font-light">Filter prospects by Gotras, specific degrees, sub-castes, and monthly incomes.</p>
+                    <p class="text-xs text-slate-400 font-light">Filter prospects by Gotras, specific degrees, sub-castes, and annual incomes.</p>
                 </div>
             </div>
         </div>

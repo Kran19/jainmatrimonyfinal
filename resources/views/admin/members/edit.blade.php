@@ -187,15 +187,15 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-semibold text-gray-700 text-xs mb-1">Income Amount (₹)</label>
-                            <input type="text" name="monthly_income" value="{{ old('monthly_income', $member->monthly_income) }}" placeholder="e.g. 50000"
+                            <label class="block font-semibold text-gray-700 text-xs mb-1">Annual Salary / Income (वार्षिक आय) (₹)</label>
+                            <input type="text" name="monthly_income" value="{{ old('monthly_income', $member->monthly_income) }}" placeholder="e.g. 800000 (Annual)"
                                    class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 text-xs mb-1">Income Type</label>
                             <select name="income_type" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                                <option value="Monthly" {{ old('income_type', $member->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                                <option value="Yearly" {{ old('income_type', $member->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly</option>
+                                <option value="Yearly" {{ old('income_type', $member->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly / Annual (वार्षिक)</option>
+                                <option value="Monthly" {{ old('income_type', $member->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly (मासिक)</option>
                             </select>
                         </div>
                     </div>
@@ -227,8 +227,8 @@
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-gray-700 text-xs mb-1">Father's Income (₹)</label>
-                        <input type="text" name="father_income" value="{{ old('father_income', $member->father_income) }}"
+                        <label class="block font-semibold text-gray-700 text-xs mb-1">Father's Annual Income (वार्षिक आय) (₹)</label>
+                        <input type="text" name="father_income" value="{{ old('father_income', $member->father_income) }}" placeholder="e.g. 500000 (Annual)"
                                class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 

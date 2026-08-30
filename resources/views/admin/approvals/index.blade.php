@@ -31,13 +31,7 @@
                     <td class="py-4 px-6">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
-                                @if($member->profile_photo)
-                                    <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold">
-                                        {{ substr($member->full_name, 0, 1) }}
-                                    </div>
-                                @endif
+                                <img src="{{ $member->profile_photo_url }}" alt="Photo" class="w-full h-full object-cover">
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 leading-tight">

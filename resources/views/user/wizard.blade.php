@@ -450,14 +450,15 @@ if (!function_exists('renderCustomFieldHTML')) {
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Candidate Income Amount (आय राशि) *</label>
-                                <input type="number" name="annual_income" value="{{ $user->monthly_income }}" min="0" step="1" required placeholder="Income amount (e.g., 50000)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                                <label class="block text-gray-700 font-semibold mb-2">Candidate Annual Salary / Income (वार्षिक आय) *</label>
+                                <input type="number" name="annual_income" value="{{ $user->monthly_income }}" min="0" step="1" required placeholder="Annual salary/income (e.g. 600000)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                                <p class="text-xs text-gray-500 mt-1">Please enter annual (yearly) salary amount</p>
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-2">Income Type (आय का प्रकार) *</label>
                                 <select name="income_type" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
-                                    <option value="Monthly" {{ ($user->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                                    <option value="Yearly" {{ ($user->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly</option>
+                                    <option value="Yearly" {{ ($user->income_type ?? 'Yearly') === 'Yearly' ? 'selected' : '' }}>Yearly / Annual (वार्षिक)</option>
+                                    <option value="Monthly" {{ ($user->income_type ?? '') === 'Monthly' ? 'selected' : '' }}>Monthly (मासिक)</option>
                                 </select>
                             </div>
                         </div>
@@ -501,8 +502,8 @@ if (!function_exists('renderCustomFieldHTML')) {
                             <p class="text-xs text-gray-500 mt-1">10 digits only number</p>
                         </div>
                         <div>
-                            <label class="block text-gray-700 font-semibold mb-2">Father Income (Optional)</label>
-                            <input type="number" name="father_income" value="{{ $user->father_income }}" min="0" step="1" placeholder="Optional" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                            <label class="block text-gray-700 font-semibold mb-2">Father's Annual Income (पिता की वार्षिक आय) (Optional)</label>
+                            <input type="number" name="father_income" value="{{ $user->father_income }}" min="0" step="1" placeholder="e.g. 500000 (Annual Income)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
                         </div>
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Father Occupation *</label>
@@ -786,25 +787,42 @@ if (!function_exists('renderCustomFieldHTML')) {
                         </div>
                     </div>
                     
-                    <!-- Documents & Payment -->
+                    <!-- Documents & Payment (Managed dynamically by Admin Panel) -->
+                    @if(!empty($payment_enabled) && $payment_enabled)
                     <div class="mt-8 mb-8 pb-4 border-b border-gray-200">
-                        <h2 class="text-xl font-bold text-primary mb-2">Documents & Payment (Presently not compulsory)</h2>
-                        <p class="text-gray-500 text-sm mb-4">You can optionally make a payment and upload the screenshot. This is not mandatory at the moment.</p>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                            <h2 class="text-xl font-bold text-primary">Registration Fee & Payment (पंजीकरण शुल्क)</h2>
+                            @if(!empty($registration_fee) && (float)$registration_fee > 0)
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-black text-sm">
+                                    <span>Fee:</span> <span>₹{{ number_format((float)$registration_fee, 0) }}</span>
+                                </div>
+                            @endif
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">Please complete the registration fee payment via UPI / QR Code and upload the transaction proof.</p>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                             
-                            <!-- QR Code Display -->
+                            <!-- QR Code & UPI Display -->
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 flex flex-col items-center">
                                 <h3 class="font-bold text-gray-700 mb-2">Payment QR Code</h3>
                                 @if (strpos($payment_qr_code, 'data:image/') === 0)
                                     <img src="{{ $payment_qr_code }}" alt="Payment QR Code" class="w-48 h-48 border border-yellow-300 rounded shadow-sm object-cover bg-white animate-fade-in">
                                 @else
-                                    <img src="{{ route('image.serve', ['file' => $payment_qr_code]) }}" alt="Payment QR Code" class="w-48 h-48 border border-yellow-300 rounded shadow-sm object-cover bg-white animate-fade-in">
+                                    <img src="{{ route('image.serve', ['file' => $payment_qr_code]) }}" alt="Payment QR Code" class="w-48 h-48 border border-yellow-300 rounded shadow-sm object-cover bg-white animate-fade-in" onerror="this.src='https://placehold.co/200x200/fef08a/854d0e?text=QR+Code';">
                                 @endif
-                                <p class="text-xs text-gray-500 mt-2 text-center">Scan to pay securely.</p>
+                                
+                                @if(!empty($upi_id))
+                                    <div class="mt-3 text-center bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                                        <span class="text-xs text-gray-500 font-medium">UPI ID:</span>
+                                        <span class="text-xs font-mono font-bold text-gray-800 ml-1 select-all">{{ $upi_id }}</span>
+                                    </div>
+                                @endif
+                                <p class="text-xs text-gray-500 mt-2 text-center">Scan to pay securely via Google Pay, PhonePe, Paytm or BHIM UPI.</p>
                             </div>
 
                             <div class="space-y-4">
-                                <!-- Select plan -->
+                                <!-- Select plan (if available) -->
+                                @if($memberships->count() > 0)
                                 <div>
                                     <label class="block text-gray-700 font-semibold mb-2">Select Subscription Plan</label>
                                     <select name="membership_id" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
@@ -816,16 +834,17 @@ if (!function_exists('renderCustomFieldHTML')) {
                                         @endforeach
                                     </select>
                                 </div>
+                                @endif
 
                                 <!-- Transaction ID -->
                                 <div>
-                                    <label class="block text-gray-700 font-semibold mb-2">Payment Transaction ID / Reference</label>
-                                    <input type="text" name="payment_transaction_id" value="{{ $user->payment_transaction_id }}" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary" placeholder="Reference Number">
+                                    <label class="block text-gray-700 font-semibold mb-2">Payment Transaction ID / UTR Number</label>
+                                    <input type="text" name="payment_transaction_id" value="{{ $user->payment_transaction_id }}" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary" placeholder="e.g. 12-digit UTR / Reference No.">
                                 </div>
 
                                 <!-- Screenshot upload -->
                                 <div>
-                                    <label class="block text-gray-700 font-semibold mb-2">Payment Screenshot (Transaction ID) (Optional)</label>
+                                    <label class="block text-gray-700 font-semibold mb-2">Payment Screenshot / Receipt</label>
                                     @if (!empty($user->payment_screenshot))
                                         <div class="mb-2">
                                             <a href="{{ route('image.serve', ['file' => $user->payment_screenshot]) }}" target="_blank" class="text-blue-500 underline text-sm"><i class="fas fa-external-link-alt"></i> View Current Payment Screenshot</a>
@@ -849,6 +868,7 @@ if (!function_exists('renderCustomFieldHTML')) {
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Additional Information dynamic fields -->
                     @if (!empty($customFieldsByGroup['Additional Information']))

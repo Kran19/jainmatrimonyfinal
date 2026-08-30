@@ -225,7 +225,7 @@
         </div>
         
         <!-- Navigation Links -->
-        <nav class="flex-grow py-6 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+        <nav id="admin-sidebar-nav" class="flex-grow py-6 px-4 space-y-2 overflow-y-auto custom-scrollbar">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Route::is('admin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-chart-line mr-3 w-5 text-center"></i>Dashboard
             </a>
@@ -269,7 +269,7 @@
             <a href="{{ route('admin.members.requests') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/members-requests*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-user-minus mr-3 w-5 text-center"></i>Deactivation / Deletion Requests
             </a>
-            @if(Auth::guard('admin')->user()->isSuperAdmin())
+            @if(Auth::guard('admin')->user()?->isSuperAdmin())
             <a href="{{ route('admin.payments.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/payments*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-receipt mr-3 w-5 text-center"></i>Payments & Billing
             </a>
@@ -294,7 +294,7 @@
             <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/settings*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-gears mr-3 w-5 text-center"></i>Settings Configuration
             </a>
-            <a href="{{ route('admin.settings.index') }}#tab-dynamic-pages" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 text-slate-600">
+            <a href="{{ route('admin.cms.pages.index') }}" class="flex items-center px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-white hover:text-secondary hover:shadow-sm transition duration-150 {{ Request::is('admin/cms/pages*') ? 'bg-primary text-white shadow-md shadow-primary/30' : 'text-slate-600' }}">
                 <i class="fa-solid fa-file-signature mr-3 w-5 text-center text-secondary"></i>About Us & Pages CMS
             </a>
             <div class="pt-4 pb-2 text-xs font-bold text-accent uppercase tracking-wider px-4">CMS Modules</div>
@@ -391,6 +391,43 @@
                 chevron.classList.add('-rotate-90');
             }
         }
+
+        // --- Sidebar Scroll Position Preservation & Active Item Visibility ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarNav = document.getElementById('admin-sidebar-nav');
+            if (!sidebarNav) return;
+
+            // 1. Remember scroll position whenever user scrolls sidebar
+            sidebarNav.addEventListener('scroll', function() {
+                sessionStorage.setItem('adminSidebarScrollTop', sidebarNav.scrollTop);
+            }, { passive: true });
+
+            // 2. Save scroll position on link click
+            sidebarNav.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    sessionStorage.setItem('adminSidebarScrollTop', sidebarNav.scrollTop);
+                });
+            });
+
+            // 3. Restore saved scroll position
+            const savedScrollTop = sessionStorage.getItem('adminSidebarScrollTop');
+            if (savedScrollTop !== null) {
+                sidebarNav.scrollTop = parseInt(savedScrollTop, 10);
+            }
+
+            // 4. Ensure the current active page menu item is in visible area
+            const activeLink = sidebarNav.querySelector('.bg-primary, [class*="bg-primary"]');
+            if (activeLink) {
+                const navRect = sidebarNav.getBoundingClientRect();
+                const activeRect = activeLink.getBoundingClientRect();
+                
+                // If the active menu item is outside the visible viewport of the sidebar, scroll it into view
+                if (activeRect.top < navRect.top || activeRect.bottom > navRect.bottom) {
+                    activeLink.scrollIntoView({ block: 'center', behavior: 'auto' });
+                    sessionStorage.setItem('adminSidebarScrollTop', sidebarNav.scrollTop);
+                }
+            }
+        });
     </script>
 
 </body>

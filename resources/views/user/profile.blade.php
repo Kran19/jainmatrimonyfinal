@@ -127,11 +127,7 @@
                         </div>
                         <div class="px-6 pb-6 relative">
                             <div class="w-28 h-28 rounded-full border-4 border-white bg-gray-100 mx-auto -mt-14 flex items-center justify-center shadow-md overflow-hidden relative z-10">
-                                @if(!empty($user->profile_photo) && (str_starts_with($user->profile_photo, 'data:image/') || resolve_media_path($user->profile_photo) !== null))
-                                    <img src="{{ route('image.serve', ['file' => $user->profile_photo]) }}" alt="Profile Photo" class="w-full h-full object-cover">
-                                @else
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($user->full_name) }}&background=random" alt="Profile Photo" class="w-full h-full object-cover">
-                                @endif
+                                <img src="{{ $user->profile_photo_url }}" alt="Profile Photo" class="w-full h-full object-cover">
                             </div>
                             <div class="text-center mt-4">
                                 <h2 class="text-2xl font-bold text-dark">{{ $user->full_name ?? 'N/A' }}</h2>
@@ -382,7 +378,7 @@
                                 </p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($user->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($user->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</p>
                                 <p class="font-medium text-dark">{{ format_indian_currency($user->monthly_income) }}</p>
                             </div>
                             <div class="sm:col-span-2">
@@ -437,24 +433,20 @@
                         </div>
                     </div>
                     
-                    <!-- Mandir Verification & References -->
+                    <!-- References -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100 hover:shadow-xl transition-shadow">
                         <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
                             <h3 class="text-xl font-bold text-primary flex items-center gap-2">
-                                <i class="fas fa-gopuram text-primary"></i> Mandir Verification Details
+                                <i class="fas fa-users text-primary"></i> References
                             </h3>
                             <span class="bg-{{ $user->status === 'approved' ? 'green' : 'yellow' }}-100 text-{{ $user->status === 'approved' ? 'green' : 'yellow' }}-800 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
                                 <i class="fas fa-{{ $user->status === 'approved' ? 'check-circle' : 'clock' }}"></i> {{ ucfirst($user->status) }}
                             </span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8 mb-6">
+                        <div class="mb-6">
                             <div>
                                 <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Subcast (उपजाति)</p>
                                 <p class="font-medium text-dark">{{ $user->subcast ?? 'N/A' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Registered Mandir (मंदिर)</p>
-                                <p class="font-medium text-dark">{{ $user->mandir_name ?? ($user->mandir ?? 'N/A') }} @if(!empty($user->custom_mandir)) - {{ $user->custom_mandir }} @endif</p>
                             </div>
                         </div>
 

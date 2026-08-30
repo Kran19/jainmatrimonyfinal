@@ -208,18 +208,18 @@ class ProfileController extends Controller
             'sisters_married' => 'nullable|integer|min:0',
             'sisters_unmarried' => 'nullable|integer|min:0',
 
-            // Mandir & Community Verification
-            'mandir_name' => 'nullable|string|max:255',
-            'mandir_address' => 'nullable|string|max:255',
-            'mandir_pincode' => 'nullable|string|max:20',
+            // Mandir & Community Verification (Compulsory)
+            'mandir_name' => 'required|string|max:255',
+            'mandir_address' => 'required|string|max:255',
+            'mandir_pincode' => 'required|string|max:20',
 
-            // References
-            'ref1_name' => 'nullable|string|max:255',
-            'ref1_mobile' => 'nullable|string|max:20',
-            'ref1_relation' => 'nullable|string|max:100',
-            'ref2_name' => 'nullable|string|max:255',
-            'ref2_mobile' => 'nullable|string|max:20',
-            'ref2_relation' => 'nullable|string|max:100',
+            // References (Compulsory 2 Persons)
+            'ref1_name' => 'required|string|max:255',
+            'ref1_mobile' => 'required|string|max:20',
+            'ref1_relation' => 'required|string|max:100',
+            'ref2_name' => 'required|string|max:255',
+            'ref2_mobile' => 'required|string|max:20',
+            'ref2_relation' => 'required|string|max:100',
 
             // Preferences & Address
             'current_address' => 'nullable|string',
@@ -321,21 +321,24 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_photo') || $request->hasFile('photo')) {
             $file = $request->file('profile_photo') ?? $request->file('photo');
-            $filename = time() . '_photo_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_photo.' . $ext;
             $file->move($uploadDir, $filename);
             $userUpdate['profile_photo'] = 'storage/uploads/' . $filename;
         }
 
         if ($request->hasFile('family_photo')) {
             $file = $request->file('family_photo');
-            $filename = time() . '_family_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_family.' . $ext;
             $file->move($uploadDir, $filename);
             $userUpdate['family_photo'] = 'storage/uploads/' . $filename;
         }
 
         if ($request->hasFile('id_proof') || $request->hasFile('id_proof_path')) {
             $file = $request->file('id_proof') ?? $request->file('id_proof_path');
-            $filename = time() . '_idproof_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'user_' . $user->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_idproof.' . $ext;
             $file->move($uploadDir, $filename);
             $userUpdate['id_proof_path'] = 'storage/uploads/' . $filename;
         }

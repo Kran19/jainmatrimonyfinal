@@ -148,13 +148,7 @@ class AppServiceProvider extends ServiceProvider
                 $user_gender = $user->gender;
                 $hdr_user_name = $user->full_name;
 
-                $photoExists = !empty($user->profile_photo) && (str_starts_with($user->profile_photo, 'data:image/') || resolve_media_path($user->profile_photo) !== null);
-
-                if ($photoExists) {
-                    $hdr_profile_img = route('image.serve', ['file' => $user->profile_photo]);
-                } else {
-                    $hdr_profile_img = 'https://ui-avatars.com/api/?name=' . urlencode($user->full_name) . '&background=random';
-                }
+                $hdr_profile_img = $user->profile_photo_url;
             } elseif (Auth::guard('admin')->check()) {
                 $is_logged_in = true;
                 $is_approved = true;

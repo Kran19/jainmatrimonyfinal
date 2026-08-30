@@ -336,6 +336,7 @@ Route::middleware('auth:admin')->group(function () {
     // Contact Messages
     Route::middleware('superadmin')->group(function () {
         Route::get('/admin/contacts', [ContactMessageController::class, 'index'])->name('admin.contacts.index');
+        Route::post('/admin/contacts/{id}/toggle-status', [ContactMessageController::class, 'toggleStatus'])->name('admin.contacts.toggle-status');
         Route::delete('/admin/contacts/{id}', [ContactMessageController::class, 'destroy'])->name('admin.contacts.destroy');
     
     // Bulk Email
@@ -362,6 +363,10 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings.index');
     Route::post('/admin/settings', [SettingController::class, 'update'])->name('admin.settings.update');
     
+    // About Us & Dynamic Pages CMS
+    Route::get('/admin/cms/pages', [SettingController::class, 'pages'])->name('admin.cms.pages.index');
+    Route::post('/admin/cms/pages', [SettingController::class, 'updatePages'])->name('admin.cms.pages.update');
+    
     // Reports
     Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/admin/reports/export', [ReportController::class, 'export'])->name('admin.reports.export');
@@ -374,6 +379,7 @@ Route::middleware('auth:admin')->group(function () {
     
     // Members management
     Route::get('/admin/members', [MemberController::class, 'index'])->name('admin.members.index');
+    Route::get('/admin/members/export', [MemberController::class, 'export'])->name('admin.members.export');
     Route::get('/admin/members-incomplete', [MemberController::class, 'incomplete'])->name('admin.members.incomplete');
     Route::get('/admin/members-requests', [MemberController::class, 'requests'])->name('admin.members.requests');
     Route::post('/admin/members-requests/{id}/process', [MemberController::class, 'processRequest'])->name('admin.members.requests.process');

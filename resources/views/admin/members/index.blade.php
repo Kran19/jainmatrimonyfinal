@@ -44,6 +44,39 @@
     </form>
 </div>
 
+<!-- Action / Export Bar -->
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-100 shadow-sm">
+    <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-600 font-medium">
+        <span class="font-bold text-slate-900 text-sm sm:text-base">{{ $members->total() }}</span> members found
+        @if(request('status') || request('gender') || request('search'))
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 text-[11px] font-semibold border border-amber-200">
+                <i class="fa-solid fa-filter text-[10px]"></i> Filtered Results
+            </span>
+        @endif
+    </div>
+
+    <!-- Export Buttons Group -->
+    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <span class="text-xs font-bold text-slate-400 uppercase mr-1 hidden md:inline">Export:</span>
+        <a href="{{ route('admin.members.export', array_merge(request()->all(), ['format' => 'excel'])) }}" 
+           class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm hover:shadow-md transition duration-150" 
+           title="Download full Excel sheet (.csv)">
+            <i class="fa-solid fa-file-excel text-sm"></i> Export Excel
+        </a>
+        <a href="{{ route('admin.members.export', array_merge(request()->all(), ['format' => 'csv'])) }}" 
+           class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm hover:shadow-md transition duration-150" 
+           title="Download raw CSV file">
+            <i class="fa-solid fa-file-csv text-sm"></i> Export CSV
+        </a>
+        <a href="{{ route('admin.members.export', array_merge(request()->all(), ['format' => 'pdf'])) }}" 
+           target="_blank"
+           class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm hover:shadow-md transition duration-150" 
+           title="View and Print / Save PDF report">
+            <i class="fa-solid fa-file-pdf text-sm"></i> Export PDF
+        </a>
+    </div>
+</div>
+
 <!-- Members Table -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
@@ -85,13 +118,7 @@
                         {{-- Paid Member Layout matches payments ledger --}}
                         <td class="py-4 px-6 flex items-center gap-3">
                             <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
-                                @if($member->profile_photo)
-                                    <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold">
-                                        {{ substr($member->full_name, 0, 1) }}
-                                    </div>
-                                @endif
+                                <img src="{{ $member->profile_photo_url }}" alt="Photo" class="w-full h-full object-cover">
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 leading-tight">
@@ -156,13 +183,7 @@
                         {{-- Standard Member Layout --}}
                         <td class="py-4 px-6 flex items-center gap-3">
                             <div class="w-10 h-10 flex-shrink-0 min-w-[40px] aspect-square rounded-full bg-slate-200 overflow-hidden border flex items-center justify-center">
-                                @if($member->profile_photo)
-                                    <img src="/image?file={{ urlencode($member->profile_photo) }}" alt="Photo" class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-slate-400 font-bold">
-                                        {{ substr($member->full_name, 0, 1) }}
-                                    </div>
-                                @endif
+                                <img src="{{ $member->profile_photo_url }}" alt="Photo" class="w-full h-full object-cover">
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 leading-tight">

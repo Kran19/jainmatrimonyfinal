@@ -58,14 +58,8 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8" data-aos="fade-up">
             <div class="flex flex-col md:flex-row">
                 {{-- Profile Image --}}
-                <div class="w-full md:w-1/3 profile-image-container border-r border-gray-100">
-                    @if($profile->profile_photo)
-                        <img src="{{ route('image.serve', ['file' => $profile->profile_photo]) }}" alt="Photo of {{ $profile->full_name }}" class="profile-image">
-                    @else
-                        <div class="w-full h-full flex items-center justify-center bg-slate-100 font-bold text-6xl text-slate-300">
-                            {{ substr($profile->full_name, 0, 1) }}
-                        </div>
-                    @endif
+                <div class="w-full md:w-1/3 profile-image-container border-r border-gray-100 flex items-center justify-center bg-slate-100">
+                    <img src="{{ $profile->profile_photo_url }}" alt="Photo of {{ $profile->full_name }}" class="profile-image" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($profile->full_name) }}&background=1E3A5F&color=fff&size=256';">
                 </div>
 
                 {{-- Core Details Summary --}}
@@ -175,7 +169,7 @@
                     <div class="font-bold text-gray-800">{{ $profile->company_name ?? 'N/A' }}</div>
                     <div class="text-gray-500 font-semibold">Designation</div>
                     <div class="font-bold text-gray-800">{{ $profile->designation ?? 'N/A' }}</div>
-                    <div class="text-gray-500 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</div>
+                    <div class="text-gray-500 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</div>
                     <div class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</div>
                 </div>
             </div>
@@ -205,14 +199,9 @@
                 </div>
             </div>
 
-            {{-- References & Community --}}
+            {{-- References --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 md:col-span-2">
-                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">References & Community</h3>
-
-                <div class="mb-3">
-                    <span class="text-gray-500 font-bold text-sm sm:text-base">Mandir / Community</span>
-                    <p class="font-bold text-gray-800 text-sm sm:text-base mt-1">{{ $profile->mandir_name ?? ($profile->mandir ?? 'N/A') }}</p>
-                </div>
+                <h3 class="font-extrabold text-dark text-sm sm:text-base uppercase tracking-wider border-l-2 border-primary pl-2">References</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {{-- Reference 1 --}}
@@ -295,7 +284,9 @@
         $b64 = base64_encode(file_get_contents($photoPath));
         $pdfPhoto = 'data:' . $mime . ';base64,' . $b64;
     } else {
-        $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=300&background=0f1754&color=fff';
+        $palette = ['1E3A5F', '8B2323', '0D9488', '7C3AED', 'D97706', '2563EB', 'DB2777', '059669', '4F46E5', 'DC2626'];
+        $bgColor = $palette[abs(crc32((string)($profile->id . ($profile->profile_id ?? $profile->id)))) % count($palette)];
+        $pdfPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($profile->full_name) . '&size=300&background=' . $bgColor . '&color=fff&bold=true';
     }
 
     $parentMobiles = [];
@@ -343,7 +334,7 @@
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Yearly Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
+            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
           </div>
 
           <div style="margin-bottom:3px;">
