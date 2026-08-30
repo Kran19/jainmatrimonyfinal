@@ -2,37 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Biodata - {{ $profile->full_name }}</title>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: Arial, Helvetica, sans-serif;
             background-color: #f1f5f9;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             color: #111;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
         .action-bar {
             max-width: 720px;
             margin: 0 auto 15px auto;
             display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             justify-content: space-between;
             align-items: center;
+        }
+        .action-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         .btn {
             background-color: #0f1754;
             color: #fff;
-            padding: 8px 18px;
-            border-radius: 6px;
+            padding: 9px 16px;
+            border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.15s;
         }
         .btn:hover {
-            background-color: #1e293b;
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background-color: #64748b;
+        }
+        .btn-success {
+            background-color: #059669;
+        }
+        .pdf-wrapper {
+            max-width: 720px;
+            margin: 0 auto;
+            overflow-x: auto;
+            background: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        #pdf-card {
+            width: 720px;
+            min-width: 720px;
+            background: #ffffff;
+            padding: 0;
+            margin: 0 auto;
+            color: #111;
         }
         @media print {
             .action-bar {
@@ -41,10 +81,18 @@
             body {
                 background: #fff;
                 padding: 0;
+                margin: 0;
+            }
+            .pdf-wrapper {
+                box-shadow: none;
+                border-radius: 0;
+                max-width: 100%;
+                overflow: visible;
             }
             #pdf-card {
+                width: 100% !important;
+                min-width: 100% !important;
                 border-width: 2px !important;
-                box-shadow: none !important;
             }
         }
     </style>
@@ -52,8 +100,17 @@
 <body>
 
 <div class="action-bar">
-    <a href="{{ url()->previous() }}" class="btn" style="background:#64748b;">&larr; Back to Profile</a>
-    <button onclick="downloadPdfCard()" class="btn">Download / Save PDF</button>
+    <a href="{{ url()->previous() ?: route('profiles.search') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Back to Profile
+    </a>
+    <div class="action-group">
+        <button type="button" onclick="downloadPdfCard()" class="btn">
+            <i class="fa-solid fa-download"></i> Download PDF
+        </button>
+        <button type="button" onclick="window.print()" class="btn btn-success">
+            <i class="fa-solid fa-print"></i> Print / Save as PDF
+        </button>
+    </div>
 </div>
 
 @php
@@ -84,7 +141,8 @@
     $parentMobileStr = count($parentMobiles) > 0 ? implode(' / ', $parentMobiles) : ($profile->mobile ?? 'N/A');
 @endphp
 
-<div id="pdf-card" style="width:720px; background:#ffffff; padding:0; margin:0 auto; color:#111; box-sizing:border-box;">
+<div class="pdf-wrapper">
+<div id="pdf-card">
   <div style="border:3px solid #0f1754; background:#ffffff;">
     
     <!-- Top Pill Badge Row -->
@@ -226,8 +284,14 @@
 
   </div>
 </div>
+</div>
 
 <script>
+function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 function downloadPdfCard() {
     const element = document.getElementById('pdf-card');
     if (!element) return;
@@ -239,9 +303,22 @@ function downloadPdfCard() {
         html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    html2pdf().set(opt).from(element).save().catch(function() {
-        window.print();
-    });
+
+    if (isIOS()) {
+        // iOS Safari does not support automated <a download> file saving for javascript blob URLs
+        // We open the bloburl or trigger native iOS print
+        html2pdf().set(opt).from(element).outputPdf('bloburl').then(function(pdfBlobUrl) {
+            window.open(pdfBlobUrl, '_blank');
+        }).catch(function(err) {
+            console.warn('iOS PDF generation fallback to print:', err);
+            window.print();
+        });
+    } else {
+        html2pdf().set(opt).from(element).save().catch(function(err) {
+            console.error('PDF download error:', err);
+            window.print();
+        });
+    }
 }
 </script>
 

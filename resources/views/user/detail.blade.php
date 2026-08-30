@@ -444,9 +444,26 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 function downloadPDF() {
+    const pdfUrl = "{{ route('profiles.pdf', $profile->id) }}";
+
+    // On iOS Safari, client-side <a download> is blocked by Apple WebKit.
+    // Opening the dedicated PDF page allows direct viewing, saving to files, and native iOS print.
+    if (isIOS()) {
+        window.open(pdfUrl, '_blank');
+        return;
+    }
+
     const element = document.getElementById('pdf-content');
-    if (!element) return;
+    if (!element) {
+        window.open(pdfUrl, '_blank');
+        return;
+    }
 
     // Create temporary clone container at (0,0) behind page layers to avoid capturing blank offset
     const cloneContainer = document.createElement('div');
@@ -465,7 +482,6 @@ function downloadPDF() {
 
     const pnum = "{{ $pnum }}";
     const filename = 'Profile_MID_' + pnum + '.pdf';
-    const pdfUrl = "{{ route('profiles.pdf', $profile->id) }}";
 
     const opt = {
       margin:       [5, 5, 5, 5],

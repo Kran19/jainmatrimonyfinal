@@ -238,6 +238,7 @@
         const modal = document.getElementById('profile-modal');
         const modalBody = document.getElementById('profile-modal-body');
         
+        currentModalProfileId = profileId;
         modalBody.innerHTML = `
             <div class="flex items-center justify-center py-12">
                 <i class="fa-solid fa-circle-notch fa-spin text-3xl text-primary"></i>
@@ -264,14 +265,30 @@
         });
     }
 
+    let currentModalProfileId = null;
+
+    function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
     function closeProfileModal() {
         document.getElementById('profile-modal').classList.add('hidden');
     }
 
     function downloadModalPDF() {
+        if (isIOS() && currentModalProfileId) {
+            window.open(`/profiles/${currentModalProfileId}/pdf`, '_blank');
+            return;
+        }
+
         const element = document.querySelector('#profile-modal-body #pdf-content');
         if (!element) {
-            alert('Biodata is not loaded yet.');
+            if (currentModalProfileId) {
+                window.open(`/profiles/${currentModalProfileId}/pdf`, '_blank');
+            } else {
+                alert('Biodata is not loaded yet.');
+            }
             return;
         }
 
@@ -308,13 +325,21 @@
                     if (cloneContainer.parentNode) {
                         cloneContainer.parentNode.removeChild(cloneContainer);
                     }
-                    window.print();
+                    if (currentModalProfileId) {
+                        window.open(`/profiles/${currentModalProfileId}/pdf`, '_blank');
+                    } else {
+                        window.print();
+                    }
                 });
             } else {
                 if (cloneContainer.parentNode) {
                     cloneContainer.parentNode.removeChild(cloneContainer);
                 }
-                window.print();
+                if (currentModalProfileId) {
+                    window.open(`/profiles/${currentModalProfileId}/pdf`, '_blank');
+                } else {
+                    window.print();
+                }
             }
         }, 200);
     }
