@@ -654,4 +654,45 @@ class MemberController extends Controller
 
         return back()->with('success', 'Request processed successfully.');
     }
+
+    /**
+     * Disassociate duplicate legacy photo assignments across candidate profiles.
+     */
+    public function fixDuplicatePhotos()
+    {
+        $duplicates = \DB::table('users')
+            ->select('profile_photo', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('profile_photo')
+            ->where('profile_photo', '!=', '')
+            ->groupBy('profile_photo')
+            ->having('count', '>', 1)
+            ->get();
+
+        if ($duplicates->isEmpty()) {
+            return back()->with('success', 'All candidate profile photos are already unique. No duplicate photo assignments found.');
+        }
+
+        $clearedCount = 0;
+        $names = [];
+
+        foreach ($duplicates as $dup) {
+            $photoPath = $dup->profile_photo;
+            $users = User::where('profile_photo', $photoPath)->orderBy('id', 'asc')->get();
+
+            // Keep photo for the first user, clear for subsequent duplicate users
+            foreach ($users->slice(1) as $secondaryUser) {
+                $secondaryUser->profile_photo = null;
+                $secondaryUser->save();
+                $clearedCount++;
+                $names[] = "{$secondaryUser->full_name} ({$secondaryUser->profile_id})";
+            }
+        }
+
+        $namesList = implode(', ', array_slice($names, 0, 5));
+        if (count($names) > 5) {
+            $namesList .= ' and ' . (count($names) - 5) . ' more';
+        }
+
+        return back()->with('success', "Fixed {$clearedCount} duplicate photo assignments ({$namesList}). Profiles now display their unique avatar badge.");
+    }
 }

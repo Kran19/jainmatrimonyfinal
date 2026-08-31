@@ -74,6 +74,16 @@
            title="View and Print / Save PDF report">
             <i class="fa-solid fa-file-pdf text-sm"></i> Export PDF
         </a>
+
+        <!-- Fix Duplicate Photos Button -->
+        <form action="{{ route('admin.members.fix-duplicate-photos') }}" method="POST" class="inline" onsubmit="return confirm('This will scan all candidates and disassociate any shared legacy photo paths so each candidate has a unique photo/avatar. Proceed?');">
+            @csrf
+            <button type="submit" 
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200 text-xs font-bold shadow-xs transition duration-150"
+                    title="Disassociate duplicate legacy photos shared by members with identical names">
+                <i class="fa-solid fa-wand-magic-sparkles text-sm"></i> Fix Duplicate Photos
+            </button>
+        </form>
     </div>
 </div>
 

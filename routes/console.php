@@ -2,6 +2,11 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schedule;
+use App\Models\User;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -35,34 +40,76 @@ Artisan::command('storage:link-safe', function () {
     return 0;
 })->purpose('Create storage symlink safely without requiring exec() on shared hosting');
 
-Illuminate\Support\Facades\Schedule::call(function () {
-    $expiredUsersCount = Illuminate\Support\Facades\DB::table('users')
+Schedule::call(function () {
+    $updateCols = ['status' => 'deactivated'];
+    if (Schema::hasColumn('users', 'is_approved')) $updateCols['is_approved'] = 0;
+    if (Schema::hasColumn('users', 'verified')) $updateCols['verified'] = 0;
+    if (Schema::hasColumn('users', 'is_public')) $updateCols['is_public'] = 0;
+
+    $expiredUsersCount = DB::table('users')
         ->where('status', 'approved')
         ->whereNotNull('expiry_date')
         ->where('expiry_date', '<', now()->toDateString())
-        ->update([
-            'status' => 'deactivated',
-            'is_approved' => false,
-            'verified' => false,
-            'is_public' => false
-        ]);
+        ->update($updateCols);
     
     if ($expiredUsersCount > 0) {
-        Illuminate\Support\Facades\Log::info("Auto-deactivated {$expiredUsersCount} expired member profiles.");
+        Log::info("Auto-deactivated {$expiredUsersCount} expired member profiles.");
     }
 })->daily();
 
 Artisan::command('members:deactivate-expired', function () {
-    $expiredUsersCount = Illuminate\Support\Facades\DB::table('users')
+    $updateCols = ['status' => 'deactivated'];
+    if (Schema::hasColumn('users', 'is_approved')) $updateCols['is_approved'] = 0;
+    if (Schema::hasColumn('users', 'verified')) $updateCols['verified'] = 0;
+    if (Schema::hasColumn('users', 'is_public')) $updateCols['is_public'] = 0;
+
+    $expiredUsersCount = DB::table('users')
         ->where('status', 'approved')
         ->whereNotNull('expiry_date')
         ->where('expiry_date', '<', now()->toDateString())
-        ->update([
-            'status' => 'deactivated',
-            'is_approved' => false,
-            'verified' => false,
-            'is_public' => false
-        ]);
+        ->update($updateCols);
     
     $this->info("Successfully deactivated {$expiredUsersCount} expired member profiles.");
 })->purpose('Deactivate member profiles whose validity has expired');
+
+Artisan::command('members:fix-duplicate-photos', function () {
+    $this->info("Scanning for candidates sharing identical profile photo paths...");
+
+    $duplicates = DB::table('users')
+        ->select('profile_photo', DB::raw('COUNT(*) as count'))
+        ->whereNotNull('profile_photo')
+        ->where('profile_photo', '!=', '')
+        ->groupBy('profile_photo')
+        ->having('count', '>', 1)
+        ->get();
+
+    if ($duplicates->isEmpty()) {
+        $this->info("✅ No duplicate profile photos found. All candidate photos are unique.");
+        return 0;
+    }
+
+    $this->warn("Found " . $duplicates->count() . " shared photo paths across multiple candidates.");
+
+    $clearedCount = 0;
+
+    foreach ($duplicates as $dup) {
+        $photoPath = $dup->profile_photo;
+        $users = User::where('profile_photo', $photoPath)->orderBy('id', 'asc')->get();
+
+        $primaryUser = $users->first();
+        $this->line("• Photo: <comment>{$photoPath}</comment>");
+        $this->line("  - Kept for Primary Member: <info>{$primaryUser->full_name}</info> (ID: {$primaryUser->id}, MID: {$primaryUser->profile_id})");
+
+        foreach ($users->slice(1) as $secondaryUser) {
+            $secondaryUser->profile_photo = null;
+            $secondaryUser->save();
+            $clearedCount++;
+
+            $this->line("  - Disassociated from Duplicate Member: <fg=red>{$secondaryUser->full_name}</fg=red> (ID: {$secondaryUser->id}, MID: {$secondaryUser->profile_id})");
+        }
+    }
+
+    $this->info("\n✅ SUCCESS: Disassociated {$clearedCount} duplicate photo assignments. Those profiles will now show their unique avatar badge until their unique photo is uploaded.");
+
+    return 0;
+})->purpose('Disassociate duplicate legacy profile photo paths among candidates with the same name');
