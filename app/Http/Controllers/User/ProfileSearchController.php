@@ -74,7 +74,13 @@ class ProfileSearchController extends Controller
                 $query->where('gender', $genderVal);
             }
 
-            // 2. Filter by City / Native Place
+            // 2. Filter by Candidate Name
+            if ($request->filled('name')) {
+                $nameVal = trim($request->name);
+                $query->where('full_name', 'like', "%{$nameVal}%");
+            }
+
+            // 3. Filter by City / Native Place
             if ($request->filled('city')) {
                 $cityVal = trim($request->city);
                 $query->where(function ($q) use ($cityVal) {

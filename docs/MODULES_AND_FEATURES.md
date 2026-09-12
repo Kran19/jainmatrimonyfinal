@@ -16,6 +16,7 @@
 | Filter | Query Parameter | Matching Algorithm |
 |---|---|---|
 | **Match ID** | `match_id` | Strips prefix/plus signs, matches `profile_id` (e.g. `JDM123456`, `M-123456`) or database `id`. Bypasses other filters for direct lookups. |
+| **Candidate Name** | `name` | Matches `full_name` (partial case-insensitive string search). |
 | **City / Native Place** | `city` | Matches `native_place`, `current_address`, `permanent_address`, or `birth_place`. |
 | **State** | `state` | Matches state names in `current_address`, `permanent_address`, or `native_place`. |
 | **Higher Education** | `education` | Categorized matching: <br>• **Doctors**: `MBBS`, `MD`, `BDS`, `BAMS`, `BHMS`, `MDS`, `Surgery`<br>• **Engineers**: `B.E`, `B.Tech`, `M.Tech`<br>• **MBA/MCA**: `MBA`, `PGDM`, `PGBDM`, `MCA`<br>• **CA/CS**: `Chartered Accountant`, `CA`, `Company Secretary`, `CS`<br>• **Graduates**: `B.Com`, `B.Sc`, `B.A`, `BBA`, `BCA`<br>• **Post Graduates**: `M.Com`, `M.Sc`, `M.A`, `Master` |

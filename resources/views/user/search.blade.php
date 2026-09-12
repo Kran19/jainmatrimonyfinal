@@ -20,7 +20,13 @@
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-700 placeholder-gray-400">
                     </div>
 
-                    <!-- 2. City / Native Place -->
+                    <!-- 2. Candidate Name -->
+                    <div>
+                        <input type="text" name="name" value="{{ request('name') }}" placeholder="Enter Candidate Name"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-700 placeholder-gray-400">
+                    </div>
+
+                    <!-- 3. City / Native Place -->
                     <div>
                         <input type="text" name="city" value="{{ request('city') }}" placeholder="Enter City / Native Place"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-700 placeholder-gray-400">
