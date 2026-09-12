@@ -80,24 +80,21 @@ class ProfileSearchController extends Controller
                 $query->where('full_name', 'like', "%{$nameVal}%");
             }
 
-            // 3. Filter by City / Native Place
+            // 3. Filter by Place of Residence (City / Address)
             if ($request->filled('city')) {
                 $cityVal = trim($request->city);
                 $query->where(function ($q) use ($cityVal) {
-                    $q->where('native_place', 'like', "%{$cityVal}%")
-                      ->orWhere('current_address', 'like', "%{$cityVal}%")
-                      ->orWhere('permanent_address', 'like', "%{$cityVal}%")
-                      ->orWhere('birth_place', 'like', "%{$cityVal}%");
+                    $q->where('current_address', 'like', "%{$cityVal}%")
+                      ->orWhere('permanent_address', 'like', "%{$cityVal}%");
                 });
             }
 
-            // 3. Filter by State
+            // 4. Filter by State of Residence
             if ($request->filled('state')) {
                 $stateVal = trim($request->state);
                 $query->where(function ($q) use ($stateVal) {
                     $q->where('current_address', 'like', "%{$stateVal}%")
-                      ->orWhere('permanent_address', 'like', "%{$stateVal}%")
-                      ->orWhere('native_place', 'like', "%{$stateVal}%");
+                      ->orWhere('permanent_address', 'like', "%{$stateVal}%");
                 });
             }
 
