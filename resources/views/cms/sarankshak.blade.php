@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Committee Members')
+@section('title', 'Our Sarankshak - Digambar Jain Matrimony')
 
 @section('content')
 <!-- Page Banner -->
@@ -17,25 +17,25 @@
     </button>
 </div>
 
-<!-- Committee Section -->
+<!-- Sarankshak Section -->
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4 max-w-6xl">
         
         <!-- Quote Section -->
         <div class="text-center mb-16">
-            <div id="committeeQuoteHi">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-dark mb-4" id="pageTitleHi">कार्यकारिणी समिति</h1>
-                <p class="text-primary font-bold text-lg mb-3">- दिगम्बर जैन परिचय सम्मेलन समिति अहमदाबाद</p>
+            <div id="sarankshakQuoteHi">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-dark mb-4" id="pageTitleHi">हमारे संरक्षक</h1>
+                <p class="text-primary font-bold text-lg mb-3">- दिगम्बर जैन परिचय सम्मेलन समिति</p>
                 <p class="text-gray-600 max-w-4xl mx-auto italic text-lg leading-relaxed font-medium">
-                    "स्थापना काल से ही समिति के पाँचों सदस्य इस संस्था को आगे बढ़ाने के लिए समर्पित रहे हैं। उनके सम्मिलित प्रयासों और आपसी तालमेल का ही परिणाम है कि संस्था आज इस गौरवशाली मुकाम पर खड़ी है। यह आपसी सौहार्द ही हमारी संस्था का मुख्य आधार स्तम्भ है।"
+                    "हमारे सम्मानीय संरक्षकगण समाज के प्रतिष्ठित एवं मार्गदर्शक स्तंभ हैं, जिनके निरंतर आशीर्वाद, मार्गदर्शन एवं सहयोग से यह संस्था समाज के विवाह योग्य युवक-युवतियों के कल्याण हेतु निरंतर प्रगतिशील है।"
                 </p>
             </div>
             
-            <div id="committeeQuoteEn" class="hidden">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-dark mb-4" id="pageTitleEn">Executive Committee</h1>
-                <p class="text-primary font-bold text-lg mb-3">- Digambar Jain Parichay Sammelan Samiti Ahmedabad</p>
+            <div id="sarankshakQuoteEn" class="hidden">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-dark mb-4" id="pageTitleEn">Our Sarankshak</h1>
+                <p class="text-primary font-bold text-lg mb-3">- Digambar Jain Parichay Sammelan Samiti</p>
                 <p class="text-gray-600 max-w-4xl mx-auto italic text-lg leading-relaxed font-medium">
-                    "Since its inception, all five members of the committee have been dedicated to taking this organization forward. It is the result of their collective efforts and mutual coordination that the organization stands at this glorious stage today. This mutual harmony is the main pillar of our organization."
+                    "Our revered patrons and guardians are esteemed pillars and guiding lights of the community, whose continuous blessings, guidance, and support inspire this organization to serve prospective candidates and their families."
                 </p>
             </div>
             
@@ -44,7 +44,7 @@
 
         <!-- Members Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-            @forelse($committeeMembers as $member)
+            @forelse($sarankshakMembers as $member)
             <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 p-6 flex flex-col h-full items-center text-center">
                 
                 <!-- Member Image -->
@@ -56,7 +56,7 @@
                         <img src="{{ $imgSrc }}" alt="{{ $member->name_en ?? $member->name }}" class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
-                            <i class="fa-solid fa-user text-4xl"></i>
+                            <i class="fa-solid fa-user-shield text-4xl"></i>
                         </div>
                     @endif
                 </div>
@@ -71,10 +71,10 @@
 
                 <!-- Designation -->
                 <p class="text-primary font-bold text-sm mb-4 lang-hi-el">
-                    {{ $member->designation ?? 'समिति सदस्य' }}
+                    {{ $member->designation ?? 'संरक्षक सदस्य' }}
                 </p>
                 <p class="text-primary font-bold text-sm mb-4 lang-en-el hidden">
-                    {{ $member->designation_en ?? $member->designation ?? 'Committee Member' }}
+                    {{ $member->designation_en ?? $member->designation ?? 'Our Sarankshak Member' }}
                 </p>
 
                 <!-- Description -->
@@ -93,18 +93,11 @@
             </div>
             @empty
             <div class="col-span-full text-center py-12 text-gray-500">
-                <i class="fa-solid fa-users-slash text-5xl text-slate-300 mb-4 block"></i>
-                No committee members found.
+                <i class="fa-solid fa-user-shield text-5xl text-slate-300 mb-4 block"></i>
+                No Sarankshak members found.
             </div>
             @endforelse
         </div>
-        
-        <!-- Setting/CMS initiative content placeholder if any exists -->
-        @if(!empty($community_content))
-        <div class="mt-16 pt-12 border-t border-gray-100">
-            {!! $community_content !!}
-        </div>
-        @endif
 
     </div>
 </section>
@@ -116,13 +109,13 @@
 
         const hiElements = [
             document.getElementById('pageTitleHi'),
-            document.getElementById('committeeQuoteHi'),
+            document.getElementById('sarankshakQuoteHi'),
             ...document.querySelectorAll('.lang-hi-el')
         ].filter(Boolean);
 
         const enElements = [
             document.getElementById('pageTitleEn'),
-            document.getElementById('committeeQuoteEn'),
+            document.getElementById('sarankshakQuoteEn'),
             ...document.querySelectorAll('.lang-en-el')
         ].filter(Boolean);
 

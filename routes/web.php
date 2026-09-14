@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\RegistrationFieldController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\AccountApprovalController;
 use App\Http\Controllers\Admin\CommitteeController;
+use App\Http\Controllers\Admin\SarankshakController;
 
 // Utility & Maintenance Routes
 
@@ -159,11 +160,11 @@ Route::get('/run-prod-migrations', function() {
             echo "Seeding initial committee members...\n";
             \Illuminate\Support\Facades\DB::table('committee_members')->insert([
                 [
-                    'name' => 'नरेन्द्र जैन',
+                    'name' => 'à¤¨à¤°à¥‡à¤¨à¥à¤¦à¥à¤° à¤œà¥ˆà¤¨',
                     'name_en' => 'Narendra Jain',
                     'designation' => 'Committee Member',
                     'designation_en' => 'Committee Member',
-                    'description' => 'केमीकल के सफल व्यवसायी, धार्मिक और बहुत सारी संस्थाओं से सम्बंधित श्री नरेंद्र जी जैन इस संस्था के बहुत ही मजबूत स्तम्भ मे से एक है इस संस्था के प्रारम्भ से ही वह अपना योगदान दे रहे हैं|',
+                    'description' => 'à¤•à¥‡à¤®à¥€à¤•à¤² à¤•à¥‡ à¤¸à¤«à¤² à¤µà¥à¤¯à¤µà¤¸à¤¾à¤¯à¥€, à¤§à¤¾à¤°à¥à¤®à¤¿à¤• à¤”à¤° à¤¬à¤¹à¥à¤¤ à¤¸à¤¾à¤°à¥€ à¤¸à¤‚à¤¸à¥à¤¥à¤¾à¤“à¤‚ à¤¸à¥‡ à¤¸à¤®à¥à¤¬à¤‚à¤§à¤¿à¤¤ à¤¶à¥à¤°à¥€ à¤¨à¤°à¥‡à¤‚à¤¦à¥à¤° à¤œà¥€ à¤œà¥ˆà¤¨ à¤‡à¤¸ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤•à¥‡ à¤¬à¤¹à¥à¤¤ à¤¹à¥€ à¤®à¤œà¤¬à¥‚à¤¤ à¤¸à¥à¤¤à¤®à¥à¤­ à¤®à¥‡ à¤¸à¥‡ à¤à¤• à¤¹à¥ˆ à¤‡à¤¸ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤•à¥‡ à¤ªà¥à¤°à¤¾à¤°à¤®à¥à¤­ à¤¸à¥‡ à¤¹à¥€ à¤µà¤¹ à¤…à¤ªà¤¨à¤¾ à¤¯à¥‹à¤—à¤¦à¤¾à¤¨ à¤¦à¥‡ à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚|',
                     'description_en' => 'A successful chemical businessman, religious and associated with many organizations, Mr. Narendra Jain is one of the very strong pillars of this organization. He has been contributing since the beginning.',
                     'photo' => 'assets/images/narendra jain.png',
                     'sort_order' => 1,
@@ -172,11 +173,11 @@ Route::get('/run-prod-migrations', function() {
                     'updated_at' => now(),
                 ],
                 [
-                    'name' => 'मनोज जैन (M. COM, LLB, ACS)',
+                    'name' => 'à¤®à¤¨à¥‹à¤œ à¤œà¥ˆà¤¨ (M. COM, LLB, ACS)',
                     'name_en' => 'Manoj Jain (M. COM, LLB, ACS)',
                     'designation' => 'Committee Member',
                     'designation_en' => 'Committee Member',
-                    'description' => 'श्री मनोज जैन जी 30 वर्षों का अनुभव रखने वाले वरिष्ठ कंपनी सेक्रेटरी हैं, जो अहमदाबाद की एक रियल एस्टेट कंपनी में CFO और CS के रूप में कार्यरत हैं। सामाजिक कार्यों के प्रति समर्पित, श्री जैन इस संस्था से इसके शुरुआती दिनों से ही जुड़े हुए हैं। संस्था द्वारा दी गई हर जिम्मेदारी को उन्होंने हमेशा समय पर और सफलतापूर्वक पूरा किया है।',
+                    'description' => 'à¤¶à¥à¤°à¥€ à¤®à¤¨à¥‹à¤œ à¤œà¥ˆà¤¨ à¤œà¥€ 30 à¤µà¤°à¥à¤·à¥‹à¤‚ à¤•à¤¾ à¤…à¤¨à¥à¤­à¤µ à¤°à¤–à¤¨à¥‡ à¤µà¤¾à¤²à¥‡ à¤µà¤°à¤¿à¤·à¥à¤  à¤•à¤‚à¤ªà¤¨à¥€ à¤¸à¥‡à¤•à¥à¤°à¥‡à¤Ÿà¤°à¥€ à¤¹à¥ˆà¤‚, à¤œà¥‹ à¤…à¤¹à¤®à¤¦à¤¾à¤¬à¤¾à¤¦ à¤•à¥€ à¤à¤• à¤°à¤¿à¤¯à¤² à¤à¤¸à¥à¤Ÿà¥‡à¤Ÿ à¤•à¤‚à¤ªà¤¨à¥€ à¤®à¥‡à¤‚ CFO à¤”à¤° CS à¤•à¥‡ à¤°à¥‚à¤ª à¤®à¥‡à¤‚ à¤•à¤¾à¤°à¥à¤¯à¤°à¤¤ à¤¹à¥ˆà¤‚à¥¤ à¤¸à¤¾à¤®à¤¾à¤œà¤¿à¤• à¤•à¤¾à¤°à¥à¤¯à¥‹à¤‚ à¤•à¥‡ à¤ªà¥à¤°à¤¤à¤¿ à¤¸à¤®à¤°à¥à¤ªà¤¿à¤¤, à¤¶à¥à¤°à¥€ à¤œà¥ˆà¤¨ à¤‡à¤¸ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤¸à¥‡ à¤‡à¤¸à¤•à¥‡ à¤¶à¥à¤°à¥à¤†à¤¤à¥€ à¤¦à¤¿à¤¨à¥‹à¤‚ à¤¸à¥‡ à¤¹à¥€ à¤œà¥à¤¡à¤¼à¥‡ à¤¹à¥à¤ à¤¹à¥ˆà¤‚à¥¤ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¦à¥€ à¤—à¤ˆ à¤¹à¤° à¤œà¤¿à¤®à¥à¤®à¥‡à¤¦à¤¾à¤°à¥€ à¤•à¥‹ à¤‰à¤¨à¥à¤¹à¥‹à¤‚à¤¨à¥‡ à¤¹à¤®à¥‡à¤¶à¤¾ à¤¸à¤®à¤¯ à¤ªà¤° à¤”à¤° à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤ªà¥‚à¤°à¤¾ à¤•à¤¿à¤¯à¤¾ à¤¹à¥ˆà¥¤',
                     'description_en' => 'Mr. Manoj Jain is a senior Company Secretary with 30 years of experience, currently working as CFO and CS in a real estate company in Ahmedabad. Dedicated to social work, Mr. Jain has been associated with this organization since its early days and successfully fulfills all responsibilities.',
                     'photo' => 'assets/images/manoj jain.jpeg',
                     'sort_order' => 2,
@@ -185,11 +186,11 @@ Route::get('/run-prod-migrations', function() {
                     'updated_at' => now(),
                 ],
                 [
-                    'name' => 'दर्शन जैन वखारिया',
+                    'name' => 'à¤¦à¤°à¥à¤¶à¤¨ à¤œà¥ˆà¤¨ à¤µà¤–à¤¾à¤°à¤¿à¤¯à¤¾',
                     'name_en' => 'Darshan Jain Vakharia',
                     'designation' => 'Committee Member',
                     'designation_en' => 'Committee Member',
-                    'description' => 'श्री दर्शन जी इमीग्रेशन वीसा कंसल्टेंट है और साथ मे बहुत ही सामजिक और धार्मिक व्यक्ति है वह बहुत सारी संस्थाओं से जुड़ें हुये है दिगम्बर जैन समाज के परिचय सम्मेलन का सपना उनका ही था जिसको यह संस्था उनके साथ प्रारम्भ से कर रही है',
+                    'description' => 'à¤¶à¥à¤°à¥€ à¤¦à¤°à¥à¤¶à¤¨ à¤œà¥€ à¤‡à¤®à¥€à¤—à¥à¤°à¥‡à¤¶à¤¨ à¤µà¥€à¤¸à¤¾ à¤•à¤‚à¤¸à¤²à¥à¤Ÿà¥‡à¤‚à¤Ÿ à¤¹à¥ˆ à¤”à¤° à¤¸à¤¾à¤¥ à¤®à¥‡ à¤¬à¤¹à¥à¤¤ à¤¹à¥€ à¤¸à¤¾à¤®à¤œà¤¿à¤• à¤”à¤° à¤§à¤¾à¤°à¥à¤®à¤¿à¤• à¤µà¥à¤¯à¤•à¥à¤¤à¤¿ à¤¹à¥ˆ à¤µà¤¹ à¤¬à¤¹à¥à¤¤ à¤¸à¤¾à¤°à¥€ à¤¸à¤‚à¤¸à¥à¤¥à¤¾à¤“à¤‚ à¤¸à¥‡ à¤œà¥à¤¡à¤¼à¥‡à¤‚ à¤¹à¥à¤¯à¥‡ à¤¹à¥ˆ à¤¦à¤¿à¤—à¤®à¥à¤¬à¤° à¤œà¥ˆà¤¨ à¤¸à¤®à¤¾à¤œ à¤•à¥‡ à¤ªà¤°à¤¿à¤šà¤¯ à¤¸à¤®à¥à¤®à¥‡à¤²à¤¨ à¤•à¤¾ à¤¸à¤ªà¤¨à¤¾ à¤‰à¤¨à¤•à¤¾ à¤¹à¥€ à¤¥à¤¾ à¤œà¤¿à¤¸à¤•à¥‹ à¤¯à¤¹ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤‰à¤¨à¤•à¥‡ à¤¸à¤¾à¤¥ à¤ªà¥à¤°à¤¾à¤°à¤®à¥à¤­ à¤¸à¥‡ à¤•à¤° à¤°à¤¹à¥€ à¤¹à¥ˆ',
                     'description_en' => 'An immigration visa consultant and a very social and religious person, he is associated with many organizations. The dream of the Parichay Sammelan was his, which this organization has been fulfilling with him since the beginning.',
                     'photo' => 'assets/images/darshan jain.jpeg',
                     'sort_order' => 3,
@@ -198,11 +199,11 @@ Route::get('/run-prod-migrations', function() {
                     'updated_at' => now(),
                 ],
                 [
-                    'name' => 'मिलेश दोशी',
+                    'name' => 'à¤®à¤¿à¤²à¥‡à¤¶ à¤¦à¥‹à¤¶à¥€',
                     'name_en' => 'Milesh Doshi',
                     'designation' => 'Committee Member',
                     'designation_en' => 'Committee Member',
-                    'description' => 'श्री मिलेशभाई कम्पुटर सोफ्ट्वेयर और हार्डवेयर व्यवसायी है, सभी धार्मिक कार्यो और मुनि भक्ति मे सबसे अग्रणी रहते है इस संस्था के प्रारम्भ से ही वह अपना योगदान दे रहे हैं|',
+                    'description' => 'à¤¶à¥à¤°à¥€ à¤®à¤¿à¤²à¥‡à¤¶à¤­à¤¾à¤ˆ à¤•à¤®à¥à¤ªà¥à¤Ÿà¤° à¤¸à¥‹à¤«à¥à¤Ÿà¥à¤µà¥‡à¤¯à¤° à¤”à¤° à¤¹à¤¾à¤°à¥à¤¡à¤µà¥‡à¤¯à¤° à¤µà¥à¤¯à¤µà¤¸à¤¾à¤¯à¥€ à¤¹à¥ˆ, à¤¸à¤­à¥€ à¤§à¤¾à¤°à¥à¤®à¤¿à¤• à¤•à¤¾à¤°à¥à¤¯à¥‹ à¤”à¤° à¤®à¥à¤¨à¤¿ à¤­à¤•à¥à¤¤à¤¿ à¤®à¥‡ à¤¸à¤¬à¤¸à¥‡ à¤…à¤—à¥à¤°à¤£à¥€ à¤°à¤¹à¤¤à¥‡ à¤¹à¥ˆ à¤‡à¤¸ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤•à¥‡ à¤ªà¥à¤°à¤¾à¤°à¤®à¥à¤­ à¤¸à¥‡ à¤¹à¥€ à¤µà¤¹ à¤…à¤ªà¤¨à¤¾ à¤¯à¥‹à¤—à¤¦à¤¾à¤¨ à¤¦à¥‡ à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚|',
                     'description_en' => 'Mr. Mileshbhai is a computer software and hardware businessman. He is at the forefront of all religious activities and devotion to monks. He has been contributing to this organization since its inception.',
                     'photo' => 'assets/images/milesh.png',
                     'sort_order' => 4,
@@ -211,11 +212,11 @@ Route::get('/run-prod-migrations', function() {
                     'updated_at' => now(),
                 ],
                 [
-                    'name' => 'जितेंद्र शाह',
+                    'name' => 'à¤œà¤¿à¤¤à¥‡à¤‚à¤¦à¥à¤° à¤¶à¤¾à¤¹',
                     'name_en' => 'Jitendra Shah',
                     'designation' => 'Committee Member',
                     'designation_en' => 'Committee Member',
-                    'description' => 'श्री जितेंद्र जी का प्रिंटिंग का बहुत ही बड़ा कार्य है, सभी सामजिक और धार्मिक कार्यो मे हमेशा अपना योगदान देते है इस संस्था के प्रारम्भ से ही वह अपना योगदान दे रहे हैं|',
+                    'description' => 'à¤¶à¥à¤°à¥€ à¤œà¤¿à¤¤à¥‡à¤‚à¤¦à¥à¤° à¤œà¥€ à¤•à¤¾ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿà¤¿à¤‚à¤— à¤•à¤¾ à¤¬à¤¹à¥à¤¤ à¤¹à¥€ à¤¬à¤¡à¤¼à¤¾ à¤•à¤¾à¤°à¥à¤¯ à¤¹à¥ˆ, à¤¸à¤­à¥€ à¤¸à¤¾à¤®à¤œà¤¿à¤• à¤”à¤° à¤§à¤¾à¤°à¥à¤®à¤¿à¤• à¤•à¤¾à¤°à¥à¤¯à¥‹ à¤®à¥‡ à¤¹à¤®à¥‡à¤¶à¤¾ à¤…à¤ªà¤¨à¤¾ à¤¯à¥‹à¤—à¤¦à¤¾à¤¨ à¤¦à¥‡à¤¤à¥‡ à¤¹à¥ˆ à¤‡à¤¸ à¤¸à¤‚à¤¸à¥à¤¥à¤¾ à¤•à¥‡ à¤ªà¥à¤°à¤¾à¤°à¤®à¥à¤­ à¤¸à¥‡ à¤¹à¥€ à¤µà¤¹ à¤…à¤ªà¤¨à¤¾ à¤¯à¥‹à¤—à¤¦à¤¾à¤¨ à¤¦à¥‡ à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚|',
                     'description_en' => 'Mr. Jitendra has a large printing business. He always contributes to social and religious activities and has been contributing to this organization since the beginning.',
                     'photo' => 'assets/images/Jitendra Shah.png',
                     'sort_order' => 5,
@@ -224,11 +225,11 @@ Route::get('/run-prod-migrations', function() {
                     'updated_at' => now(),
                 ],
                 [
-                    'name' => 'एन्टीग्रेविटी एआई',
+                    'name' => 'à¤à¤¨à¥à¤Ÿà¥€à¤—à¥à¤°à¥‡à¤µà¤¿à¤Ÿà¥€ à¤à¤†à¤ˆ',
                     'name_en' => 'Antigravity AI',
-                    'designation' => 'एआई कोडिंग सहायक',
+                    'designation' => 'à¤à¤†à¤ˆ à¤•à¥‹à¤¡à¤¿à¤‚à¤— à¤¸à¤¹à¤¾à¤¯à¤•',
                     'designation_en' => 'AI Coding Assistant',
-                    'description' => 'मैं एन्टीग्रेविटी हूँ, एक शक्तिशाली एआई कोडिंग सहायक जिसे गूगल डीपमाइंड टीम द्वारा एडवांस्ड एजेंटिक कोडिंग पर काम करने के लिए डिज़ाइन किया गया है।',
+                    'description' => 'à¤®à¥ˆà¤‚ à¤à¤¨à¥à¤Ÿà¥€à¤—à¥à¤°à¥‡à¤µà¤¿à¤Ÿà¥€ à¤¹à¥‚à¤, à¤à¤• à¤¶à¤•à¥à¤¤à¤¿à¤¶à¤¾à¤²à¥€ à¤à¤†à¤ˆ à¤•à¥‹à¤¡à¤¿à¤‚à¤— à¤¸à¤¹à¤¾à¤¯à¤• à¤œà¤¿à¤¸à¥‡ à¤—à¥‚à¤—à¤² à¤¡à¥€à¤ªà¤®à¤¾à¤‡à¤‚à¤¡ à¤Ÿà¥€à¤® à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤à¤¡à¤µà¤¾à¤‚à¤¸à¥à¤¡ à¤à¤œà¥‡à¤‚à¤Ÿà¤¿à¤• à¤•à¥‹à¤¡à¤¿à¤‚à¤— à¤ªà¤° à¤•à¤¾à¤® à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤¡à¤¿à¤œà¤¼à¤¾à¤‡à¤¨ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾ à¤¹à¥ˆà¥¤',
                     'description_en' => 'I am Antigravity, a powerful agentic AI coding assistant designed by the Google Deepmind team working on Advanced Agentic Coding.',
                     'photo' => 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500',
                     'sort_order' => 6,
@@ -284,9 +285,9 @@ Route::middleware('guest:admin')->group(function () {
 });
 
 // Logout Routes
-Route::post('/logout', [LoginController::class, 'logoutUser'])->name('logout');            // User logout → /login
+Route::post('/logout', [LoginController::class, 'logoutUser'])->name('logout');            // User logout â†’ /login
 Route::post('/user/logout', [LoginController::class, 'logoutUser'])->name('user.logout');  // Explicit user logout
-Route::post('/admin/logout', [LoginController::class, 'logoutAdmin'])->name('admin.logout'); // Admin logout → /admin/login
+Route::post('/admin/logout', [LoginController::class, 'logoutAdmin'])->name('admin.logout'); // Admin logout â†’ /admin/login
 
 
 Route::get('/image', [ImageController::class, 'serve'])->name('image.serve');
@@ -442,6 +443,13 @@ Route::middleware('auth:admin')->group(function () {
     Route::put('/admin/cms/committee/{member}', [CommitteeController::class, 'update'])->name('admin.cms.committee.update');
     Route::post('/admin/cms/committee/{member}/toggle', [CommitteeController::class, 'toggle'])->name('admin.cms.committee.toggle');
     Route::delete('/admin/cms/committee/{member}', [CommitteeController::class, 'destroy'])->name('admin.cms.committee.destroy');
+
+    // CMS Our Sarankshak
+    Route::get('/admin/cms/sarankshak', [SarankshakController::class, 'index'])->name('admin.cms.sarankshak.index');
+    Route::post('/admin/cms/sarankshak', [SarankshakController::class, 'store'])->name('admin.cms.sarankshak.store');
+    Route::put('/admin/cms/sarankshak/{member}', [SarankshakController::class, 'update'])->name('admin.cms.sarankshak.update');
+    Route::post('/admin/cms/sarankshak/{member}/toggle', [SarankshakController::class, 'toggle'])->name('admin.cms.sarankshak.toggle');
+    Route::delete('/admin/cms/sarankshak/{member}', [SarankshakController::class, 'destroy'])->name('admin.cms.sarankshak.destroy');
     });
 });
 
@@ -453,6 +461,8 @@ Route::get('/privacy', [CmsController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [CmsController::class, 'terms'])->name('terms');
 Route::get('/committee', [CmsController::class, 'community'])->name('community');
 Route::redirect('/community', '/committee', 301);
+Route::get('/sarankshak', [CmsController::class, 'sarankshak'])->name('sarankshak');
+Route::redirect('/our-sarankshak', '/sarankshak', 301);
 Route::get('/news', [CmsController::class, 'news'])->name('news');
 
 Route::get('/waiting-approval', function () {
@@ -466,5 +476,6 @@ Route::get('/waiting-approval', function () {
     }
     return view('auth.waiting-approval');
 })->name('waiting.approval');
+
 
 

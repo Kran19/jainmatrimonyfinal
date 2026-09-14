@@ -84,7 +84,7 @@ class CmsController extends Controller
             $htmlBody = '
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                 <div style="background: linear-gradient(135deg, #0f1754 0%, #1e293b 100%); padding: 24px; text-align: center; color: #ffffff;">
-                    <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">दिगम्बर जैन परिचय सम्मेलन समिति</h2>
+                    <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">à¤¦à¤¿à¤—à¤®à¥à¤¬à¤° à¤œà¥ˆà¤¨ à¤ªà¤°à¤¿à¤šà¤¯ à¤¸à¤®à¥à¤®à¥‡à¤²à¤¨ à¤¸à¤®à¤¿à¤¤à¤¿</h2>
                     <p style="margin: 6px 0 0 0; font-size: 13px; color: #cbd5e1;">New Contact Inquiry / User Query</p>
                 </div>
                 <div style="padding: 24px; color: #1e293b; line-height: 1.6;">
@@ -121,7 +121,7 @@ class CmsController extends Controller
                     <div style="margin-top: 28px; text-align: center;">
                         <a href="mailto:' . htmlspecialchars($email) . '?subject=Re:%20' . rawurlencode($subject) . '" 
                            style="display: inline-block; background: #0f1754; color: #ffffff; text-decoration: none; padding: 12px 28px; font-weight: bold; font-size: 14px; border-radius: 8px; box-shadow: 0 2px 4px rgba(15,23,84,0.3);">
-                            ✉️ Click to Reply to ' . htmlspecialchars($name) . '
+                            âœ‰ï¸ Click to Reply to ' . htmlspecialchars($name) . '
                         </a>
                     </div>
                     <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 12px;">You can directly click "Reply" in your email client to reply to ' . htmlspecialchars($email) . '.</p>
@@ -183,5 +183,18 @@ class CmsController extends Controller
     {
         $news_items = News::where('status', true)->orderBy('created_at', 'desc')->get();
         return view('cms.news', compact('news_items'));
+    }
+
+    /**
+     * Display the Our Sarankshak page.
+     */
+    public function sarankshak()
+    {
+        $sarankshakMembers = \App\Models\SarankshakMember::where('status', true)
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+            
+        return view('cms.sarankshak', compact('sarankshakMembers'));
     }
 }

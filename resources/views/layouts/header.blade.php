@@ -16,8 +16,8 @@
                 </div>
             </div>
             <div>
-                <h3 class="font-bold text-white text-base leading-tight">दिगम्बर जैन परिचय</h3>
-                <p class="text-xs text-amber-300 font-medium">सम्मेलन समिति • Matrimony</p>
+                <h3 class="font-bold text-white text-base leading-tight">दिगम्बर जैन</h3>
+                <p class="text-xs text-amber-300 font-medium">परिचय सम्मेलन समिति • Matrimony</p>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
         
         <div class="relative">
             <div class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700">
-                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-700 hover:text-primary' }} flex items-center gap-3 flex-grow">
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') || request()->routeIs('sarankshak') ? 'text-primary font-bold' : 'text-gray-700 hover:text-primary' }} flex items-center gap-3 flex-grow">
                     <i class="fas fa-landmark w-5 text-center text-primary"></i> About Us
                 </a>
                 <button onclick="document.getElementById('mobileAboutMenu').classList.toggle('hidden'); document.getElementById('mobileAboutIcon').classList.toggle('rotate-180');" class="focus:outline-none p-1 text-gray-500">
@@ -49,6 +49,7 @@
             <div id="mobileAboutMenu" class="pl-12 pr-4 space-y-1.5 hidden pb-2">
                 <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">About Organization</a>
                 <a href="{{ route('community') }}" class="{{ request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">Executive Committee</a>
+                <a href="{{ route('sarankshak') }}" class="{{ request()->routeIs('sarankshak') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">Our Sarankshak</a>
             </div>
         </div>
 
@@ -56,7 +57,7 @@
             <i class="fas fa-heart w-5 text-center text-rose-500"></i> Success Story
         </a>
         <a href="{{ route('profiles') }}" class="{{ request()->routeIs('profiles') ? 'bg-amber-50 text-amber-800 font-bold border border-amber-300' : 'bg-amber-500/10 text-amber-900 font-semibold' }} flex items-center gap-3 px-4 py-2.5 rounded-xl transition">
-            <i class="fas fa-search-heart w-5 text-center text-amber-600"></i> Find Your Match ⭐
+            <i class="fas fa-search-heart w-5 text-center text-amber-600"></i> Find Your Match ✨
         </a>
         <a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:text-primary hover:bg-gray-50' }} flex items-center gap-3 px-4 py-2.5 rounded-xl transition">
             <i class="fas fa-images w-5 text-center text-primary"></i> Gallery
@@ -93,29 +94,29 @@
     </div>
 </div>
 
-<!-- Header -->
-<header class="shadow-md sticky top-0 z-50 bg-white">
-    
-    <!-- Top Utility Bar (Quick Contact & Support) -->
-    <div class="bg-gradient-to-r from-[#0E1A2C] via-[#1E3A5F] to-[#0E1A2C] text-gray-200 text-xs py-1.5 border-b border-amber-400/20">
-        <div class="container mx-auto px-4 md:px-8 flex justify-end items-center gap-3 sm:gap-6 text-[11px] sm:text-xs">
-            <a href="tel:+917575005121" class="flex items-center gap-1.5 text-gray-200 hover:text-amber-300 font-medium transition">
-                <i class="fas fa-phone-alt text-amber-400"></i>
-                <span class="hidden xs:inline">Helpline:</span> <span>+91 7575005121</span>
-            </a>
-            <a href="https://wa.me/{{ $whatsapp_number ?? '917575005121' }}" target="_blank" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 text-[11px] font-semibold transition">
-                <i class="fab fa-whatsapp text-xs"></i> WhatsApp Support
-            </a>
-            <div class="hidden lg:flex items-center gap-1 text-amber-300/90 font-medium">
-                <i class="fas fa-shield-alt text-amber-400"></i> 100% Verified Community Profiles
+<!-- Header Section (White Top Bar with Subtle Warm Gradient) -->
+<header class="bg-white shadow-xs sticky top-0 z-40 transition duration-300">
+    <!-- Top Micro Utility Bar (Navy with Gold Accents) -->
+    <div class="bg-gradient-to-r from-[#0F1D30] via-[#1E3A5F] to-[#0F1D30] text-gray-200 text-xs py-1.5 border-b border-amber-500/20">
+        <div class="container mx-auto px-4 md:px-8 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="tel:+917575005121" class="hover:text-amber-300 transition flex items-center gap-1.5 font-medium">
+                    <i class="fas fa-phone-alt text-amber-400 text-[11px]"></i> +91 7575005121
+                </a>
+                <a href="https://wa.me/917575005121" target="_blank" class="hover:text-amber-300 transition hidden sm:flex items-center gap-1.5 font-medium">
+                    <i class="fab fa-whatsapp text-emerald-400 text-[12px]"></i> WhatsApp Support
+                </a>
+            </div>
+            <div class="flex items-center space-x-3 text-[11px] text-amber-200/90 font-medium">
+                <span class="flex items-center gap-1"><i class="fas fa-shield-alt text-amber-400"></i> 100% Verified Community Profiles</span>
             </div>
         </div>
     </div>
 
-    <!-- Main Branding Banner (Royal Warm Ivory & Heritage Styling) -->
-    <div class="bg-gradient-to-r from-[#FFFDF9] via-[#FFFFFF] to-[#FFF9F2] border-b border-amber-200/50 py-3.5 md:py-4 relative overflow-hidden">
-        <!-- Subtle Decorative Background Glow -->
-        <div class="absolute inset-0 opacity-40 pointer-events-none bg-[radial-gradient(#D4AF37_1px,transparent_1px)] [background-size:20px_20px]"></div>
+    <!-- Main Branding Header Banner (Traditional Digambar Jain Theme) -->
+    <div class="bg-gradient-to-b from-[#FFFDF9] via-[#FAF6EE] to-[#F5EFE1] border-b border-amber-900/10 py-3 md:py-4 relative overflow-hidden">
+        <!-- Traditional dot background pattern -->
+        <div class="absolute inset-0 opacity-[0.035] pointer-events-none" style="background-image: radial-gradient(#7A161B 1px, transparent 1px); background-size: 16px 16px;"></div>
 
         <div class="container mx-auto px-4 md:px-8 relative z-10 flex items-center justify-between">
             
@@ -174,8 +175,8 @@
 
             <!-- About Us Dropdown -->
             <div class="relative group">
-                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') ? 'text-amber-300 font-bold bg-white/10' : 'text-gray-100 hover:text-amber-300 hover:bg-white/5' }} px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fas fa-landmark text-xs {{ request()->routeIs('about') || request()->routeIs('community') ? 'text-amber-300' : 'text-gray-400' }}"></i> About Us 
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') || request()->routeIs('sarankshak') ? 'text-amber-300 font-bold bg-white/10' : 'text-gray-100 hover:text-amber-300 hover:bg-white/5' }} px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fas fa-landmark text-xs {{ request()->routeIs('about') || request()->routeIs('community') || request()->routeIs('sarankshak') ? 'text-amber-300' : 'text-gray-400' }}"></i> About Us 
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180 opacity-70"></i>
                 </a>
                 <div class="absolute left-0 top-full mt-1.5 w-52 bg-white border border-gray-100 shadow-2xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden text-gray-800">
@@ -185,6 +186,9 @@
                         </a>
                         <a href="{{ route('community') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg {{ request()->routeIs('community') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">
                             <i class="fas fa-users-cog text-primary w-4 text-center"></i> Executive Committee
+                        </a>
+                        <a href="{{ route('sarankshak') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg {{ request()->routeIs('sarankshak') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">
+                            <i class="fas fa-user-shield text-primary w-4 text-center"></i> Our Sarankshak
                         </a>
                     </div>
                 </div>
@@ -197,7 +201,7 @@
 
             <!-- Find Your Match (Highlighted CTA Pill) -->
             <a href="{{ route('profiles') }}" class="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 text-slate-950 font-bold px-4 py-1.5 rounded-full shadow-md hover:shadow-amber-500/40 hover:scale-105 transition flex items-center gap-1.5 transform duration-200">
-                <i class="fas fa-search-heart text-xs text-slate-950"></i> Find Your Match ⭐
+                <i class="fas fa-search-heart text-xs text-slate-950"></i> Find Your Match ✨
             </a>
 
             <!-- Gallery -->
@@ -254,4 +258,3 @@
     @endif
 
 </header>
-
