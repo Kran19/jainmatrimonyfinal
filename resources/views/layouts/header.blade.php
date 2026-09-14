@@ -39,7 +39,7 @@
         
         <div class="relative">
             <div class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700">
-                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') || request()->routeIs('sarankshak') ? 'text-primary font-bold' : 'text-gray-700 hover:text-primary' }} flex items-center gap-3 flex-grow">
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('sarankshak') || request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-700 hover:text-primary' }} flex items-center gap-3 flex-grow">
                     <i class="fas fa-landmark w-5 text-center text-primary"></i> About Us
                 </a>
                 <button onclick="document.getElementById('mobileAboutMenu').classList.toggle('hidden'); document.getElementById('mobileAboutIcon').classList.toggle('rotate-180');" class="focus:outline-none p-1 text-gray-500">
@@ -48,8 +48,8 @@
             </div>
             <div id="mobileAboutMenu" class="pl-12 pr-4 space-y-1.5 hidden pb-2">
                 <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">About Organization</a>
-                <a href="{{ route('community') }}" class="{{ request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">Executive Committee</a>
                 <a href="{{ route('sarankshak') }}" class="{{ request()->routeIs('sarankshak') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">Our Sarankshak</a>
+                <a href="{{ route('community') }}" class="{{ request()->routeIs('community') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }} block py-1.5 text-xs transition">Executive Committee</a>
             </div>
         </div>
 
@@ -175,8 +175,8 @@
 
             <!-- About Us Dropdown -->
             <div class="relative group">
-                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('community') || request()->routeIs('sarankshak') ? 'text-amber-300 font-bold bg-white/10' : 'text-gray-100 hover:text-amber-300 hover:bg-white/5' }} px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fas fa-landmark text-xs {{ request()->routeIs('about') || request()->routeIs('community') || request()->routeIs('sarankshak') ? 'text-amber-300' : 'text-gray-400' }}"></i> About Us 
+                <a href="{{ route('about') }}" class="{{ request()->routeIs('about') || request()->routeIs('sarankshak') || request()->routeIs('community') ? 'text-amber-300 font-bold bg-white/10' : 'text-gray-100 hover:text-amber-300 hover:bg-white/5' }} px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fas fa-landmark text-xs {{ request()->routeIs('about') || request()->routeIs('sarankshak') || request()->routeIs('community') ? 'text-amber-300' : 'text-gray-400' }}"></i> About Us 
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180 opacity-70"></i>
                 </a>
                 <div class="absolute left-0 top-full mt-1.5 w-52 bg-white border border-gray-100 shadow-2xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden text-gray-800">
@@ -184,11 +184,11 @@
                         <a href="{{ route('about') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg {{ request()->routeIs('about') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">
                             <i class="fas fa-info-circle text-primary w-4 text-center"></i> About Organization
                         </a>
-                        <a href="{{ route('community') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg {{ request()->routeIs('community') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">
-                            <i class="fas fa-users-cog text-primary w-4 text-center"></i> Executive Committee
-                        </a>
                         <a href="{{ route('sarankshak') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg {{ request()->routeIs('sarankshak') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">
                             <i class="fas fa-user-shield text-primary w-4 text-center"></i> Our Sarankshak
+                        </a>
+                        <a href="{{ route('community') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg {{ request()->routeIs('community') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary' }} transition">
+                            <i class="fas fa-users-cog text-primary w-4 text-center"></i> Executive Committee
                         </a>
                     </div>
                 </div>
