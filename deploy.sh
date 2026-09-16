@@ -60,3 +60,25 @@ chmod +x deploy.sh 2>/dev/null || true
 echo "=================================================="
 echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
 echo "=================================================="
+
+
+
+# ssh -p 65002 u942738327@2.57.89.2
+
+# King@0706
+
+# ./deploy.sh
+
+
+# https://digambarjainparichay.com/
+
+
+# Here are the default Admin credentials for your project:
+
+# 🔑 Admin Credentials:
+
+# Email: admin@jain.com
+# Password: 12344321
+# 🌐 Admin Login URL:
+# Local: http://127.0.0.1:8001/admin/login
+# Live: https://digambarjainparichay.com/admin/login
