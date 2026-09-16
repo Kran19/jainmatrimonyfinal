@@ -3,10 +3,21 @@
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-                <h4 class="text-lg font-bold text-accent mb-4">दिगम्बर जैन</h4>
+                <h4 class="text-lg font-bold text-accent mb-4">दिगम्बर जैन परिचय सम्मेलन समिति</h4>
                 <p class="text-gray-400 text-sm leading-relaxed mb-4">
                     समर्पित एवं विश्वसनीय दिगम्बर जैन वैवाहिक मंच, जो समाज के विवाह योग्य युवक-युवतियों के लिए आदर्श जीवनसाथी खोजने में सहायक है।
                 </p>
+                <div class="flex items-center gap-3 mt-4">
+                    <a href="{{ !empty($settings['social_youtube']) ? $settings['social_youtube'] : 'https://www.youtube.com/@DigambarJainParichaySammelan20' }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube Channel" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-red-600 text-gray-300 hover:text-white flex items-center justify-center transition-all duration-200 hover:scale-110">
+                        <i class="fab fa-youtube text-lg"></i>
+                    </a>
+                    <a href="{{ !empty($settings['social_instagram']) ? $settings['social_instagram'] : '#' }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram Profile" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 text-gray-300 hover:text-white flex items-center justify-center transition-all duration-200 hover:scale-110">
+                        <i class="fab fa-instagram text-lg"></i>
+                    </a>
+                    <a href="{{ !empty($settings['social_facebook']) ? $settings['social_facebook'] : '#' }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook Page" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-blue-600 text-gray-300 hover:text-white flex items-center justify-center transition-all duration-200 hover:scale-110">
+                        <i class="fab fa-facebook-f text-lg"></i>
+                    </a>
+                </div>
             </div>
             <div>
                 <h4 class="text-lg font-semibold mb-4">Quick Links</h4>

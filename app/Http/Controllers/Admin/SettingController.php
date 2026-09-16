@@ -183,6 +183,9 @@ class SettingController extends Controller
             'contact_email' => 'digambarjainparichay@gmail.com',
             'contact_phone' => '+91 7575005121',
             'contact_address' => '23-A, Shubhlaxmi Palace, Opp. Money Plant Junction, Bhuyangdev Cross Road, Sola Road, Ahmedabad-380061.',
+            'social_youtube' => 'https://www.youtube.com/@DigambarJainParichaySammelan20',
+            'social_instagram' => '',
+            'social_facebook' => '',
         ];
 
         // Default fallbacks for Terms & Privacy if empty

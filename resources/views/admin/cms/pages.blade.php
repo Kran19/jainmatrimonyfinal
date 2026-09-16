@@ -187,6 +187,44 @@
         </div>
     </div>
 
+    <!-- 5. Social Media Handles (Footer Icons) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-slate-50 px-6 py-4 border-b border-gray-100">
+            <h4 class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-share-nodes text-indigo-500"></i> Social Media Links (Footer Dynamic Icons)
+            </h4>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-bold text-gray-800 text-xs uppercase mb-1 flex items-center gap-1.5">
+                        <i class="fa-brands fa-youtube text-red-500 text-sm"></i> YouTube Channel Link
+                    </label>
+                    <input type="url" name="social_youtube" value="{{ $settings['social_youtube'] ?? '' }}"
+                           placeholder="https://www.youtube.com/@ChannelName"
+                           class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 text-xs uppercase mb-1 flex items-center gap-1.5">
+                        <i class="fa-brands fa-instagram text-pink-500 text-sm"></i> Instagram Profile Link
+                    </label>
+                    <input type="url" name="social_instagram" value="{{ $settings['social_instagram'] ?? '' }}"
+                           placeholder="https://www.instagram.com/username"
+                           class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 text-xs uppercase mb-1 flex items-center gap-1.5">
+                        <i class="fa-brands fa-facebook text-blue-600 text-sm"></i> Facebook Page Link
+                    </label>
+                    <input type="url" name="social_facebook" value="{{ $settings['social_facebook'] ?? '' }}"
+                           placeholder="https://www.facebook.com/pagename"
+                           class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-500">These links will dynamically control the YouTube, Instagram, and Facebook icons in the website footer across all pages.</p>
+        </div>
+    </div>
+
     <!-- Bottom Submit Button -->
     <div class="flex justify-end pt-2">
         <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-8 py-3 rounded-xl text-sm shadow-md hover:shadow-lg transition duration-150 flex items-center gap-2">
