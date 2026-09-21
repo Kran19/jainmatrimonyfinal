@@ -6,6 +6,32 @@
 @section('content')
 <!-- Filter Panel -->
 <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-gray-100">
+        <div>
+            <div class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                <span>Incomplete Candidates</span>
+                <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full border border-indigo-100">
+                    {{ $members->total() }} Total
+                </span>
+                @if(request('search'))
+                    <span class="bg-amber-50 text-amber-800 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-200">
+                        Filtered by "{{ request('search') }}"
+                    </span>
+                @endif
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5">Candidates who verified Step 1 but have not submitted their full matrimonial profile</p>
+        </div>
+
+        <!-- Export CSV Button (Top right position) -->
+        <div>
+            <a href="{{ route('admin.members.incomplete.export', request()->all()) }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm hover:shadow transition duration-150"
+               title="Export Incomplete Registrations to CSV">
+                <i class="fa-solid fa-file-csv text-base"></i> Export CSV
+            </a>
+        </div>
+    </div>
+
     <form action="{{ route('admin.members.incomplete') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end w-full">
         <div class="w-full sm:flex-grow">
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Search Profile</label>
@@ -18,6 +44,11 @@
             </button>
             <a href="{{ route('admin.members.incomplete') }}" class="flex-1 sm:flex-initial bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-xl text-sm transition duration-150 text-center">
                 Reset
+            </a>
+            <a href="{{ route('admin.members.incomplete.export', request()->all()) }}" 
+               class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition duration-150 text-center inline-flex items-center justify-center gap-1.5 shadow-sm"
+               title="Export Incomplete Registrations to CSV">
+                <i class="fa-solid fa-file-csv text-base"></i> Export CSV
             </a>
         </div>
     </form>

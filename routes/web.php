@@ -388,6 +388,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/members', [MemberController::class, 'index'])->name('admin.members.index');
     Route::get('/admin/members/export', [MemberController::class, 'export'])->name('admin.members.export');
     Route::post('/admin/members/fix-duplicate-photos', [MemberController::class, 'fixDuplicatePhotos'])->name('admin.members.fix-duplicate-photos');
+    Route::get('/admin/members-incomplete/export', [MemberController::class, 'exportIncomplete'])->name('admin.members.incomplete.export');
     Route::get('/admin/members-incomplete', [MemberController::class, 'incomplete'])->name('admin.members.incomplete');
     Route::get('/admin/members-requests', [MemberController::class, 'requests'])->name('admin.members.requests');
     Route::match(['get', 'post'], '/admin/members-requests/{id}/approve', [MemberController::class, 'approveRequest'])->name('admin.members.requests.approve');

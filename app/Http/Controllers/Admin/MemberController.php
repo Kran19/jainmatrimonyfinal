@@ -304,6 +304,97 @@ class MemberController extends Controller
     }
 
     /**
+     * Export incomplete registrations to CSV.
+     */
+    public function exportIncomplete(Request $request)
+    {
+        $query = User::where('status', 'account_approved');
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $numericSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $numericSearch) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%");
+
+                if (!empty($numericSearch)) {
+                    $q->orWhere('id', '=', $numericSearch);
+                }
+            });
+        }
+
+        $members = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'incomplete_registrations_' . now()->format('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($members) {
+            $handle = fopen('php://output', 'w');
+
+            // UTF-8 BOM for Excel compatibility
+            fputs($handle, "\xEF\xBB\xBF");
+
+            // Header row
+            fputcsv($handle, [
+                'ID',
+                'Profile ID',
+                'Full Name',
+                'Mobile',
+                'Email',
+                'Gender',
+                'Stage 1 Approved Date',
+                'Days Incomplete',
+                'Registration Step',
+                'Status',
+                'Cast',
+                'Subcast',
+                'Are You Digambar Jain',
+                'Current Address',
+                'Permanent Address',
+                'Pin Code',
+                'Created At'
+            ]);
+
+            foreach ($members as $m) {
+                $targetDate = $m->updated_at ?? $m->created_at;
+                $days = $targetDate ? (int) abs(floor(now()->diffInDays($targetDate))) : 0;
+
+                fputcsv($handle, [
+                    $m->id,
+                    $m->profile_id ?? '',
+                    $m->full_name,
+                    $m->mobile ? "\t" . $m->mobile : '',
+                    $m->email ?? '',
+                    $m->gender ?? '',
+                    $targetDate ? $targetDate->format('Y-m-d H:i:s') : '',
+                    $days,
+                    $m->registration_step ?? 1,
+                    'Stage 1 Approved (Incomplete)',
+                    $m->cast ?? '',
+                    $m->subcast ?? '',
+                    $m->are_you_digambar_jain ?? '',
+                    $m->current_address ?? '',
+                    $m->permanent_address ?? '',
+                    $m->pin_code ? "\t" . $m->pin_code : '',
+                    $m->created_at ? $m->created_at->format('Y-m-d H:i:s') : ''
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Display detailed profile verification info.
      */
     public function show(User $member)
