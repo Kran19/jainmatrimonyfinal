@@ -45,11 +45,6 @@
             <a href="{{ route('admin.members.incomplete') }}" class="flex-1 sm:flex-initial bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-xl text-sm transition duration-150 text-center">
                 Reset
             </a>
-            <a href="{{ route('admin.members.incomplete.export', request()->all()) }}" 
-               class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition duration-150 text-center inline-flex items-center justify-center gap-1.5 shadow-sm"
-               title="Export Incomplete Registrations to CSV">
-                <i class="fa-solid fa-file-csv text-base"></i> Export CSV
-            </a>
         </div>
     </form>
 </div>
