@@ -66,8 +66,7 @@ echo "=================================================="
 # ssh -p 65002 u942738327@2.57.89.2
 
 # King@0706
-
-
+# cd domains/digambarjainparichay.com/public_html/
 # ./deploy.sh
 
 
