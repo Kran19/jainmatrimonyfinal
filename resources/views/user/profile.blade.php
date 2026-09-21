@@ -95,15 +95,23 @@
                     </a>
                     @endif
 
+                    @if(isset($pendingAccountRequest) && $pendingAccountRequest)
+                    <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-sm font-semibold shadow-sm">
+                        <i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
+                        <span>Deletion Request Pending</span>
+                        <form action="{{ route('profile.cancel-request') }}" method="POST" class="inline-block ml-1" onsubmit="return confirm('Are you sure you want to cancel your deactivation / deletion request?');">
+                            @csrf
+                            <button type="submit" class="text-xs bg-white text-rose-600 border border-rose-200 px-2.5 py-1 rounded hover:bg-rose-50 transition font-bold" title="Cancel Request">
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                    @else
+                    <button type="button" onclick="openDeactivationModal()" class="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 shadow-md transition font-medium flex items-center gap-2">
+                        <i class="fas fa-trash-alt"></i> Deactivation / Deletion Requests
+                    </button>
+                    @endif
 
-                    <form action="{{ route('profile.delete') }}" method="POST" class="inline-block">
-                        @csrf
-                        @method('DELETE')
-                        <input type="hidden" name="delete_reason" value="User deleted directly from profile">
-                        <button type="submit" onclick="return confirm('Are you sure you want to deactivate your profile? This action cannot be undone.')" class="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 shadow-md transition font-medium flex items-center gap-2">
-                            <i class="fas fa-trash-alt"></i> Delete Profile
-                        </button>
-                    </form>
                     <a href="{{ route('password.change') }}" class="bg-white border border-gray-300 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-50 shadow-sm transition font-medium flex items-center gap-2">
                         <i class="fas fa-key"></i> Change Password
                     </a>
@@ -116,6 +124,30 @@
                     </form>
                 </div>
             </div>
+
+            @if(isset($pendingAccountRequest) && $pendingAccountRequest)
+            <div class="mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm" data-aos="fade-up">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-hourglass-half text-amber-500 text-xl mt-0.5"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-bold text-amber-900">
+                            Account {{ ucfirst($pendingAccountRequest->request_type) }} Request Pending Admin Approval
+                        </h3>
+                        <p class="mt-1 text-sm text-amber-800">
+                            You submitted an account {{ $pendingAccountRequest->request_type }} request on <strong>{{ \Carbon\Carbon::parse($pendingAccountRequest->created_at)->format('M d, Y h:i A') }}</strong>.
+                        </p>
+                        <p class="mt-1 text-xs text-amber-700 italic">
+                            Reason provided: "{{ $pendingAccountRequest->reason }}"
+                        </p>
+                        <p class="mt-2 text-xs text-amber-600">
+                            Our administration team is currently reviewing your request. Once approved by the administrator, your account will be permanently processed. If you wish to withdraw this request, click "Cancel" above.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <div class="flex flex-col lg:flex-row gap-8">
                 <!-- Left Column (Profile Summary) -->
@@ -476,4 +508,110 @@
         </div>
     </div>
 </section>
+
+<!-- Deactivation / Deletion Request Modal -->
+<div id="deactivationModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8 transform transition-all relative border border-gray-100" onclick="event.stopPropagation()">
+        <!-- Close Button -->
+        <button type="button" onclick="closeDeactivationModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl flex-shrink-0">
+                <i class="fa-solid fa-user-minus"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">Deactivation / Deletion Request</h3>
+                <p class="text-xs text-gray-500">Send an account removal request to administration</p>
+            </div>
+        </div>
+
+        <form action="{{ route('profile.request-deactivation') }}" method="POST" id="deactivationForm">
+            @csrf
+            
+            <!-- Request Type -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Request Type (अनुरोध का प्रकार) *</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer hover:border-red-500 transition bg-slate-50 has-[:checked]:border-red-600 has-[:checked]:bg-red-50/50">
+                        <input type="radio" name="request_type" value="deletion" checked class="text-red-600 focus:ring-red-500">
+                        <span class="text-xs font-bold text-gray-800">Permanent Deletion</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer hover:border-amber-500 transition bg-slate-50 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/50">
+                        <input type="radio" name="request_type" value="deactivation" class="text-amber-600 focus:ring-amber-500">
+                        <span class="text-xs font-bold text-gray-800">Deactivation</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Reason Category -->
+            <div class="mb-4">
+                <label for="reason_category" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Reason (कारण चुनें) *</label>
+                <select name="reason_category" id="reason_category" required class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+                    <option value="">-- Select a reason --</option>
+                    <option value="Marriage Fixed (विवाह तय हो गया)">Marriage Fixed (विवाह तय हो गया)</option>
+                    <option value="Found Match from Digambar Jain Matrimony (जैन विवाह मंच से रिश्ता तय हुआ)">Found Match from Digambar Jain Matrimony (जैन विवाह मंच से रिश्ता तय हुआ)</option>
+                    <option value="Found Match Elsewhere (अन्य माध्यम से रिश्ता तय हुआ)">Found Match Elsewhere (अन्य माध्यम से रिश्ता तय हुआ)</option>
+                    <option value="Privacy / Personal Concerns (गोपनीयता या व्यक्तिगत कारण)">Privacy / Personal Concerns (गोपनीयता या व्यक्तिगत कारण)</option>
+                    <option value="Not Interested / No Longer Looking (आगे जारी नहीं रखना चाहते)">Not Interested / No Longer Looking (आगे जारी नहीं रखना चाहते)</option>
+                    <option value="Other Reason (अन्य कारण)">Other Reason (अन्य कारण)</option>
+                </select>
+            </div>
+
+            <!-- Detailed Note -->
+            <div class="mb-5">
+                <label for="reason_note" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Detailed Note / Reason (खाता हटाने का कारण विस्तार से लिखें) *</label>
+                <textarea name="reason_note" id="reason_note" rows="3" required placeholder="Please explain in detail why you want to delete/deactivate your account..." class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                <p class="text-[11px] text-gray-400 mt-1">This note is required and will be reviewed by the site administrator.</p>
+            </div>
+
+            <!-- Notice box -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 mb-6 flex items-start gap-2">
+                <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+                <span>Your request will be submitted to the admin team. An administrator will review your reason and approve the permanent removal of your account.</span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-end gap-3">
+                <button type="button" onclick="closeDeactivationModal()" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 font-medium text-sm transition">
+                    Cancel
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDeactivationModal() {
+    const modal = document.getElementById('deactivationModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeDeactivationModal() {
+    const modal = document.getElementById('deactivationModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
+
+// Close modal if user clicks on backdrop outside modal box
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('deactivationModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeDeactivationModal();
+            }
+        });
+    }
+});
+</script>
 @endsection

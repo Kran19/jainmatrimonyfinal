@@ -35,7 +35,17 @@ class ProfileController extends Controller
             ->first();
         $paymentStatus = $latestPayment ? $latestPayment->status : 'pending';
 
-        return view('user.profile', compact('user', 'age', 'paymentStatus'));
+        // Fetch pending account deactivation/deletion request if exists
+        $pendingAccountRequest = null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
+            $pendingAccountRequest = DB::table('account_requests')
+                ->where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+
+        return view('user.profile', compact('user', 'age', 'paymentStatus', 'pendingAccountRequest'));
     }
 
     /**
@@ -495,6 +505,85 @@ class ProfileController extends Controller
         }
 
         return redirect()->route('profile.my')->with('success', 'Your profile has been submitted for approval again.');
+    }
+
+    /**
+     * Submit an account deactivation or deletion request for Admin Approval.
+     */
+    public function requestAccountAction(Request $request)
+    {
+        $request->validate([
+            'request_type' => 'required|in:deletion,deactivation',
+            'reason_category' => 'required|string|max:150',
+            'reason_note' => 'required|string|min:5|max:1000',
+        ], [
+            'reason_category.required' => 'Please select a reason for account removal.',
+            'reason_note.required' => 'Please fill in the note explaining why you want to remove your account.',
+            'reason_note.min' => 'Please provide at least 5 characters explaining your reason in the note.',
+        ]);
+
+        $user = Auth::user();
+
+        // Check if a pending request already exists
+        if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
+            $existing = DB::table('account_requests')
+                ->where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($existing) {
+                return back()->with('info', 'You already have a pending request awaiting admin approval.');
+            }
+
+            $category = trim($request->input('reason_category'));
+            $note = trim($request->input('reason_note'));
+            $fullReason = "[{$category}]: {$note}";
+
+            $now = now();
+            $insertData = [
+                'user_id' => $user->id,
+                'request_type' => $request->input('request_type', 'deletion'),
+                'reason' => $fullReason,
+                'status' => 'pending',
+            ];
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'created_at')) {
+                $insertData['created_at'] = $now;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'updated_at')) {
+                $insertData['updated_at'] = $now;
+            }
+
+            DB::table('account_requests')->insert($insertData);
+
+            // Update delete_reason on user if column exists for reference
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'delete_reason')) {
+                DB::table('users')->where('id', $user->id)->update(['delete_reason' => $fullReason]);
+            }
+
+            return back()->with('success', 'Your request has been submitted to the administration team. Your account will be reviewed and processed.');
+        }
+
+        return back()->with('error', 'Account requests system is currently unavailable.');
+    }
+
+    /**
+     * Cancel a pending account deactivation/deletion request.
+     */
+    public function cancelAccountRequest(Request $request)
+    {
+        $user = Auth::user();
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
+            DB::table('account_requests')
+                ->where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->delete();
+
+            return back()->with('success', 'Your deactivation / deletion request has been cancelled successfully.');
+        }
+
+        return back()->with('error', 'Request could not be cancelled.');
     }
 }
 

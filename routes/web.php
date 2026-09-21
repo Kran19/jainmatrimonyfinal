@@ -301,6 +301,8 @@ Route::middleware(['auth:web', 'profile.completed'])->group(function () {
     Route::post('/profile/resubmit', [ProfileController::class, 'resubmit'])->name('profile.resubmit');
     Route::post('/profile/payment', [ProfileController::class, 'uploadPayment'])->name('profile.payment.upload');
     Route::delete('/profile', [ProfileController::class, 'deleteProfile'])->name('profile.delete');
+    Route::post('/profile/deactivation-request', [ProfileController::class, 'requestAccountAction'])->name('profile.request-deactivation');
+    Route::post('/profile/cancel-request', [ProfileController::class, 'cancelAccountRequest'])->name('profile.cancel-request');
 
     
     Route::get('/success-stories/add', [MediaController::class, 'addSuccessStory'])->name('success-stories.add');
@@ -384,6 +386,8 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/members/fix-duplicate-photos', [MemberController::class, 'fixDuplicatePhotos'])->name('admin.members.fix-duplicate-photos');
     Route::get('/admin/members-incomplete', [MemberController::class, 'incomplete'])->name('admin.members.incomplete');
     Route::get('/admin/members-requests', [MemberController::class, 'requests'])->name('admin.members.requests');
+    Route::post('/admin/members-requests/{id}/approve', [MemberController::class, 'approveRequest'])->name('admin.members.requests.approve');
+    Route::post('/admin/members-requests/{id}/reject', [MemberController::class, 'rejectRequest'])->name('admin.members.requests.reject');
     Route::post('/admin/members-requests/{id}/process', [MemberController::class, 'processRequest'])->name('admin.members.requests.process');
     Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
     Route::get('/admin/members/{member}/edit', [MemberController::class, 'edit'])->name('admin.members.edit');

@@ -609,7 +609,7 @@ class MemberController extends Controller
         }
 
         $requests = \DB::table('account_requests')
-            ->join('users', 'account_requests.user_id', '=', 'users.id')
+            ->leftJoin('users', 'account_requests.user_id', '=', 'users.id')
             ->select(
                 'account_requests.*',
                 'users.full_name',
@@ -618,9 +618,9 @@ class MemberController extends Controller
                 'users.profile_id',
                 'users.profile_photo',
                 'users.gender',
-                'users.status as user_status',
-                'users.delete_reason'
+                'users.status as user_status'
             )
+            ->orderByRaw("CASE WHEN account_requests.status = 'pending' THEN 0 ELSE 1 END ASC")
             ->orderBy('account_requests.created_at', 'desc')
             ->get();
 
@@ -628,9 +628,9 @@ class MemberController extends Controller
     }
 
     /**
-     * Process account deactivation/deletion request.
+     * Approve account deactivation/deletion request by Admin.
      */
-    public function processRequest($id)
+    public function approveRequest($id)
     {
         $req = \DB::table('account_requests')->where('id', $id)->first();
         if (!$req) {
@@ -638,21 +638,97 @@ class MemberController extends Controller
         }
 
         $userId = $req->user_id;
+        $user = User::withTrashed()->find($userId);
 
-        if ($req->request_type === 'deactivation') {
-            User::where('id', $userId)->update([
-                'status' => 'blocked',
-                'is_public' => false
-            ]);
-        } else {
-            User::where('id', $userId)->delete();
+        if ($user) {
+            if ($req->request_type === 'deactivation') {
+                $user->update([
+                    'status' => 'blocked',
+                    'is_public' => false,
+                    'blocked_at' => now(),
+                ]);
+
+                try {
+                    \App\Models\UserStatusLog::create([
+                        'user_id' => $user->id,
+                        'status' => 'blocked',
+                        'reason' => 'Admin approved account deactivation request. User reason: ' . $req->reason,
+                        'performed_by' => Auth::guard('admin')->id(),
+                        'performed_by_type' => 'admin',
+                    ]);
+                } catch (\Exception $e) {
+                    logger()->error("Failed to log status change on deactivation approval: " . $e->getMessage());
+                }
+            } else {
+                // Deletion: permanently delete member from public visibility & mark deleted
+                $now = now();
+                $updateData = [
+                    'status' => 'deleted',
+                    'is_public' => false,
+                    'deleted_at' => $now,
+                ];
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'delete_reason')) {
+                    $updateData['delete_reason'] = $req->reason;
+                }
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deletion_count')) {
+                    $updateData['deletion_count'] = intval($user->deletion_count ?? 0) + 1;
+                }
+
+                \DB::table('users')->where('id', $userId)->update($updateData);
+
+                try {
+                    \App\Models\UserStatusLog::create([
+                        'user_id' => $user->id,
+                        'status' => 'deleted',
+                        'reason' => 'Admin approved account deletion request. User reason: ' . $req->reason,
+                        'performed_by' => Auth::guard('admin')->id(),
+                        'performed_by_type' => 'admin',
+                    ]);
+                } catch (\Exception $e) {
+                    logger()->error("Failed to log status change on deletion approval: " . $e->getMessage());
+                }
+            }
         }
 
         \DB::table('account_requests')
             ->where('id', $id)
-            ->update(['status' => 'processed']);
+            ->update([
+                'status' => 'processed',
+                'updated_at' => now(),
+            ]);
 
-        return back()->with('success', 'Request processed successfully.');
+        $actionType = ($req->request_type === 'deactivation') ? 'deactivated' : 'permanently deleted';
+        return back()->with('success', "Member account {$actionType} successfully.");
+    }
+
+    /**
+     * Reject account deactivation/deletion request by Admin.
+     */
+    public function rejectRequest($id)
+    {
+        $req = \DB::table('account_requests')->where('id', $id)->first();
+        if (!$req) {
+            return back()->with('error', 'Request not found.');
+        }
+
+        \DB::table('account_requests')
+            ->where('id', $id)
+            ->update([
+                'status' => 'rejected',
+                'updated_at' => now(),
+            ]);
+
+        return back()->with('success', 'Deactivation / deletion request rejected. Member account remains active.');
+    }
+
+    /**
+     * Legacy alias for approveRequest.
+     */
+    public function processRequest($id)
+    {
+        return $this->approveRequest($id);
     }
 
     /**

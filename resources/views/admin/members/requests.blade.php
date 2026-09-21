@@ -43,35 +43,68 @@
                         </div>
                     </td>
                     <td class="py-4 px-6">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold
-                            @if($req->request_type === 'deletion' || $req->user_status === 'deleted') bg-rose-100 text-rose-800 border border-rose-200
-                            @else bg-amber-100 text-amber-800 border border-amber-200 @endif">
-                            @if($req->request_type === 'deletion' || $req->user_status === 'deleted')
-                                Deleted by User
-                            @else
+                        @if($req->status === 'pending')
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ $req->request_type === 'deletion' ? 'bg-rose-100 text-rose-800 border border-rose-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} flex items-center gap-1 w-fit">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                {{ $req->request_type === 'deletion' ? 'Deletion Request' : 'Deactivation Request' }}
+                            </span>
+                        @elseif($req->status === 'processed' || $req->user_status === 'deleted')
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit block">
+                                {{ $req->request_type === 'deletion' ? 'Account Deleted' : 'Deactivated' }}
+                            </span>
+                        @elseif($req->status === 'rejected')
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200 w-fit block">
+                                Request Rejected
+                            </span>
+                        @else
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 w-fit block">
                                 {{ ucfirst($req->request_type) }}
-                            @endif
-                        </span>
+                            </span>
+                        @endif
                     </td>
-                    <td class="py-4 px-6 text-gray-600 font-medium italic">
-                        "{{ $req->reason ?? 'No reason provided' }}"
+                    <td class="py-4 px-6">
+                        <div class="max-w-xs md:max-w-md bg-slate-50 border border-slate-200/90 rounded-xl p-3 text-xs leading-relaxed text-slate-800 shadow-sm">
+                            <div class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-quote-left text-slate-400 text-[11px] mt-0.5 flex-shrink-0"></i>
+                                <span class="font-medium whitespace-pre-line">{{ $req->reason ?? 'No reason provided' }}</span>
+                            </div>
+                        </div>
                     </td>
                     <td class="py-4 px-6 text-gray-500 text-xs">
                         <div>{{ \Carbon\Carbon::parse($req->created_at)->format('M d, Y') }}</div>
                         <div class="text-[10px] text-gray-400 font-mono">{{ \Carbon\Carbon::parse($req->created_at)->format('h:i A') }}</div>
                     </td>
                     <td class="py-4 px-6 text-center">
-                        @if($req->status === 'processed' || $req->user_status === 'deleted')
-                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 flex items-center justify-center gap-1">
+                        @if($req->status === 'pending')
+                            <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <!-- Approve Button -->
+                                <form action="{{ route('admin.members.requests.approve', $req->id) }}" method="POST" onsubmit="return confirmApprove(event, this, '{{ addslashes($req->full_name ?? 'Member') }}', '{{ $req->request_type }}')">
+                                    @csrf
+                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-150 shadow-sm flex items-center gap-1.5" title="Approve & permanently delete member account">
+                                        <i class="fa-solid fa-check"></i> Approve & Delete
+                                    </button>
+                                </form>
+
+                                <!-- Reject Button -->
+                                <form action="{{ route('admin.members.requests.reject', $req->id) }}" method="POST" onsubmit="return confirmReject(event, this, '{{ addslashes($req->full_name ?? 'Member') }}')">
+                                    @csrf
+                                    <button type="submit" class="bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-150 shadow-sm flex items-center gap-1" title="Reject request and keep account active">
+                                        <i class="fa-solid fa-xmark"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif($req->status === 'processed' || $req->user_status === 'deleted')
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 inline-flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-circle-check"></i> Account Deleted
                             </span>
+                        @elseif($req->status === 'rejected')
+                            <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200 inline-flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-circle-xmark"></i> Request Rejected
+                            </span>
                         @else
-                            <form action="{{ route('admin.members.requests.process', $req->id) }}" method="POST" onsubmit="return confirmProcess(event, this, '{{ $req->request_type }}')">
-                                @csrf
-                                <button type="submit" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-150 shadow-sm border border-indigo-100">
-                                    Process Request
-                                </button>
-                            </form>
+                            <span class="text-xs font-bold text-slate-400">
+                                {{ ucfirst($req->status) }}
+                            </span>
                         @endif
                     </td>
                 </tr>
@@ -92,17 +125,40 @@
 </div>
 
 <script>
-function confirmProcess(e, form, type) {
+function confirmApprove(e, form, memberName, type) {
     e.preventDefault();
-    const actionText = type === 'deletion' ? 'COMPLETELY DELETE this user from the database' : 'BLOCK this user profile';
+    const actionDesc = type === 'deactivation'
+        ? `block & deactivate the profile of "${memberName}"`
+        : `permanently delete the member account of "${memberName}". They will be removed from all searches and cannot log in`;
+
     Swal.fire({
-        title: 'Process Request?',
-        text: `Are you sure you want to process this request? This will ${actionText}. This action is irreversible.`,
+        title: 'Approve Deletion Request?',
+        text: `Are you sure you want to approve this request? This will ${actionDesc}.`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#3b82f6',
-        confirmButtonText: 'Yes, process it!'
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, Approve & Delete',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+    return false;
+}
+
+function confirmReject(e, form, memberName) {
+    e.preventDefault();
+    Swal.fire({
+        title: 'Reject Deletion Request?',
+        text: `Are you sure you want to reject the deletion request for "${memberName}"? Their account will remain active.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, Reject Request',
+        cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
             form.submit();
