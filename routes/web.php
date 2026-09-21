@@ -386,9 +386,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/members/fix-duplicate-photos', [MemberController::class, 'fixDuplicatePhotos'])->name('admin.members.fix-duplicate-photos');
     Route::get('/admin/members-incomplete', [MemberController::class, 'incomplete'])->name('admin.members.incomplete');
     Route::get('/admin/members-requests', [MemberController::class, 'requests'])->name('admin.members.requests');
-    Route::post('/admin/members-requests/{id}/approve', [MemberController::class, 'approveRequest'])->name('admin.members.requests.approve');
-    Route::post('/admin/members-requests/{id}/reject', [MemberController::class, 'rejectRequest'])->name('admin.members.requests.reject');
-    Route::post('/admin/members-requests/{id}/process', [MemberController::class, 'processRequest'])->name('admin.members.requests.process');
+    Route::match(['get', 'post'], '/admin/members-requests/{id}/approve', [MemberController::class, 'approveRequest'])->name('admin.members.requests.approve');
+    Route::match(['get', 'post'], '/admin/members-requests/{id}/reject', [MemberController::class, 'rejectRequest'])->name('admin.members.requests.reject');
+    Route::match(['get', 'post'], '/admin/members-requests/{id}/process', [MemberController::class, 'processRequest'])->name('admin.members.requests.process');
     Route::get('/admin/members/{member}', [MemberController::class, 'show'])->name('admin.members.show');
     Route::get('/admin/members/{member}/edit', [MemberController::class, 'edit'])->name('admin.members.edit');
     Route::put('/admin/members/{member}', [MemberController::class, 'update'])->name('admin.members.update');

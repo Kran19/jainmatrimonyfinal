@@ -10,6 +10,9 @@ use App\Notifications\ProfileApprovedNotification;
 use App\Notifications\ProfileRejectedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 
 class MemberController extends Controller
@@ -579,23 +582,25 @@ class MemberController extends Controller
      */
     public function requests()
     {
+        $this->ensureAccountRequestsSchema();
+
         // Auto-sync any existing deleted or deactivated users into account_requests table
-        if (\Illuminate\Support\Facades\Schema::hasTable('account_requests')) {
+        if (Schema::hasTable('account_requests')) {
             $deletedOrDeactivatedUsers = User::whereIn('status', ['deleted', 'deactivated'])
                 ->whereNotIn('id', function ($q) {
                     $q->select('user_id')->from('account_requests');
                 })
                 ->get();
 
-            $hasCreatedAt = \Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'created_at');
-            $hasUpdatedAt = \Illuminate\Support\Facades\Schema::hasColumn('account_requests', 'updated_at');
+            $hasCreatedAt = Schema::hasColumn('account_requests', 'created_at');
+            $hasUpdatedAt = Schema::hasColumn('account_requests', 'updated_at');
 
             foreach ($deletedOrDeactivatedUsers as $dUser) {
                 $reqType = ($dUser->status === 'deleted') ? 'deletion' : 'deactivation';
                 $insertData = [
                     'user_id' => $dUser->id,
                     'request_type' => $reqType,
-                    'reason' => $dUser->delete_reason ?: 'User deleted account directly from profile.',
+                    'reason' => $dUser->delete_reason ?? 'User deleted account directly from profile.',
                     'status' => ($dUser->status === 'deleted') ? 'processed' : 'pending',
                 ];
                 if ($hasCreatedAt) {
@@ -604,11 +609,11 @@ class MemberController extends Controller
                 if ($hasUpdatedAt) {
                     $insertData['updated_at'] = now();
                 }
-                \DB::table('account_requests')->insert($insertData);
+                DB::table('account_requests')->insert($insertData);
             }
         }
 
-        $requests = \DB::table('account_requests')
+        $requestsQuery = DB::table('account_requests')
             ->leftJoin('users', 'account_requests.user_id', '=', 'users.id')
             ->select(
                 'account_requests.*',
@@ -620,9 +625,15 @@ class MemberController extends Controller
                 'users.gender',
                 'users.status as user_status'
             )
-            ->orderByRaw("CASE WHEN account_requests.status = 'pending' THEN 0 ELSE 1 END ASC")
-            ->orderBy('account_requests.created_at', 'desc')
-            ->get();
+            ->orderByRaw("CASE WHEN account_requests.status = 'pending' THEN 0 ELSE 1 END ASC");
+
+        if (Schema::hasColumn('account_requests', 'created_at')) {
+            $requestsQuery->orderBy('account_requests.created_at', 'desc');
+        } else {
+            $requestsQuery->orderBy('account_requests.id', 'desc');
+        }
+
+        $requests = $requestsQuery->get();
 
         return view('admin.members.requests', compact('requests'));
     }
@@ -630,105 +641,193 @@ class MemberController extends Controller
     /**
      * Approve account deactivation/deletion request by Admin.
      */
-    public function approveRequest($id)
+    public function approveRequest(Request $request, $id)
     {
-        $req = \DB::table('account_requests')->where('id', $id)->first();
-        if (!$req) {
-            return back()->with('error', 'Request not found.');
-        }
+        try {
+            $this->ensureAccountRequestsSchema();
 
-        $userId = $req->user_id;
-        $user = User::withTrashed()->find($userId);
+            $req = DB::table('account_requests')->where('id', $id)->first();
+            if (!$req) {
+                return redirect()->route('admin.members.requests')->with('error', 'Request not found.');
+            }
 
-        if ($user) {
-            if ($req->request_type === 'deactivation') {
-                $user->update([
-                    'status' => 'blocked',
-                    'is_public' => false,
-                    'blocked_at' => now(),
-                ]);
+            $userId = $req->user_id;
+            $user = DB::table('users')->where('id', $userId)->first();
 
-                try {
-                    \App\Models\UserStatusLog::create([
-                        'user_id' => $user->id,
-                        'status' => 'blocked',
-                        'reason' => 'Admin approved account deactivation request. User reason: ' . $req->reason,
-                        'performed_by' => Auth::guard('admin')->id(),
-                        'performed_by_type' => 'admin',
-                    ]);
-                } catch (\Exception $e) {
-                    logger()->error("Failed to log status change on deactivation approval: " . $e->getMessage());
-                }
-            } else {
-                // Deletion: permanently delete member from public visibility & mark deleted
-                $now = now();
-                $updateData = [
-                    'status' => 'deleted',
-                    'is_public' => false,
-                    'deleted_at' => $now,
-                ];
+            if ($user) {
+                if ($req->request_type === 'deactivation') {
+                    $userUpdate = ['status' => 'blocked'];
+                    if (Schema::hasColumn('users', 'is_public')) {
+                        $userUpdate['is_public'] = 0;
+                    }
+                    if (Schema::hasColumn('users', 'is_approved')) {
+                        $userUpdate['is_approved'] = 0;
+                    }
+                    if (Schema::hasColumn('users', 'blocked_at')) {
+                        $userUpdate['blocked_at'] = now();
+                    }
+                    if (Schema::hasColumn('users', 'updated_at')) {
+                        $userUpdate['updated_at'] = now();
+                    }
 
-                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'delete_reason')) {
-                    $updateData['delete_reason'] = $req->reason;
-                }
+                    DB::table('users')->where('id', $userId)->update($userUpdate);
 
-                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'deletion_count')) {
-                    $updateData['deletion_count'] = intval($user->deletion_count ?? 0) + 1;
-                }
+                    try {
+                        if (Schema::hasTable('profile_status_logs')) {
+                            UserStatusLog::create([
+                                'user_id' => $userId,
+                                'status' => 'blocked',
+                                'reason' => 'Admin approved account deactivation request. User reason: ' . ($req->reason ?? 'None'),
+                                'performed_by' => Auth::guard('admin')->id(),
+                                'performed_by_type' => 'admin',
+                            ]);
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning("Failed to log status change on deactivation approval: " . $e->getMessage());
+                    }
+                } else {
+                    // Deletion: mark account as deleted and remove from public display
+                    $userUpdate = ['status' => 'deleted'];
+                    if (Schema::hasColumn('users', 'is_public')) {
+                        $userUpdate['is_public'] = 0;
+                    }
+                    if (Schema::hasColumn('users', 'is_approved')) {
+                        $userUpdate['is_approved'] = 0;
+                    }
+                    if (Schema::hasColumn('users', 'deleted_at')) {
+                        $userUpdate['deleted_at'] = now();
+                    }
+                    if (Schema::hasColumn('users', 'delete_reason')) {
+                        $userUpdate['delete_reason'] = $req->reason ?? 'Admin approved account deletion request.';
+                    }
+                    if (Schema::hasColumn('users', 'deletion_count')) {
+                        $userUpdate['deletion_count'] = intval($user->deletion_count ?? 0) + 1;
+                    }
+                    if (Schema::hasColumn('users', 'updated_at')) {
+                        $userUpdate['updated_at'] = now();
+                    }
 
-                \DB::table('users')->where('id', $userId)->update($updateData);
+                    DB::table('users')->where('id', $userId)->update($userUpdate);
 
-                try {
-                    \App\Models\UserStatusLog::create([
-                        'user_id' => $user->id,
-                        'status' => 'deleted',
-                        'reason' => 'Admin approved account deletion request. User reason: ' . $req->reason,
-                        'performed_by' => Auth::guard('admin')->id(),
-                        'performed_by_type' => 'admin',
-                    ]);
-                } catch (\Exception $e) {
-                    logger()->error("Failed to log status change on deletion approval: " . $e->getMessage());
+                    try {
+                        if (Schema::hasTable('profile_status_logs')) {
+                            UserStatusLog::create([
+                                'user_id' => $userId,
+                                'status' => 'deleted',
+                                'reason' => 'Admin approved account deletion request. User reason: ' . ($req->reason ?? 'None'),
+                                'performed_by' => Auth::guard('admin')->id(),
+                                'performed_by_type' => 'admin',
+                            ]);
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning("Failed to log status change on deletion approval: " . $e->getMessage());
+                    }
                 }
             }
-        }
 
-        \DB::table('account_requests')
-            ->where('id', $id)
-            ->update([
-                'status' => 'processed',
-                'updated_at' => now(),
+            // Update account_requests to processed
+            $reqUpdate = ['status' => 'processed'];
+            if (Schema::hasColumn('account_requests', 'updated_at')) {
+                $reqUpdate['updated_at'] = now();
+            }
+            DB::table('account_requests')->where('id', $id)->update($reqUpdate);
+
+            $actionType = ($req->request_type === 'deactivation') ? 'deactivated' : 'permanently deleted';
+            return redirect()->route('admin.members.requests')->with('success', "Member account {$actionType} successfully.");
+        } catch (\Throwable $e) {
+            Log::error("Approve request #{$id} error: " . $e->getMessage(), [
+                'exception' => $e
             ]);
-
-        $actionType = ($req->request_type === 'deactivation') ? 'deactivated' : 'permanently deleted';
-        return back()->with('success', "Member account {$actionType} successfully.");
+            return redirect()->route('admin.members.requests')->with('error', 'Unable to approve request: ' . $e->getMessage());
+        }
     }
 
     /**
      * Reject account deactivation/deletion request by Admin.
      */
-    public function rejectRequest($id)
+    public function rejectRequest(Request $request, $id)
     {
-        $req = \DB::table('account_requests')->where('id', $id)->first();
-        if (!$req) {
-            return back()->with('error', 'Request not found.');
-        }
+        try {
+            $this->ensureAccountRequestsSchema();
 
-        \DB::table('account_requests')
-            ->where('id', $id)
-            ->update([
-                'status' => 'rejected',
-                'updated_at' => now(),
+            $req = DB::table('account_requests')->where('id', $id)->first();
+            if (!$req) {
+                return redirect()->route('admin.members.requests')->with('error', 'Request not found.');
+            }
+
+            // Update account_requests to rejected
+            $reqUpdate = ['status' => 'rejected'];
+            if (Schema::hasColumn('account_requests', 'updated_at')) {
+                $reqUpdate['updated_at'] = now();
+            }
+
+            try {
+                DB::table('account_requests')->where('id', $id)->update($reqUpdate);
+            } catch (\Throwable $updateEx) {
+                // If MySQL enum rejects 'rejected', alter to VARCHAR(50) and retry
+                if (DB::getDriverName() === 'mysql') {
+                    DB::statement("ALTER TABLE `account_requests` MODIFY COLUMN `status` VARCHAR(50) NOT NULL DEFAULT 'pending'");
+                    DB::table('account_requests')->where('id', $id)->update($reqUpdate);
+                } else {
+                    throw $updateEx;
+                }
+            }
+
+            return redirect()->route('admin.members.requests')->with('success', 'Deactivation / deletion request rejected. Member account remains active.');
+        } catch (\Throwable $e) {
+            Log::error("Reject request #{$id} error: " . $e->getMessage(), [
+                'exception' => $e
             ]);
-
-        return back()->with('success', 'Deactivation / deletion request rejected. Member account remains active.');
+            return redirect()->route('admin.members.requests')->with('error', 'Unable to reject request: ' . $e->getMessage());
+        }
     }
 
     /**
      * Legacy alias for approveRequest.
      */
-    public function processRequest($id)
+    public function processRequest(Request $request, $id)
     {
-        return $this->approveRequest($id);
+        return $this->approveRequest($request, $id);
+    }
+
+    /**
+     * Ensure account_requests table schema is resilient to legacy production DB differences.
+     */
+    protected function ensureAccountRequestsSchema(): void
+    {
+        try {
+            if (!Schema::hasTable('account_requests')) {
+                return;
+            }
+
+            if (!Schema::hasColumn('account_requests', 'created_at')) {
+                Schema::table('account_requests', function ($table) {
+                    $table->timestamp('created_at')->nullable();
+                });
+            }
+
+            if (!Schema::hasColumn('account_requests', 'updated_at')) {
+                Schema::table('account_requests', function ($table) {
+                    $table->timestamp('updated_at')->nullable();
+                });
+            }
+
+            if (DB::getDriverName() === 'mysql') {
+                $col = DB::selectOne("
+                    SELECT COLUMN_TYPE, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'account_requests'
+                    AND COLUMN_NAME = 'status'
+                ");
+                if ($col && strtolower($col->DATA_TYPE) === 'enum') {
+                    if (stripos($col->COLUMN_TYPE, 'rejected') === false) {
+                        DB::statement("ALTER TABLE `account_requests` MODIFY COLUMN `status` VARCHAR(50) NOT NULL DEFAULT 'pending'");
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("ensureAccountRequestsSchema check: " . $e->getMessage());
+        }
     }
 
     /**
