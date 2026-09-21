@@ -86,7 +86,6 @@ class DatabaseSeeder extends Seeder
                 'mobile' => '9898989898',
                 'country_code' => '+91',
                 'password_hash' => \Illuminate\Support\Facades\Hash::make('12345678'),
-                'has_set_password' => 1,
                 'are_you_digambar_jain' => 'Yes',
                 'cast' => 'Digambar Jain',
                 'subcast' => 'Khandelwal',
@@ -135,15 +134,12 @@ class DatabaseSeeder extends Seeder
                 'hobbies' => 'Reading, Music, Traveling',
                 'partner_preference' => 'Looking for a cultured and educated life partner from Digambar Jain Samaj.',
                 'status' => 'approved',
-                'is_approved' => 1,
-                'verified' => 1,
-                'is_public' => 1,
+                'verified' => true,
+                'is_public' => true,
                 'payment_status' => 'approved',
                 'registration_source' => 'website',
-                'registration_step' => 4,
                 'approval_date' => now()->toDateString(),
                 'expiry_date' => now()->addYear()->toDateString(),
-                'approved_at' => now(),
             ]
         );
     }
