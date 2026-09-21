@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->validateCsrfTokens(except: [
             'registration-wizard/*',
         ]);
@@ -35,9 +37,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Illuminate\Http\Exceptions\ThrottleRequestsException $e, $request) {
             return back()->withInput()->with('error', 'Too many verification attempts. Please wait 5 minutes before trying again.');
         });
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) {
+            if ($e->getStatusCode() === 419) {
+                $targetUrl = $request->is('admin*') ? route('admin.login-form') : route('login');
+                return redirect($targetUrl)
+                    ->withInput($request->except('_token', 'password', 'password_confirmation'))
+                    ->with('error', 'Your session expired. Please sign in again.');
+            }
+        });
         $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
-            return redirect($request->url())
+            $targetUrl = $request->is('admin*') ? route('admin.login-form') : route('login');
+            return redirect($targetUrl)
                 ->withInput($request->except('_token', 'password', 'password_confirmation'))
-                ->with('error', 'Your session expired. Please try again.');
+                ->with('error', 'Your session expired. Please sign in again.');
         });
     })->create();

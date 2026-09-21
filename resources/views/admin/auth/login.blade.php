@@ -80,6 +80,35 @@
                 icon.classList.add('fa-eye-slash');
             }
         }
+
+        // Auto-refresh token if page is restored from back-forward cache
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+
+        // Dynamic CSRF token verification & refresh
+        async function refreshCsrfToken() {
+            try {
+                const response = await fetch('/csrf-token');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.token) {
+                        document.querySelectorAll('input[name="_token"]').forEach(input => input.value = data.token);
+                    }
+                }
+            } catch (e) {
+                // Fallback silently
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const emailInput = document.getElementById('email');
+            const passInput = document.getElementById('password');
+            if (emailInput) emailInput.addEventListener('focus', refreshCsrfToken, { once: true });
+            if (passInput) passInput.addEventListener('focus', refreshCsrfToken, { once: true });
+        });
     </script>
 </body>
 </html>

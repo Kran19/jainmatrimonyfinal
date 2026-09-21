@@ -258,6 +258,10 @@ Route::get('/patch-birthtime-column', function() {
     }
 });
 
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('csrf.token');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Candidate Auth Routes

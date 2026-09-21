@@ -101,5 +101,36 @@ function togglePassword() {
         toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
     }
 }
+
+// Auto-refresh token if page is restored from back-forward cache (prevents 419 on mobile/browser back)
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
+
+// Dynamic CSRF token verification & refresh
+async function refreshCsrfToken() {
+    try {
+        const response = await fetch('/csrf-token');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.token) {
+                document.querySelectorAll('input[name="_token"]').forEach(input => input.value = data.token);
+                const meta = document.querySelector('meta[name="csrf-token"]');
+                if (meta) meta.setAttribute('content', data.token);
+            }
+        }
+    } catch (e) {
+        // Fallback silently
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginInput = document.getElementById('login_input');
+    const passInput = document.getElementById('password');
+    if (loginInput) loginInput.addEventListener('focus', refreshCsrfToken, { once: true });
+    if (passInput) passInput.addEventListener('focus', refreshCsrfToken, { once: true });
+});
 </script>
 @endsection

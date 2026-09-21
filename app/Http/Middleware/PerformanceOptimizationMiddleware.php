@@ -24,8 +24,13 @@ class PerformanceOptimizationMiddleware
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         // Dynamic vs Static Response Caching
-        $isAuthRoute = $request->is('login', 'register', 'forgot-password', 'reset-password*', 'register/*');
-        if ($request->isMethod('GET') && !$request->ajax() && !auth()->check() && !$request->is('admin*') && !$isAuthRoute) {
+        $isAuthRoute = $request->is('login', 'admin/login', 'register', 'forgot-password', 'reset-password*', 'register/*');
+        if ($isAuthRoute) {
+            // NEVER cache authentication routes in browser or proxy cache
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Expires', '0');
+        } elseif ($request->isMethod('GET') && !$request->ajax() && !auth()->check() && !$request->is('admin*')) {
             // Public GET pages cache for short duration
             $response->headers->set('Cache-Control', 'public, max-age=60, s-maxage=120, must-revalidate');
         }
