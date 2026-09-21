@@ -51,13 +51,6 @@ class LoginController extends Controller
             ]);
         }
 
-        // Block login if account has been deleted by user or administrator
-        if (in_array($user->status, ['deleted', 'deactivated']) || !empty($user->deleted_at)) {
-            throw ValidationException::withMessages([
-                'login_input' => ['Your account has been deleted. This account has been permanently deleted and cannot be recovered. Please contact the administrator if you believe this is an error.'],
-            ]);
-        }
-
         $authenticated = false;
 
         // Check 1: Standard hashed password (password_hash column)
@@ -74,10 +67,14 @@ class LoginController extends Controller
             Auth::guard('web')->login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
-            // Redirect based on profile completion / approval state
-            if ($user->status === 'account_approved') {
+            // Redirect based on profile status
+            if (in_array($user->status, ['deactivated', 'blocked'])) {
+                return redirect()->route('account.deactivated');
+            } elseif ($user->status === 'deleted' || !empty($user->deleted_at)) {
+                return redirect()->route('account.deleted');
+            } elseif ($user->status === 'account_approved') {
                 return redirect()->intended(route('registration.wizard'));
-            } elseif (in_array($user->status, ['account_pending', 'pending', 'rejected', 'blocked'])) {
+            } elseif (in_array($user->status, ['account_pending', 'pending', 'rejected'])) {
                 return redirect()->route('waiting.approval');
             }
 

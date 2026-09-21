@@ -476,14 +476,82 @@ Route::get('/news', [CmsController::class, 'news'])->name('news');
 Route::get('/waiting-approval', function () {
     $user = Auth::guard('web')->user();
     if ($user) {
-        if ($user->status === 'account_approved') {
+        if (in_array($user->status, ['deactivated', 'blocked'])) {
+            return redirect()->route('account.deactivated');
+        } elseif ($user->status === 'deleted' || !empty($user->deleted_at)) {
+            return redirect()->route('account.deleted');
+        } elseif ($user->status === 'account_approved') {
             return redirect()->route('registration.wizard');
         } elseif ($user->status === 'approved') {
             return redirect()->route('profile.my');
         }
     }
-    return view('auth.waiting-approval');
+    $latestReq = null;
+    if ($user) {
+        $latestReq = DB::table('account_requests')
+            ->where('user_id', $user->id)
+            ->latest('id')
+            ->first();
+    }
+    return view('auth.waiting-approval', compact('user', 'latestReq'));
 })->name('waiting.approval');
+
+Route::get('/account-deactivated', function () {
+    $user = Auth::guard('web')->user();
+    if (!$user) {
+        return redirect()->route('login');
+    }
+    if (!in_array($user->status, ['deactivated', 'blocked'])) {
+        return redirect()->route('waiting.approval');
+    }
+    $latestReq = DB::table('account_requests')
+        ->where('user_id', $user->id)
+        ->latest('id')
+        ->first();
+    return view('auth.account-deactivated', compact('user', 'latestReq'));
+})->name('account.deactivated');
+
+Route::get('/account-deleted', function () {
+    $user = Auth::guard('web')->user();
+    if (!$user) {
+        return redirect()->route('login');
+    }
+    if ($user->status !== 'deleted' && empty($user->deleted_at)) {
+        return redirect()->route('waiting.approval');
+    }
+    $latestReq = DB::table('account_requests')
+        ->where('user_id', $user->id)
+        ->latest('id')
+        ->first();
+    return view('auth.account-deleted', compact('user', 'latestReq'));
+})->name('account.deleted');
+
+Route::get('/api/account/status-check', function () {
+    $user = Auth::guard('web')->user();
+    if (!$user) {
+        return response()->json([
+            'authenticated' => false,
+            'status' => null,
+            'request_status' => null,
+            'request_type' => null,
+        ]);
+    }
+    $freshUser = DB::table('users')->where('id', $user->id)->first();
+    $latestReq = DB::table('account_requests')
+        ->where('user_id', $user->id)
+        ->latest('id')
+        ->first();
+
+    return response()->json([
+        'authenticated' => true,
+        'user_id' => $user->id,
+        'status' => $freshUser->status ?? $user->status,
+        'is_public' => $freshUser->is_public ?? 0,
+        'is_approved' => $freshUser->is_approved ?? 0,
+        'request_status' => $latestReq->status ?? null,
+        'request_type' => $latestReq->request_type ?? null,
+    ]);
+})->name('api.account.status-check');
 
 
 

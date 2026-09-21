@@ -612,6 +612,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Auto-refresh polling if candidate has a pending request or active session
+    const currentStatus = "{{ Auth::guard('web')->user()->status ?? '' }}";
+    const hasPendingReq = {{ (isset($pendingAccountRequest) && $pendingAccountRequest) ? 'true' : 'false' }};
+
+    setInterval(async function() {
+        try {
+            const response = await fetch("{{ route('api.account.status-check') }}", {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (!data.authenticated) {
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                }
+                // If status changed away from currentStatus, or if pending request was processed
+                if (data.status !== currentStatus || (hasPendingReq && data.request_status !== 'pending')) {
+                    window.location.reload();
+                }
+            }
+        } catch (err) {}
+    }, 5000);
 });
 </script>
 @endsection

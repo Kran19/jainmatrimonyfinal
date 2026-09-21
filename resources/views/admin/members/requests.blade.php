@@ -80,23 +80,29 @@
                                 <!-- Approve Button -->
                                 <form action="{{ route('admin.members.requests.approve', $req->id) }}" method="POST" onsubmit="return confirmApprove(event, this, '{{ addslashes($req->full_name ?? 'Member') }}', '{{ $req->request_type }}')">
                                     @csrf
-                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-150 shadow-sm flex items-center gap-1.5" title="Approve & permanently delete member account">
-                                        <i class="fa-solid fa-check"></i> Approve & Delete
+                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-150 shadow-sm flex items-center gap-1.5" title="{{ $req->request_type === 'deactivation' ? 'Approve deactivation and hide profile' : 'Approve & permanently delete member account' }}">
+                                        <i class="fa-solid fa-check"></i> {{ $req->request_type === 'deactivation' ? 'Approve & Deactivate' : 'Approve & Delete' }}
                                     </button>
                                 </form>
 
                                 <!-- Reject Button -->
-                                <form action="{{ route('admin.members.requests.reject', $req->id) }}" method="POST" onsubmit="return confirmReject(event, this, '{{ addslashes($req->full_name ?? 'Member') }}')">
+                                <form action="{{ route('admin.members.requests.reject', $req->id) }}" method="POST" onsubmit="return confirmReject(event, this, '{{ addslashes($req->full_name ?? 'Member') }}', '{{ $req->request_type }}')">
                                     @csrf
                                     <button type="submit" class="bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-150 shadow-sm flex items-center gap-1" title="Reject request and keep account active">
                                         <i class="fa-solid fa-xmark"></i> Reject
                                     </button>
                                 </form>
                             </div>
-                        @elseif($req->status === 'processed' || $req->user_status === 'deleted')
-                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 inline-flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-circle-check"></i> Account Deleted
-                            </span>
+                        @elseif($req->status === 'processed' || in_array($req->user_status, ['deleted', 'deactivated', 'blocked']))
+                            @if($req->request_type === 'deactivation' || in_array($req->user_status, ['deactivated', 'blocked']))
+                                <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 inline-flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-circle-pause"></i> Deactivated
+                                </span>
+                            @else
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 inline-flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-circle-check"></i> Account Deleted
+                                </span>
+                            @endif
                         @elseif($req->status === 'rejected')
                             <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200 inline-flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-circle-xmark"></i> Request Rejected
@@ -127,18 +133,21 @@
 <script>
 function confirmApprove(e, form, memberName, type) {
     e.preventDefault();
-    const actionDesc = type === 'deactivation'
-        ? `block & deactivate the profile of "${memberName}"`
+    const isDeactivation = (type === 'deactivation');
+    const title = isDeactivation ? 'Approve Deactivation Request?' : 'Approve Deletion Request?';
+    const actionDesc = isDeactivation
+        ? `deactivate the profile of "${memberName}". They will be hidden from searches and their account deactivated`
         : `permanently delete the member account of "${memberName}". They will be removed from all searches and cannot log in`;
+    const btnText = isDeactivation ? 'Yes, Approve & Deactivate' : 'Yes, Approve & Delete';
 
     Swal.fire({
-        title: 'Approve Deletion Request?',
+        title: title,
         text: `Are you sure you want to approve this request? This will ${actionDesc}.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#059669',
         cancelButtonColor: '#64748b',
-        confirmButtonText: 'Yes, Approve & Delete',
+        confirmButtonText: btnText,
         cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -148,11 +157,12 @@ function confirmApprove(e, form, memberName, type) {
     return false;
 }
 
-function confirmReject(e, form, memberName) {
+function confirmReject(e, form, memberName, type) {
     e.preventDefault();
+    const reqWord = type === 'deactivation' ? 'deactivation' : 'deletion';
     Swal.fire({
-        title: 'Reject Deletion Request?',
-        text: `Are you sure you want to reject the deletion request for "${memberName}"? Their account will remain active.`,
+        title: `Reject ${type === 'deactivation' ? 'Deactivation' : 'Deletion'} Request?`,
+        text: `Are you sure you want to reject the ${reqWord} request for "${memberName}"? Their account will remain active.`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#e11d48',

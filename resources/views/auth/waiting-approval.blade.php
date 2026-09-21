@@ -18,6 +18,22 @@
                 You will be able to access the platform once your account has been approved.
             </p>
             
+            @if(isset($latestReq) && $latestReq && $latestReq->status === 'pending')
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mb-5 text-left text-xs">
+                <div class="font-bold text-amber-800 flex items-center gap-1.5 mb-1">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
+                    {{ $latestReq->request_type === 'deactivation' ? 'Deactivation Request Under Review' : 'Deletion Request Under Review' }}
+                </div>
+                <div class="text-slate-600">
+                    Your request has been submitted to administration. Once approved, this page will automatically refresh.
+                </div>
+                @if(!empty($latestReq->reason))
+                <div class="mt-2 text-[11px] text-slate-500 italic bg-white/80 p-2 rounded border border-amber-100">
+                    "{{ $latestReq->reason }}"
+                </div>
+                @endif
+            </div>
+            @else
             <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 text-left">
                 <div class="flex">
                     <div class="flex-shrink-0">
@@ -30,6 +46,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             @auth('web')
             <div class="space-y-3">
@@ -41,7 +58,7 @@
                     @csrf
                     @method('DELETE')
                     <input type="hidden" name="delete_reason" value="Deleted while waiting for approval">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete your profile?')" class="w-full flex justify-center py-2.5 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete your profile? This action is permanent.')" class="w-full flex justify-center py-2.5 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
                         Delete My Profile
                     </button>
                 </form>
@@ -53,6 +70,38 @@
                     @csrf
                 </form>
             </div>
+
+            <!-- Auto-refresh polling script -->
+            <script>
+            (function() {
+                const initialStatus = "{{ Auth::guard('web')->user()->status ?? '' }}";
+                const initialReqStatus = "{{ $latestReq->status ?? '' }}";
+                
+                setInterval(async function() {
+                    try {
+                        const response = await fetch("{{ route('api.account.status-check') }}", {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (!data.authenticated) {
+                                window.location.href = "{{ route('login') }}";
+                                return;
+                            }
+                            // If status or request status changed, reload immediately to display updated page
+                            if (data.status !== initialStatus || (data.request_status && data.request_status !== initialReqStatus)) {
+                                window.location.reload();
+                            }
+                        }
+                    } catch (err) {
+                        // ignore network dropouts
+                    }
+                }, 5000);
+            })();
+            </script>
             @else
             <div>
                 <a href="{{ route('login') }}" class="font-bold text-primary hover:underline">Return to Login</a>

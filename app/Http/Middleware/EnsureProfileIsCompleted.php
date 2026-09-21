@@ -16,35 +16,61 @@ class EnsureProfileIsCompleted
         $user = Auth::user();
 
         if ($user) {
+            // 1. Always allow logout, account deletion, and deactivation requests through
+            if (
+                $request->routeIs('logout') ||
+                $request->routeIs('profile.delete') ||
+                $request->routeIs('profile.request-deactivation') ||
+                $request->routeIs('profile.cancel-request') ||
+                $request->is('account-deactivated') ||
+                $request->is('account-deleted') ||
+                $request->is('api/account/status-check')
+            ) {
+                return $next($request);
+            }
+
+            // 2. Handle Deactivated / Blocked accounts
+            if (in_array($user->status, ['deactivated', 'blocked'])) {
+                if (!$request->is('account-deactivated')) {
+                    return redirect()->route('account.deactivated');
+                }
+                return $next($request);
+            }
+
+            // 3. Handle Deleted accounts
+            if ($user->status === 'deleted' || !empty($user->deleted_at)) {
+                if (!$request->is('account-deleted')) {
+                    return redirect()->route('account.deleted');
+                }
+                return $next($request);
+            }
+
+            // 4. Handle pre-registered accounts needing wizard
             if ($user->status === 'account_approved') {
-                // User has only pre-registered but hasn't completed the details wizard.
-                // Restrict them to the wizard routes.
-                if (!$request->is('registration-wizard*') && !$request->routeIs('logout')) {
+                if (!$request->is('registration-wizard*')) {
                     return redirect()->route('registration.wizard');
                 }
             } elseif ($user->status === 'rejected') {
                 // Allow rejected users to view, edit, and resubmit their profile
-                if (!$request->is('profile*') && !$request->routeIs('logout')) {
+                if (!$request->is('profile*')) {
                     return redirect()->route('profile.my');
                 }
             } elseif ($user->status === 'pending') {
-                // Pending users can view and edit their profile while awaiting admin review.
-                // They should NOT be able to browse other candidates or access approved-only pages.
-                if (!$request->is('waiting-approval*') && !$request->is('profile*') && !$request->routeIs('logout')) {
+                // Pending users can view and edit their profile while awaiting admin review
+                if (!$request->is('waiting-approval*') && !$request->is('profile*')) {
                     return redirect()->route('waiting.approval');
                 }
             } elseif ($user->status !== 'approved') {
-                // Any other status (blocked, account_pending, etc.) — restrict to waiting page only
-                if (!$request->is('waiting-approval*') && !$request->routeIs('logout') && !$request->routeIs('profile.my')) {
+                // Account pending verification
+                if (!$request->is('waiting-approval*') && !$request->routeIs('profile.my')) {
                     return redirect()->route('waiting.approval');
                 }
             } else {
                 // If they are approved, they should not access registration-wizard or waiting-approval
-                if ($request->is('registration-wizard*') || $request->is('waiting-approval*')) {
+                if ($request->is('registration-wizard*') || $request->is('waiting-approval*') || $request->is('account-deactivated')) {
                     return redirect()->route('user.dashboard');
                 }
             }
-
         }
 
         return $next($request);
