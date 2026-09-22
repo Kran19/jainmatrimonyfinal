@@ -77,7 +77,19 @@ class ProfileSearchController extends Controller
             // 2. Filter by Candidate Name
             if ($request->filled('name')) {
                 $nameVal = trim($request->name);
-                $query->where('full_name', 'like', "%{$nameVal}%");
+                $nameParts = array_filter(preg_split('/\s+/', $nameVal));
+                if (count($nameParts) > 1) {
+                    $query->where(function ($q) use ($nameParts, $nameVal) {
+                        $q->where('full_name', 'like', "%{$nameVal}%")
+                          ->orWhere(function ($sub) use ($nameParts) {
+                              foreach ($nameParts as $part) {
+                                  $sub->where('full_name', 'like', "%{$part}%");
+                              }
+                          });
+                    });
+                } else {
+                    $query->where('full_name', 'like', "%{$nameVal}%");
+                }
             }
 
             // 3. Filter by Place of Residence (City / Address)

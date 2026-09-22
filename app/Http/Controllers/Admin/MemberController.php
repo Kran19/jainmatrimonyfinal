@@ -577,6 +577,9 @@ class MemberController extends Controller
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = true;
             }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_public')) {
+                $updateData['is_public'] = true;
+            }
         } elseif ($status === 'rejected') {
             $updateData['rejected_at'] = now();
             $updateData['rejected_by'] = Auth::guard('admin')->id();
@@ -588,6 +591,9 @@ class MemberController extends Controller
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = false;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_public')) {
+                $updateData['is_public'] = false;
             }
         } elseif ($status === 'blocked') {
             $updateData['blocked_at'] = now();
@@ -601,6 +607,9 @@ class MemberController extends Controller
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = false;
             }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_public')) {
+                $updateData['is_public'] = false;
+            }
         } else {
             $updateData['approved_at'] = null;
             $updateData['approval_date'] = null;
@@ -612,6 +621,9 @@ class MemberController extends Controller
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
                 $updateData['is_approved'] = false;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_public')) {
+                $updateData['is_public'] = false;
             }
         }
 

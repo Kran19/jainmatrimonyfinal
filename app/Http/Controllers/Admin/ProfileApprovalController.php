@@ -44,6 +44,10 @@ class ProfileApprovalController extends Controller
             $updateData['is_approved'] = true;
         }
 
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_public')) {
+            $updateData['is_public'] = true;
+        }
+
         // Generate profile_id if not already set
         if (empty($member->profile_id)) {
             $updateData['profile_id'] = $this->generateProfileId();
@@ -97,6 +101,10 @@ class ProfileApprovalController extends Controller
 
         if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
             $updateData['is_approved'] = false;
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_public')) {
+            $updateData['is_public'] = false;
         }
 
         $member->update($updateData);

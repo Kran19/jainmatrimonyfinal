@@ -206,7 +206,15 @@ class User extends Authenticatable
 
     public function scopePublic($query)
     {
-        return $query->where('is_public', true);
+        return $query->where(function ($q) {
+            $q->where('is_public', true)
+              ->orWhere(function ($sub) {
+                  $sub->where('status', 'approved');
+                  if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_approved')) {
+                      $sub->where('is_approved', 1);
+                  }
+              });
+        });
     }
 
     /* Relationships */
