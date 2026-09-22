@@ -629,6 +629,10 @@ class MemberController extends Controller
 
         $member->update($updateData);
 
+        // Invalidate homepage latest profiles cache so new status is immediately reflected
+        \Illuminate\Support\Facades\Cache::forget('index_profiles_Female');
+        \Illuminate\Support\Facades\Cache::forget('index_profiles_Male');
+
         // Log status change
         try {
             UserStatusLog::create([

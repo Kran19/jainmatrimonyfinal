@@ -574,7 +574,17 @@
                             <a href="{{ $link }}" class="text-white font-bold text-sm sm:text-lg hover:underline block truncate">{{ $p->full_name }}</a>
                             <p class="text-gray-200 text-xs sm:text-sm font-medium">{{ $p->computed_age }} Yrs, {{ $p->height ?? 'N/A' }}</p>
                         </div>
-                        @if (isset($p->created_at) && $p->created_at->gt(now()->subDays(7)))
+                        @php
+                            $isNew = false;
+                            if (!empty($p->approved_at) && \Carbon\Carbon::parse($p->approved_at)->gt(now()->subDays(7))) {
+                                $isNew = true;
+                            } elseif (!empty($p->approval_date) && \Carbon\Carbon::parse($p->approval_date)->gt(now()->subDays(7))) {
+                                $isNew = true;
+                            } elseif (isset($p->created_at) && $p->created_at && $p->created_at->gt(now()->subDays(7))) {
+                                $isNew = true;
+                            }
+                        @endphp
+                        @if ($isNew)
                             <div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded shadow z-20">New</div>
                         @endif
                     </div>

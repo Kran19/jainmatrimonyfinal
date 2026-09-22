@@ -134,7 +134,7 @@ class HomeController extends Controller
             try {
                 $profiles = User::approved()
                     ->where('gender', $gender_db)
-                    ->orderBy('id', 'desc')
+                    ->orderByRaw("COALESCE(approved_at, approval_date, created_at) DESC, id DESC")
                     ->limit(4)
                     ->get();
 

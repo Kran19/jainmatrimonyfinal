@@ -55,6 +55,10 @@ class ProfileApprovalController extends Controller
 
         $member->update($updateData);
 
+        // Invalidate homepage latest profiles cache so new profile is immediately visible
+        \Illuminate\Support\Facades\Cache::forget('index_profiles_Female');
+        \Illuminate\Support\Facades\Cache::forget('index_profiles_Male');
+
         // Log status change
         try {
             UserStatusLog::create([
