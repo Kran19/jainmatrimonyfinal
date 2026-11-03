@@ -19,6 +19,7 @@ return new class extends Migration
                 $table->string('email', 150)->unique();
                 $table->string('password_hash', 255);
                 $table->enum('role', ['super_admin', 'admin', 'moderator'])->default('admin');
+                $table->enum('role', ['super_admin', 'admin', 'moderator', 'sub_admin'])->default('admin');
                 $table->boolean('status')->default(true);
                 $table->dateTime('last_login')->nullable();
                 $table->string('last_login_ip', 45)->nullable();

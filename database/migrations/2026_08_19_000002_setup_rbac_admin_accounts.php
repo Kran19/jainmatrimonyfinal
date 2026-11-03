@@ -14,6 +14,9 @@ return new class extends Migration
     {
         // Add sub_admin to enum
         DB::statement("ALTER TABLE admins MODIFY COLUMN role ENUM('super_admin', 'admin', 'moderator', 'sub_admin') DEFAULT 'sub_admin'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE admins MODIFY COLUMN role ENUM('super_admin', 'admin', 'moderator', 'sub_admin') DEFAULT 'sub_admin'");
+        }
 
         // Disable foreign key checks temporarily in case admins are referenced
         Schema::disableForeignKeyConstraints();
