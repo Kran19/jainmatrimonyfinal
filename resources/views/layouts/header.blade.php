@@ -82,7 +82,7 @@
                     <i class="fas fa-sign-in-alt"></i> Candidate Login
                 </a>
                 <a href="{{ route('register') }}" class="flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold transition text-center">
-                    <i class="fas fa-user-plus"></i> Register Free
+                    <i class="fas fa-user-plus"></i> Register
                 </a>
             @endif
         </div>
@@ -148,7 +148,7 @@
                     </a>
                 @else
                     <a href="{{ route('register') }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
-                        <i class="fas fa-user-plus text-xs"></i> Register Free
+                        <i class="fas fa-user-plus text-xs"></i> Register
                     </a>
                 @endif
             </div>

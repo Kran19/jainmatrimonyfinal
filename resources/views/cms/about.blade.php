@@ -150,7 +150,7 @@
                         <li class="flex items-center"><i class="fas fa-check-circle mr-3 text-secondary"></i> Complete Privacy & Photo Protection</li>
                     </ul>
                     <a href="{{ route('register') }}"
-                        class="inline-block mt-8 bg-white text-primary font-bold px-8 py-3 rounded hover:bg-gray-100 transition shadow-lg">Register Free Now</a>
+                        class="inline-block mt-8 bg-white text-primary font-bold px-8 py-3 rounded hover:bg-gray-100 transition shadow-lg">Register Now</a>
                 </div>
                 <div>
                     <img src="{{ asset('assets/images/aboutus-img2.jpg') }}" alt="Why Choose Us"

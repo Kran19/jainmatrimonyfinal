@@ -43,7 +43,7 @@
         <div class="flex items-center gap-4">
             <a href="{{ route('login') }}" class="text-sm font-semibold hover:text-rose-400 transition">Log In</a>
             <a href="{{ route('register') }}" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-5 rounded-full text-sm shadow-lg shadow-rose-600/30 transition">
-                Register Free
+                Register
             </a>
         </div>
     </header>

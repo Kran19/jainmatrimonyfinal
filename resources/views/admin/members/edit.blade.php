@@ -187,8 +187,8 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-semibold text-gray-700 text-xs mb-1">Annual Salary / Income (वार्षिक आय) (₹)</label>
-                            <input type="text" name="monthly_income" value="{{ old('monthly_income', $member->monthly_income) }}" placeholder="e.g. 800000 (Annual)"
+                            <label class="block font-semibold text-gray-700 text-xs mb-1">Salary / Income (वेतन / आय) (₹)</label>
+                            <input type="text" name="monthly_income" value="{{ old('monthly_income', $member->monthly_income) }}" placeholder="e.g. 75000"
                                    class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>

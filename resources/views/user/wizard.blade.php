@@ -450,9 +450,9 @@ if (!function_exists('renderCustomFieldHTML')) {
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Candidate Annual Salary / Income (वार्षिक आय) *</label>
-                                <input type="number" name="annual_income" value="{{ $user->monthly_income }}" min="0" step="1" required placeholder="Annual salary/income (e.g. 600000)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
-                                <p class="text-xs text-gray-500 mt-1">Please enter annual (yearly) salary amount</p>
+                                <label class="block text-gray-700 font-semibold mb-2">Candidate Salary / Income (वेतन / आय) *</label>
+                                <input type="number" name="annual_income" value="{{ $user->monthly_income }}" min="0" step="1" required placeholder="Salary/income (e.g. 50000)" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white text-sm focus:border-primary">
+                                <p class="text-xs text-gray-500 mt-1">Please enter salary / income amount</p>
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-2">Income Type (आय का प्रकार) *</label>

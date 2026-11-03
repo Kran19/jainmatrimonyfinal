@@ -82,7 +82,7 @@
 
                 <div class="mt-6 text-center text-sm">
                     New user?
-                    <a href="{{ route('register') }}" class="font-bold text-primary hover:underline">Register free here</a>
+                    <a href="{{ route('register') }}" class="font-bold text-primary hover:underline">Register here</a>
                 </div>
             </div>
         </div>
