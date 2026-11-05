@@ -410,7 +410,7 @@
                                 </p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($user->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($user->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Annual Income' }}</p>
                                 <p class="font-medium text-dark">{{ format_indian_currency($user->monthly_income) }}</p>
                             </div>
                             <div class="sm:col-span-2">

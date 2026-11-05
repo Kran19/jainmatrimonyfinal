@@ -331,7 +331,7 @@
                     </p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($member->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ ($member->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Annual Income' }}</p>
                     <p class="font-medium text-green-700">
                         {{ format_indian_currency($member->monthly_income) }}
                     </p>

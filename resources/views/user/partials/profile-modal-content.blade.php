@@ -40,7 +40,7 @@
             <div class="space-y-1 bg-slate-50 p-3 rounded-xl border border-gray-100">
                 <div><span class="text-gray-400 font-semibold">Education:</span> <span class="font-bold text-gray-800">{{ $profile->higher_education ?? 'N/A' }}</span></div>
                 <div><span class="text-gray-400 font-semibold">Occupation:</span> <span class="font-bold text-gray-800">{{ $profile->occupation ?? 'N/A' }}</span></div>
-                <div><span class="text-gray-400 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income:' : 'Annual Salary / Income:' }}</span> <span class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</span></div>
+                <div><span class="text-gray-400 font-semibold">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income:' : 'Annual Income:' }}</span> <span class="font-bold text-gray-800">{{ format_indian_currency($profile->monthly_income) }}</span></div>
             </div>
         </div>
 
@@ -146,7 +146,7 @@
           </div>
 
           <div style="margin-bottom:3px;">
-            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Salary / Income' : 'Annual Salary / Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
+            <strong style="color:#000; width:130px; display:inline-block;">{{ ($profile->income_type ?? 'Yearly') === 'Monthly' ? 'Monthly Income' : 'Annual Income' }}</strong> : &nbsp;{{ format_indian_currency($profile->monthly_income) }}
           </div>
 
           <div style="margin-bottom:3px;">

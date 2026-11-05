@@ -235,9 +235,9 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1.5">Salary / Income (वेतन / आय) (INR)</label>
+                                <label class="block font-semibold text-gray-700 mb-1.5">Income (आय) (INR)</label>
                                 <input type="number" name="monthly_income" value="{{ old('monthly_income', $user->monthly_income) }}" class="w-full border rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white text-dark font-medium" placeholder="e.g. 75000">
-                                <p class="text-xs text-gray-500 mt-1">Please enter your salary / income amount.</p>
+                                <p class="text-xs text-gray-500 mt-1">Please enter your income amount.</p>
                             </div>
                             <div>
                                 <label class="block font-semibold text-gray-700 mb-1.5">Income Type</label>
